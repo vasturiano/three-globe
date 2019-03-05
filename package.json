@@ -1,0 +1,59 @@
+{
+  "name": "three-globe",
+  "version": "0.1.0",
+  "description": "Globe data visualization as a ThreeJS reusable object",
+  "unpkg": "dist/three-globe.min.js",
+  "main": "dist/three-globe.common.js",
+  "module": "dist/three-globe.module.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vasturiano/three-globe.git"
+  },
+  "homepage": "https://github.com/vasturiano/three-globe",
+  "keywords": [
+    "3d",
+    "globe",
+    "webgl",
+    "visualization",
+    "three"
+  ],
+  "author": {
+    "name": "Vasco Asturiano",
+    "url": "http://bl.ocks.org/vasturiano"
+  },
+  "bugs": {
+    "url": "https://github.com/vasturiano/three-globe/issues"
+  },
+  "files": [
+    "src/**/*",
+    "dist/**/*",
+    "example/**/*"
+  ],
+  "scripts": {
+    "build": "rimraf dist && rollup -c",
+    "dev": "rollup -c -w",
+    "minify": "terser dist/three-globe.js -o dist/three-globe.min.js -c -m --comments '/Version/'",
+    "build-module": "rollup -c rollup.config.module.js",
+    "prepare": "npm run build && npm run minify && npm run build-module"
+  },
+  "dependencies": {
+    "accessor-fn": "^1.2.2",
+    "kapsule": "^1.9.2"
+  },
+  "peerDependencies": {
+    "three": "*"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.2.2",
+    "@babel/plugin-proposal-class-properties": "^7.3.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.3.1",
+    "@babel/preset-env": "^7.3.1",
+    "rimraf": "^2.6.3",
+    "rollup": "^1.1.2",
+    "rollup-plugin-babel": "^4.3.2",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^4.0.0",
+    "rollup-watch": "^4.3.1",
+    "terser": "^3.14.1"
+  }
+}
