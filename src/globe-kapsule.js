@@ -1,21 +1,18 @@
 import {
   AdditiveBlending,
   BackSide,
-  BoxGeometry,
   Color,
+  CylinderGeometry,
   FaceColors,
   Geometry,
   Group,
-  ImageUtils,
   Matrix4,
   Mesh,
   MeshBasicMaterial,
-  PerspectiveCamera,
-  Scene,
   ShaderMaterial,
   SphereGeometry,
-  UniformsUtils,
-  WebGLRenderer
+  TextureLoader,
+  UniformsUtils
 } from 'three';
 
 const THREE = window.THREE
@@ -23,21 +20,18 @@ const THREE = window.THREE
   : {
   AdditiveBlending,
   BackSide,
-  BoxGeometry,
   Color,
+  CylinderGeometry,
   FaceColors,
   Geometry,
   Group,
-  ImageUtils,
   Matrix4,
   Mesh,
   MeshBasicMaterial,
-  PerspectiveCamera,
-  Scene,
   ShaderMaterial,
   SphereGeometry,
-  UniformsUtils,
-  WebGLRenderer
+  TextureLoader,
+  UniformsUtils
 };
 
 import Kapsule from 'kapsule';
@@ -114,9 +108,9 @@ export default Kapsule({
     pointsData: { onChange(_, state) { state.pointsNeedsRepopulating = true }},
     pointLat: { default: 'lat', onChange(_, state) { state.pointsNeedsRepopulating = true } },
     pointLng: { default: 'lng', onChange(_, state) { state.pointsNeedsRepopulating = true } },
-    pointColor: { default: 'color', onChange(_, state) { state.pointsNeedsRepopulating = true } },
+    pointColor: { default: () => '#ffffaa', onChange(_, state) { state.pointsNeedsRepopulating = true } },
     pointHeight: { default: 0.1, onChange(_, state) { state.pointsNeedsRepopulating = true } }, // in units of globe radius
-    pointWidth: { default: 0.5, onChange(_, state) { state.pointsNeedsRepopulating = true } } // in deg
+    pointRadius: { default: 0.25, onChange(_, state) { state.pointsNeedsRepopulating = true } } // in deg
   },
 
   methods: {
@@ -124,7 +118,7 @@ export default Kapsule({
       if (state.globeObj && imageUrl) {
         const shader = Shaders.earth;
         const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-        uniforms['texture'].value = THREE.ImageUtils.loadTexture(imageUrl);
+        uniforms.texture.value = new THREE.TextureLoader().load(imageUrl);
 
         state.globeObj.material = new THREE.ShaderMaterial({
           uniforms: uniforms,
@@ -152,7 +146,7 @@ export default Kapsule({
 
     // add globe
     const globeGeometry = new THREE.SphereGeometry(GLOBE_RADIUS, 40, 30);
-    const globeObj = state.globeObj = new THREE.Mesh(globeGeometry);
+    const globeObj = state.globeObj = new THREE.Mesh(globeGeometry, new THREE.MeshBasicMaterial({ color: 0x000000 }));
     globeObj.rotation.y = Math.PI / 4;
     state.scene.add(globeObj);
     state.globeImageUrl && this._loadGlobeImage(state.globeImageUrl);
@@ -191,14 +185,14 @@ export default Kapsule({
       }
 
       // Add WebGL points
-      const pointGeometry = new THREE.BoxGeometry(1, 1, 1);
-      pointGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(0,0,-0.5));
+      const pointGeometry = new THREE.CylinderGeometry(1, 1, 1, 12);
+      pointGeometry.applyMatrix(new THREE.Matrix4().makeRotationX(Math.PI / 2));
+      pointGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, -0.5));
       const point = new THREE.Mesh(pointGeometry);
       const pxPerDeg = 2 * Math.PI * GLOBE_RADIUS / 360;
       const addPoint = (lat, lng, height, width, color, subgeo) => {
         var phi = (90 - lat) * Math.PI / 180;
         var theta = (180 - lng) * Math.PI / 180;
-
 
         point.position.x = GLOBE_RADIUS * Math.sin(phi) * Math.cos(theta);
         point.position.y = GLOBE_RADIUS * Math.cos(phi);
@@ -222,7 +216,7 @@ export default Kapsule({
       const latAccessor = accessorFn(state.pointLat);
       const lngAccessor = accessorFn(state.pointLng);
       const heightAccessor = accessorFn(state.pointHeight);
-      const widthAccessor = accessorFn(state.pointWidth);
+      const widthAccessor = accessorFn(state.pointRadius);
       const colorAccessor = accessorFn(state.pointColor);
 
       const pointsGeometry = new THREE.Geometry();
