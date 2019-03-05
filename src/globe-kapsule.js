@@ -147,7 +147,7 @@ export default Kapsule({
     // add globe
     const globeGeometry = new THREE.SphereGeometry(GLOBE_RADIUS, 40, 30);
     const globeObj = state.globeObj = new THREE.Mesh(globeGeometry, new THREE.MeshBasicMaterial({ color: 0x000000 }));
-    globeObj.rotation.y = Math.PI / 4;
+    globeObj.rotation.y = Math.PI / 4; // face Greenwich Meridian
     state.scene.add(globeObj);
     state.globeImageUrl && this._loadGlobeImage(state.globeImageUrl);
 
@@ -174,6 +174,8 @@ export default Kapsule({
   },
 
   update(state) {
+    const pxPerDeg = 2 * Math.PI * GLOBE_RADIUS / 360;
+
     if (state.pointsNeedsRepopulating) {
       state.pointsNeedRepopulating = false;
 
@@ -184,15 +186,23 @@ export default Kapsule({
         deallocate(obj);
       }
 
+      // Data accessors
+      const latAccessor = accessorFn(state.pointLat);
+      const lngAccessor = accessorFn(state.pointLng);
+      const heightAccessor = accessorFn(state.pointHeight);
+      const radiusAccessor = accessorFn(state.pointRadius);
+      const colorAccessor = accessorFn(state.pointColor);
+
       // Add WebGL points
       const pointGeometry = new THREE.CylinderGeometry(1, 1, 1, 12);
       pointGeometry.applyMatrix(new THREE.Matrix4().makeRotationX(Math.PI / 2));
       pointGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, -0.5));
       const point = new THREE.Mesh(pointGeometry);
-      const pxPerDeg = 2 * Math.PI * GLOBE_RADIUS / 360;
-      const addPoint = (lat, lng, height, width, color, subgeo) => {
-        var phi = (90 - lat) * Math.PI / 180;
-        var theta = (180 - lng) * Math.PI / 180;
+      const pointsGeometry = new THREE.Geometry();
+
+      state.pointsData.forEach(pnt => {
+        const phi = (90 - latAccessor(pnt)) * Math.PI / 180;
+        const theta = (180 - lngAccessor(pnt)) * Math.PI / 180;
 
         point.position.x = GLOBE_RADIUS * Math.sin(phi) * Math.cos(theta);
         point.position.y = GLOBE_RADIUS * Math.cos(phi);
@@ -200,29 +210,17 @@ export default Kapsule({
 
         point.lookAt(state.globeObj.position);
 
-        point.scale.x = point.scale.y = Math.min(30, width) * pxPerDeg;
-        point.scale.z = Math.max(height * GLOBE_RADIUS, 0.1); // avoid non-invertible matrix
+        point.scale.x = point.scale.y = Math.min(30, radiusAccessor(pnt)) * pxPerDeg;
+        point.scale.z = Math.max(heightAccessor(pnt) * GLOBE_RADIUS, 0.1); // avoid non-invertible matrix
         point.updateMatrix();
 
-        for (var i = 0; i < point.geometry.faces.length; i++) {
-          point.geometry.faces[i].color = new THREE.Color(color);
-        }
+        const color = new THREE.Color(colorAccessor(pnt));
+        point.geometry.faces.forEach(face => face.color = color);
+
         if (point.matrixAutoUpdate) {
           point.updateMatrix();
         }
-        subgeo.merge(point.geometry, point.matrix);
-      };
-
-      const latAccessor = accessorFn(state.pointLat);
-      const lngAccessor = accessorFn(state.pointLng);
-      const heightAccessor = accessorFn(state.pointHeight);
-      const widthAccessor = accessorFn(state.pointRadius);
-      const colorAccessor = accessorFn(state.pointColor);
-
-      const pointsGeometry = new THREE.Geometry();
-
-      state.pointsData.forEach(pnt => {
-        addPoint(latAccessor(pnt), lngAccessor(pnt), heightAccessor(pnt), widthAccessor(pnt), colorAccessor(pnt), pointsGeometry);
+        pointsGeometry.merge(point.geometry, point.matrix);
       });
 
       const points = new THREE.Mesh(pointsGeometry, new THREE.MeshBasicMaterial({
