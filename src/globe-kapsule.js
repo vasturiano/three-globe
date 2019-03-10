@@ -197,42 +197,35 @@ export default Kapsule({
       const pointGeometry = new THREE.CylinderGeometry(1, 1, 1, 12);
       pointGeometry.applyMatrix(new THREE.Matrix4().makeRotationX(Math.PI / 2));
       pointGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, -0.5));
-      const point = new THREE.Mesh(pointGeometry);
-      const pointsGeometry = new THREE.Geometry();
+      const pointMaterials = {}; // indexed by color
 
       state.pointsData.forEach(pnt => {
+        const color = colorAccessor(pnt);
+        if (!pointMaterials.hasOwnProperty(color)) {
+          pointMaterials[color] = new THREE.MeshBasicMaterial({
+            color: new THREE.Color(color)
+          });
+        }
+
+        const obj = new THREE.Mesh(pointGeometry, pointMaterials[color]);
+
         const phi = (90 - latAccessor(pnt)) * Math.PI / 180;
         const theta = (180 - lngAccessor(pnt)) * Math.PI / 180;
 
-        point.position.x = GLOBE_RADIUS * Math.sin(phi) * Math.cos(theta);
-        point.position.y = GLOBE_RADIUS * Math.cos(phi);
-        point.position.z = GLOBE_RADIUS * Math.sin(phi) * Math.sin(theta);
+        obj.position.x = GLOBE_RADIUS * Math.sin(phi) * Math.cos(theta);
+        obj.position.y = GLOBE_RADIUS * Math.cos(phi);
+        obj.position.z = GLOBE_RADIUS * Math.sin(phi) * Math.sin(theta);
 
-        point.lookAt(state.globeObj.position);
+        obj.lookAt(state.globeObj.position);
 
-        point.scale.x = point.scale.y = Math.min(30, radiusAccessor(pnt)) * pxPerDeg;
-        point.scale.z = Math.max(heightAccessor(pnt) * GLOBE_RADIUS, 0.1); // avoid non-invertible matrix
-        point.updateMatrix();
+        obj.scale.x = obj.scale.y = Math.min(30, radiusAccessor(pnt)) * pxPerDeg;
+        obj.scale.z = Math.max(heightAccessor(pnt) * GLOBE_RADIUS, 0.1); // avoid non-invertible matrix
 
-        const color = new THREE.Color(colorAccessor(pnt));
-        point.geometry.faces.forEach(face => face.color = color);
+        obj.__globeObjType = 'point'; // Add object type
+        obj.__data = pnt; // Attach point data
 
-        if (point.matrixAutoUpdate) {
-          point.updateMatrix();
-        }
-        pointsGeometry.merge(point.geometry, point.matrix);
+        state.pointsG.add(pnt.__threeObj = obj);
       });
-
-      const points = new THREE.Mesh(pointsGeometry, new THREE.MeshBasicMaterial({
-        color: 0xffffff,
-        vertexColors: THREE.FaceColors,
-        morphTargets: false
-      }));
-
-      obj.__globeObjType = 'point'; // Add object type
-      obj.__data = state.pointsData; // Attach obj data
-
-      state.pointsG.add(points);
     }
   }
 });
