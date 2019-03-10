@@ -105,7 +105,7 @@ export default Kapsule({
 
   props: {
     globeImageUrl: { onChange(url) { this._loadGlobeImage(url)}, triggerUpdate: false},
-    pointsData: { onChange(_, state) { state.pointsNeedsRepopulating = true }},
+    pointsData: { default: [], onChange(_, state) { state.pointsNeedsRepopulating = true }},
     pointLat: { default: 'lat', onChange(_, state) { state.pointsNeedsRepopulating = true } },
     pointLng: { default: 'lng', onChange(_, state) { state.pointsNeedsRepopulating = true } },
     pointColor: { default: () => '#ffffaa', onChange(_, state) { state.pointsNeedsRepopulating = true } },
@@ -228,6 +228,9 @@ export default Kapsule({
         vertexColors: THREE.FaceColors,
         morphTargets: false
       }));
+
+      obj.__globeObjType = 'point'; // Add object type
+      obj.__data = state.pointsData; // Attach obj data
 
       state.pointsG.add(points);
     }
