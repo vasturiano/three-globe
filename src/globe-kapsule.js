@@ -165,6 +165,7 @@ export default Kapsule({
     const globeGeometry = new THREE.SphereGeometry(GLOBE_RADIUS, 40, 30);
     const globeObj = state.globeObj = new THREE.Mesh(globeGeometry, new THREE.MeshBasicMaterial({ color: 0x000000 }));
     globeObj.rotation.y = Math.PI / 4; // face Greenwich Meridian
+    globeObj.__globeObjType = 'globe'; // Add object type
     state.scene.add(globeObj);
     state.globeImageUrl && this._loadGlobeImage(state.globeImageUrl);
 
@@ -183,6 +184,7 @@ export default Kapsule({
 
       const mesh = new THREE.Mesh(globeGeometry, material);
       mesh.scale.set(1.1, 1.1, 1.1);
+      mesh.__globeObjType = 'atmosphere'; // Add object type
       state.scene.add(mesh);
     }
 
