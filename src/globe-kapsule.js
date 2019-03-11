@@ -114,6 +114,16 @@ export default Kapsule({
   },
 
   methods: {
+    getCoords(state, lat, lng, relAltitude = 1) {
+      const phi = (90 - lat) * Math.PI / 180;
+      const theta = (180 - lng) * Math.PI / 180;
+      const r = GLOBE_RADIUS * relAltitude;
+      return {
+        x: r * Math.sin(phi) * Math.cos(theta),
+        y: r * Math.cos(phi),
+        z: r * Math.sin(phi) * Math.sin(theta)
+      };
+    },
     _loadGlobeImage: function(state, imageUrl) {
       if (state.globeObj && imageUrl) {
         const shader = Shaders.earth;
@@ -209,15 +219,13 @@ export default Kapsule({
 
         const obj = new THREE.Mesh(pointGeometry, pointMaterials[color]);
 
-        const phi = (90 - latAccessor(pnt)) * Math.PI / 180;
-        const theta = (180 - lngAccessor(pnt)) * Math.PI / 180;
+        // position cylinder ground
+        Object.assign(obj.position, this.getCoords(latAccessor(pnt), lngAccessor(pnt)));
 
-        obj.position.x = GLOBE_RADIUS * Math.sin(phi) * Math.cos(theta);
-        obj.position.y = GLOBE_RADIUS * Math.cos(phi);
-        obj.position.z = GLOBE_RADIUS * Math.sin(phi) * Math.sin(theta);
-
+        // orientate outwards
         obj.lookAt(state.globeObj.position);
 
+        // scale radius and altitude
         obj.scale.x = obj.scale.y = Math.min(30, radiusAccessor(pnt)) * pxPerDeg;
         obj.scale.z = Math.max(heightAccessor(pnt) * GLOBE_RADIUS, 0.1); // avoid non-invertible matrix
 
