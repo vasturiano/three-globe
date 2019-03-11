@@ -3,7 +3,7 @@
 [![NPM](https://nodei.co/npm/three-globe.png?compact=true)](https://nodei.co/npm/three-globe/)
 
 <p align="center">
-     <a href="//vasturiano.github.io/three-globe/example/basic/"><img width="80%" src="//vasturiano.github.io/three-globe/example/sshot.png"></a>
+     <a href="//vasturiano.github.io/three-globe/example/basic/"><img width="80%" src="https://vasturiano.github.io/three-globe/example/sshot.png"></a>
 </p>
 
 Largely inspired by the [WebGL Globe](https://experiments.withgoogle.com/chrome/globe), this is a [ThreeJS](https://threejs.org/) WebGL class to represent data visualization layers on a globe, using spherical projection.
