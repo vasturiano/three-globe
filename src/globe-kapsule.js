@@ -39,7 +39,7 @@ import accessorFn from 'accessor-fn';
 
 //
 
-const GLOBE_RADIUS = 200;
+const GLOBE_RADIUS = 100;
 
 const emptyObject = obj => {
   const materialDispose = material => {
