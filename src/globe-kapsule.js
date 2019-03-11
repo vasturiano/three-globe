@@ -122,7 +122,7 @@ export default Kapsule({
     pointResolution: { default: 12, onChange(_, state) { state.pointsNeedsRepopulating = true }}, // how many slice segments in the cylinder's circumference
     pointsMerge: { default: false, onChange(_, state) { state.pointsNeedsRepopulating = true }}, // boolean. Whether to merge all points into a single mesh for rendering performance
     customLayerData: { default: [], onChange(_, state) { state.customLayerNeedsRepopulating = true }},
-    customThreeObject: { default: [], onChange(_, state) { state.customLayerNeedsRepopulating = true }}
+    customThreeObject: { onChange(_, state) { state.customLayerNeedsRepopulating = true }}
   },
 
   methods: {
@@ -303,12 +303,12 @@ export default Kapsule({
             // clone object if it's a shared object among all points
             obj = obj.clone();
           }
+
+          obj.__globeObjType = 'custom'; // Add object type
+          obj.__data = d; // Attach point data
+
+          state.customLayerG.add(d.__threeObj = obj);
         }
-
-        obj.__globeObjType = 'custom'; // Add object type
-        obj.__data = d; // Attach point data
-
-        state.customLayerG.add(d.__threeObj = obj);
       });
     }
   }
