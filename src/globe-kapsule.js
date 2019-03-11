@@ -41,19 +41,27 @@ import accessorFn from 'accessor-fn';
 
 const GLOBE_RADIUS = 200;
 
-const materialDispose = material => {
-  if (material instanceof Array) {
-    material.forEach(materialDispose);
-  } else {
-    if (material.map) { material.map.dispose(); }
-    material.dispose();
+const emptyObject = obj => {
+  const materialDispose = material => {
+    if (material instanceof Array) {
+      material.forEach(materialDispose);
+    } else {
+      if (material.map) { material.map.dispose(); }
+      material.dispose();
+    }
+  };
+  const deallocate = obj => {
+    if (obj.geometry) { obj.geometry.dispose(); }
+    if (obj.material) { materialDispose(obj.material); }
+    if (obj.texture) { obj.texture.dispose(); }
+    if (obj.children) { obj.children.forEach(deallocate); }
+  };
+
+  while (obj.children.length) {
+    const childObj = state.pointsG.children[0];
+    state.pointsG.remove(childObj);
+    deallocate(childObj);
   }
-};
-const deallocate = obj => {
-  if (obj.geometry) { obj.geometry.dispose(); }
-  if (obj.material) { materialDispose(obj.material); }
-  if (obj.texture) { obj.texture.dispose(); }
-  if (obj.children) { obj.children.forEach(deallocate); }
 };
 
 const Shaders = {
@@ -110,7 +118,9 @@ export default Kapsule({
     pointLng: { default: 'lng', onChange(_, state) { state.pointsNeedsRepopulating = true } },
     pointColor: { default: () => '#ffffaa', onChange(_, state) { state.pointsNeedsRepopulating = true } },
     pointHeight: { default: 0.1, onChange(_, state) { state.pointsNeedsRepopulating = true } }, // in units of globe radius
-    pointRadius: { default: 0.25, onChange(_, state) { state.pointsNeedsRepopulating = true } } // in deg
+    pointRadius: { default: 0.25, onChange(_, state) { state.pointsNeedsRepopulating = true } }, // in deg
+    customLayerData: { default: [], onChange(_, state) { state.customLayerNeedsRepopulating = true }},
+    customThreeObject: { default: [], onChange(_, state) { state.customLayerNeedsRepopulating = true }}
   },
 
   methods: {
@@ -149,10 +159,7 @@ export default Kapsule({
     state.scene = threeObj;
 
     // Clear the scene
-    while (state.scene.children.length) {
-      const obj = state.scene.children[0];
-      state.scene.remove(obj);
-    }
+    emptyObject(state.scene);
 
     // add globe
     const globeGeometry = new THREE.SphereGeometry(GLOBE_RADIUS, 40, 30);
@@ -181,6 +188,9 @@ export default Kapsule({
 
     // add points group
     state.scene.add(state.pointsG = new THREE.Group());
+
+    // add custom layer group
+    state.scene.add(state.customLayerG = new THREE.Group());
   },
 
   update(state) {
@@ -190,11 +200,7 @@ export default Kapsule({
       state.pointsNeedRepopulating = false;
 
       // Clear the existing points
-      while (state.pointsG.children.length) {
-        const obj = state.pointsG.children[0];
-        state.pointsG.remove(obj);
-        deallocate(obj);
-      }
+      emptyObject(state.pointsG);
 
       // Data accessors
       const latAccessor = accessorFn(state.pointLat);
@@ -233,6 +239,31 @@ export default Kapsule({
         obj.__data = pnt; // Attach point data
 
         state.pointsG.add(pnt.__threeObj = obj);
+      });
+    }
+
+    if (state.customLayerNeedsRepopulating) {
+      state.pointsNeedRepopulating = false;
+
+      // Clear the existing objects
+      emptyObject(state.customLayerG);
+
+      const customObjectAccessor = accessorFn(state.customThreeObject);
+
+      state.customLayerData.forEach(d => {
+        let obj = customObjectAccessor(d, GLOBE_RADIUS);
+
+        if (obj) {
+          if (state.customThreeObject === obj) {
+            // clone object if it's a shared object among all points
+            obj = obj.clone();
+          }
+        }
+
+        obj.__globeObjType = 'custom'; // Add object type
+        obj.__data = d; // Attach point data
+
+        state.customLayerG.add(d.__threeObj = obj);
       });
     }
   }
