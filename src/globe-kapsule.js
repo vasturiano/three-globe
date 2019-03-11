@@ -9,10 +9,14 @@ import {
   Matrix4,
   Mesh,
   MeshBasicMaterial,
+  MeshLambertMaterial,
+  QuadraticBezierCurve3,
   ShaderMaterial,
   SphereGeometry,
   TextureLoader,
-  UniformsUtils
+  TubeGeometry,
+  UniformsUtils,
+  Vector3
 } from 'three';
 
 const THREE = window.THREE
@@ -28,14 +32,20 @@ const THREE = window.THREE
   Matrix4,
   Mesh,
   MeshBasicMaterial,
+  MeshLambertMaterial,
+  QuadraticBezierCurve3,
   ShaderMaterial,
   SphereGeometry,
   TextureLoader,
-  UniformsUtils
+  TubeGeometry,
+  UniformsUtils,
+  Vector3
 };
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
+
+import { colorStr2Hex, colorAlpha } from './color-utils';
 
 //
 
@@ -121,15 +131,26 @@ export default Kapsule({
     pointRadius: { default: 0.25, onChange(_, state) { state.pointsNeedsRepopulating = true }}, // in deg
     pointResolution: { default: 12, onChange(_, state) { state.pointsNeedsRepopulating = true }}, // how many slice segments in the cylinder's circumference
     pointsMerge: { default: false, onChange(_, state) { state.pointsNeedsRepopulating = true }}, // boolean. Whether to merge all points into a single mesh for rendering performance
+    linksData: { default: [], onChange(_, state) { state.linksNeedsRepopulating = true }},
+    linkStartLat: { default: 'startLat', onChange(_, state) { state.linksNeedsRepopulating = true }},
+    linkStartLng: { default: 'endLng', onChange(_, state) { state.linksNeedsRepopulating = true }},
+    linkEndLat: { default: 'endLat', onChange(_, state) { state.linksNeedsRepopulating = true }},
+    linkEndLng: { default: 'endLng', onChange(_, state) { state.linksNeedsRepopulating = true }},
+    linkColor: { default: () => '#ffffaa', onChange(_, state) { state.linksNeedsRepopulating = true }},
+    linkHeight: { default: 0.4, onChange(_, state) { state.linksNeedsRepopulating = true }}, // in units of globe radius
+    linkDiameter: { default: 0.2, onChange(_, state) { state.linksNeedsRepopulating = true }}, // in deg
+    linkCurveResolution: { default: 64, onChange(_, state) { state.linksNeedsRepopulating = true }}, // how many slice segments in the tube's circumference
+    linkCircularResolution: { default: 6, onChange(_, state) { state.linksNeedsRepopulating = true }}, // how many slice segments in the tube's circumference
+    linksMerge: { default: false, onChange(_, state) { state.linksNeedsRepopulating = true }}, // boolean. Whether to merge all links into a single mesh for rendering performance
     customLayerData: { default: [], onChange(_, state) { state.customLayerNeedsRepopulating = true }},
     customThreeObject: { onChange(_, state) { state.customLayerNeedsRepopulating = true }}
   },
 
   methods: {
-    getCoords(state, lat, lng, relAltitude = 1) {
+    getCoords(state, lat, lng, relAltitude = 0) {
       const phi = (90 - lat) * Math.PI / 180;
       const theta = (-45 - lng) * Math.PI / 180;
-      const r = GLOBE_RADIUS * relAltitude;
+      const r = GLOBE_RADIUS * (1 + relAltitude);
       return {
         x: r * Math.sin(phi) * Math.cos(theta),
         y: r * Math.cos(phi),
@@ -153,7 +174,9 @@ export default Kapsule({
   },
 
   stateInit: () => ({
-    pointsNeedsRepopulating: true
+    pointsNeedsRepopulating: true,
+    linksNeedsRepopulating: true,
+    customLayerNeedsRepopulating: true
   }),
 
   init(threeObj, state) {
@@ -192,6 +215,9 @@ export default Kapsule({
 
     // add points group
     state.scene.add(state.pointsG = new THREE.Group());
+
+    // add links group
+    state.scene.add(state.linksG = new THREE.Group());
 
     // add custom layer group
     state.scene.add(state.customLayerG = new THREE.Group());
@@ -271,24 +297,113 @@ export default Kapsule({
         pointObjs.forEach(obj => {
           const pnt = obj.__data;
           const color = colorAccessor(pnt);
+          const opacity = colorAlpha(color);
           if (!pointMaterials.hasOwnProperty(color)) {
-            pointMaterials[color] = new THREE.MeshBasicMaterial({
-              color: new THREE.Color(color)
+            pointMaterials[color] = new THREE.MeshLambertMaterial({
+              color: colorStr2Hex(color),
+              transparent: opacity < 1,
+              opacity: opacity
             });
           }
 
           obj.material = pointMaterials[color];
-
-          obj.__globeObjType = 'point'; // Add object type
-          obj.__data = pnt; // Attach point data
 
           state.pointsG.add(pnt.__threeObj = obj);
         });
       }
     }
 
+    if (state.linksNeedsRepopulating) {
+      state.linksNeedsRepopulating = false;
+
+      // Clear the existing links
+      emptyObject(state.linksG);
+
+      // Data accessors
+      const startLatAccessor = accessorFn(state.linkStartLat);
+      const startLngAccessor = accessorFn(state.linkStartLng);
+      const endLatAccessor = accessorFn(state.linkEndLat);
+      const endLngAccessor = accessorFn(state.linkEndLng);
+      const heightAccessor = accessorFn(state.linkHeight);
+      const diameterAccessor = accessorFn(state.linkDiameter);
+      const colorAccessor = accessorFn(state.linkColor);
+
+      const linkObjs = [];
+
+      state.linksData.forEach(link => {
+        const startPnt = [...[startLatAccessor, startLngAccessor].map(fn => fn(link)), 0];
+        const endPnt = [...[endLatAccessor, endLngAccessor].map(fn => fn(link)), 0];
+
+        const getMiddle = (a, b) => a + (b-a) / 2;
+        const middlePoint = [getMiddle(startPnt[0], endPnt[0]), getMiddle(startPnt[1], endPnt[1]), heightAccessor(link) * 2];
+
+        const curveVecs = [startPnt, middlePoint, endPnt].map(([lat, lng, alt]) => {
+          const coords = this.getCoords(lat, lng, alt);
+          return new THREE.Vector3(coords.x, coords.y, coords.z);
+        });
+
+        const path = new THREE.QuadraticBezierCurve3(...curveVecs);
+
+        const linkGeometry = new THREE.TubeGeometry(path, state.linkCurveResolution, diameterAccessor(link) / 2, state.linkCircularResolution);
+
+        const obj = new THREE.Mesh(linkGeometry);
+
+        obj.__globeObjType = 'link'; // Add object type
+        obj.__data = link; // Attach point data
+
+        linkObjs.push(obj);
+      });
+
+      if (state.linksMerge) { // merge links into a single mesh
+        const linksGeometry = new THREE.Geometry();
+
+        linkObjs.forEach(obj => {
+          const link = obj.__data;
+
+          const color = new THREE.Color(colorAccessor(link));
+          obj.geometry.faces.forEach(face => face.color = color);
+
+          obj.updateMatrix();
+
+          linksGeometry.merge(obj.geometry, obj.matrix);
+        });
+
+        const links = new THREE.Mesh(linksGeometry, new THREE.MeshBasicMaterial({
+          color: 0xffffff,
+          vertexColors: THREE.FaceColors,
+          morphTargets: false
+        }));
+
+        links.__globeObjType = 'links'; // Add object type
+        links.__data = state.linksData; // Attach obj data
+
+        state.linksG.add(links);
+
+      } else { // Add individual meshes per link
+
+        const linkMaterials = {}; // indexed by color
+
+        linkObjs.forEach(obj => {
+          const link = obj.__data;
+          const color = colorAccessor(link);
+          const opacity = colorAlpha(color);
+          if (!linkMaterials.hasOwnProperty(color)) {
+            linkMaterials[color] = new THREE.MeshLambertMaterial({
+              color: colorStr2Hex(color),
+              transparent: opacity < 1,
+              opacity: opacity
+            });
+          }
+
+          obj.material = linkMaterials[color];
+
+          state.linksG.add(link.__threeObj = obj);
+        });
+      }
+    }
+
     if (state.customLayerNeedsRepopulating) {
-      state.pointsNeedRepopulating = false;
+      state.customLayerNeedsRepopulating = false;
 
       // Clear the existing objects
       emptyObject(state.customLayerG);
