@@ -119,6 +119,7 @@ export default Kapsule({
     pointColor: { default: () => '#ffffaa', onChange(_, state) { state.pointsNeedsRepopulating = true } },
     pointHeight: { default: 0.1, onChange(_, state) { state.pointsNeedsRepopulating = true } }, // in units of globe radius
     pointRadius: { default: 0.25, onChange(_, state) { state.pointsNeedsRepopulating = true } }, // in deg
+    pointResolution: { default: 12, onChange(_, state) { state.pointsNeedsRepopulating = true } }, // how many slice segments in the cylinder's circumference
     customLayerData: { default: [], onChange(_, state) { state.customLayerNeedsRepopulating = true }},
     customThreeObject: { default: [], onChange(_, state) { state.customLayerNeedsRepopulating = true }}
   },
@@ -126,7 +127,7 @@ export default Kapsule({
   methods: {
     getCoords(state, lat, lng, relAltitude = 1) {
       const phi = (90 - lat) * Math.PI / 180;
-      const theta = (180 - lng) * Math.PI / 180;
+      const theta = (-45 - lng) * Math.PI / 180;
       const r = GLOBE_RADIUS * relAltitude;
       return {
         x: r * Math.sin(phi) * Math.cos(theta),
@@ -212,7 +213,7 @@ export default Kapsule({
       const colorAccessor = accessorFn(state.pointColor);
 
       // Add WebGL points
-      const pointGeometry = new THREE.CylinderGeometry(1, 1, 1, 12);
+      const pointGeometry = new THREE.CylinderGeometry(1, 1, 1, state.pointResolution);
       pointGeometry.applyMatrix(new THREE.Matrix4().makeRotationX(Math.PI / 2));
       pointGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, -0.5));
       const pointMaterials = {}; // indexed by color
