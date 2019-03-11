@@ -114,12 +114,13 @@ export default Kapsule({
   props: {
     globeImageUrl: { onChange(url) { this._loadGlobeImage(url)}, triggerUpdate: false},
     pointsData: { default: [], onChange(_, state) { state.pointsNeedsRepopulating = true }},
-    pointLat: { default: 'lat', onChange(_, state) { state.pointsNeedsRepopulating = true } },
-    pointLng: { default: 'lng', onChange(_, state) { state.pointsNeedsRepopulating = true } },
-    pointColor: { default: () => '#ffffaa', onChange(_, state) { state.pointsNeedsRepopulating = true } },
-    pointHeight: { default: 0.1, onChange(_, state) { state.pointsNeedsRepopulating = true } }, // in units of globe radius
-    pointRadius: { default: 0.25, onChange(_, state) { state.pointsNeedsRepopulating = true } }, // in deg
-    pointResolution: { default: 12, onChange(_, state) { state.pointsNeedsRepopulating = true } }, // how many slice segments in the cylinder's circumference
+    pointLat: { default: 'lat', onChange(_, state) { state.pointsNeedsRepopulating = true }},
+    pointLng: { default: 'lng', onChange(_, state) { state.pointsNeedsRepopulating = true }},
+    pointColor: { default: () => '#ffffaa', onChange(_, state) { state.pointsNeedsRepopulating = true }},
+    pointHeight: { default: 0.1, onChange(_, state) { state.pointsNeedsRepopulating = true }}, // in units of globe radius
+    pointRadius: { default: 0.25, onChange(_, state) { state.pointsNeedsRepopulating = true }}, // in deg
+    pointResolution: { default: 12, onChange(_, state) { state.pointsNeedsRepopulating = true }}, // how many slice segments in the cylinder's circumference
+    pointsMerge: { default: false, onChange(_, state) { state.pointsNeedsRepopulating = true }}, // boolean. Whether to merge all points into a single mesh for rendering performance
     customLayerData: { default: [], onChange(_, state) { state.customLayerNeedsRepopulating = true }},
     customThreeObject: { default: [], onChange(_, state) { state.customLayerNeedsRepopulating = true }}
   },
@@ -216,17 +217,11 @@ export default Kapsule({
       const pointGeometry = new THREE.CylinderGeometry(1, 1, 1, state.pointResolution);
       pointGeometry.applyMatrix(new THREE.Matrix4().makeRotationX(Math.PI / 2));
       pointGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, -0.5));
-      const pointMaterials = {}; // indexed by color
+
+      const pointObjs = [];
 
       state.pointsData.forEach(pnt => {
-        const color = colorAccessor(pnt);
-        if (!pointMaterials.hasOwnProperty(color)) {
-          pointMaterials[color] = new THREE.MeshBasicMaterial({
-            color: new THREE.Color(color)
-          });
-        }
-
-        const obj = new THREE.Mesh(pointGeometry, pointMaterials[color]);
+        const obj = new THREE.Mesh(pointGeometry);
 
         // position cylinder ground
         Object.assign(obj.position, this.getCoords(latAccessor(pnt), lngAccessor(pnt)));
@@ -241,8 +236,55 @@ export default Kapsule({
         obj.__globeObjType = 'point'; // Add object type
         obj.__data = pnt; // Attach point data
 
-        state.pointsG.add(pnt.__threeObj = obj);
+        pointObjs.push(obj);
       });
+
+      if (state.pointsMerge) { // merge points into a single mesh
+        const pointsGeometry = new THREE.Geometry();
+
+        pointObjs.forEach(obj => {
+          const pnt = obj.__data;
+
+          const color = new THREE.Color(colorAccessor(pnt));
+          obj.geometry.faces.forEach(face => face.color = color);
+
+          obj.updateMatrix();
+
+          pointsGeometry.merge(obj.geometry, obj.matrix);
+        });
+
+        const points = new THREE.Mesh(pointsGeometry, new THREE.MeshBasicMaterial({
+          color: 0xffffff,
+          vertexColors: THREE.FaceColors,
+          morphTargets: false
+        }));
+
+        points.__globeObjType = 'points'; // Add object type
+        points.__data = state.pointsData; // Attach obj data
+
+        state.pointsG.add(points);
+
+      } else { // Add individual meshes per point
+
+        const pointMaterials = {}; // indexed by color
+
+        pointObjs.forEach(obj => {
+          const pnt = obj.__data;
+          const color = colorAccessor(pnt);
+          if (!pointMaterials.hasOwnProperty(color)) {
+            pointMaterials[color] = new THREE.MeshBasicMaterial({
+              color: new THREE.Color(color)
+            });
+          }
+
+          obj.material = pointMaterials[color];
+
+          obj.__globeObjType = 'point'; // Add object type
+          obj.__data = pnt; // Attach point data
+
+          state.pointsG.add(pnt.__threeObj = obj);
+        });
+      }
     }
 
     if (state.customLayerNeedsRepopulating) {
