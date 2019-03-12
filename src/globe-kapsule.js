@@ -138,7 +138,7 @@ export default Kapsule({
     linkEndLng: { default: 'endLng', onChange(_, state) { state.linksNeedsRepopulating = true }},
     linkColor: { default: () => '#ffffaa', onChange(_, state) { state.linksNeedsRepopulating = true }},
     linkHeight: { default: 0.4, onChange(_, state) { state.linksNeedsRepopulating = true }}, // in units of globe radius
-    linkDiameter: { default: 0.2, onChange(_, state) { state.linksNeedsRepopulating = true }}, // in deg
+    linkStroke: { default: 0.2, onChange(_, state) { state.linksNeedsRepopulating = true }}, // in deg
     linkCurveResolution: { default: 64, onChange(_, state) { state.linksNeedsRepopulating = true }}, // how many slice segments in the tube's circumference
     linkCircularResolution: { default: 6, onChange(_, state) { state.linksNeedsRepopulating = true }}, // how many slice segments in the tube's circumference
     linksMerge: { default: false, onChange(_, state) { state.linksNeedsRepopulating = true }}, // boolean. Whether to merge all links into a single mesh for rendering performance
@@ -325,7 +325,7 @@ export default Kapsule({
       const endLatAccessor = accessorFn(state.linkEndLat);
       const endLngAccessor = accessorFn(state.linkEndLng);
       const heightAccessor = accessorFn(state.linkHeight);
-      const diameterAccessor = accessorFn(state.linkDiameter);
+      const diameterAccessor = accessorFn(state.linkStroke);
       const colorAccessor = accessorFn(state.linkColor);
 
       const linkObjs = [];
