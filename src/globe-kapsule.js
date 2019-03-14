@@ -1,11 +1,13 @@
 import {
   AdditiveBlending,
   BackSide,
+  BufferGeometry,
   Color,
   CylinderGeometry,
   FaceColors,
   Geometry,
   Group,
+  Line,
   Matrix4,
   Mesh,
   MeshBasicMaterial,
@@ -24,11 +26,13 @@ const THREE = window.THREE
   : {
   AdditiveBlending,
   BackSide,
+  BufferGeometry,
   Color,
   CylinderGeometry,
   FaceColors,
   Geometry,
   Group,
+  Line,
   Matrix4,
   Mesh,
   MeshBasicMaterial,
@@ -138,7 +142,7 @@ export default Kapsule({
     linkEndLng: { default: 'endLng', onChange(_, state) { state.linksNeedsRepopulating = true }},
     linkColor: { default: () => '#ffffaa', onChange(_, state) { state.linksNeedsRepopulating = true }},
     linkHeight: { default: 0.4, onChange(_, state) { state.linksNeedsRepopulating = true }}, // in units of globe radius
-    linkStroke: { default: 0.2, onChange(_, state) { state.linksNeedsRepopulating = true }}, // in deg
+    linkStroke: { default: null, onChange(_, state) { state.linksNeedsRepopulating = true }}, // in deg
     linkCurveResolution: { default: 64, onChange(_, state) { state.linksNeedsRepopulating = true }}, // how many slice segments in the tube's circumference
     linkCircularResolution: { default: 6, onChange(_, state) { state.linksNeedsRepopulating = true }}, // how many slice segments in the tube's circumference
     linksMerge: { default: false, onChange(_, state) { state.linksNeedsRepopulating = true }}, // boolean. Whether to merge all links into a single mesh for rendering performance
@@ -325,7 +329,7 @@ export default Kapsule({
       const endLatAccessor = accessorFn(state.linkEndLat);
       const endLngAccessor = accessorFn(state.linkEndLng);
       const heightAccessor = accessorFn(state.linkHeight);
-      const diameterAccessor = accessorFn(state.linkStroke);
+      const strokeAccessor = accessorFn(state.linkStroke);
       const colorAccessor = accessorFn(state.linkColor);
 
       const linkObjs = [];
@@ -342,11 +346,17 @@ export default Kapsule({
           return new THREE.Vector3(coords.x, coords.y, coords.z);
         });
 
-        const path = new THREE.QuadraticBezierCurve3(...curveVecs);
+        const curve = new THREE.QuadraticBezierCurve3(...curveVecs);
 
-        const linkGeometry = new THREE.TubeGeometry(path, state.linkCurveResolution, diameterAccessor(link) / 2, state.linkCircularResolution);
+        const stroke = strokeAccessor(link);
 
-        const obj = new THREE.Mesh(linkGeometry);
+        const obj = stroke
+          ? new THREE.Mesh(
+            new THREE.TubeGeometry(curve, state.linkCurveResolution, stroke / 2, state.linkCircularResolution)
+          )
+          : new THREE.Line(
+            new THREE.BufferGeometry().setFromPoints(curve.getPoints(state.linkCurveResolution))
+          );
 
         obj.__globeObjType = 'link'; // Add object type
         obj.__data = link; // Attach point data
