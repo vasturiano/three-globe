@@ -48,6 +48,7 @@ const THREE = window.THREE
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
+import { geoDistance, geoInterpolate } from 'd3-geo';
 
 import { colorStr2Hex, colorAlpha } from './color-utils';
 
@@ -131,21 +132,22 @@ export default Kapsule({
     pointLat: { default: 'lat', onChange(_, state) { state.pointsNeedsRepopulating = true }},
     pointLng: { default: 'lng', onChange(_, state) { state.pointsNeedsRepopulating = true }},
     pointColor: { default: () => '#ffffaa', onChange(_, state) { state.pointsNeedsRepopulating = true }},
-    pointHeight: { default: 0.1, onChange(_, state) { state.pointsNeedsRepopulating = true }}, // in units of globe radius
+    pointAltitude: { default: 0.1, onChange(_, state) { state.pointsNeedsRepopulating = true }}, // in units of globe radius
     pointRadius: { default: 0.25, onChange(_, state) { state.pointsNeedsRepopulating = true }}, // in deg
     pointResolution: { default: 12, onChange(_, state) { state.pointsNeedsRepopulating = true }}, // how many slice segments in the cylinder's circumference
     pointsMerge: { default: false, onChange(_, state) { state.pointsNeedsRepopulating = true }}, // boolean. Whether to merge all points into a single mesh for rendering performance
-    linksData: { default: [], onChange(_, state) { state.linksNeedsRepopulating = true }},
-    linkStartLat: { default: 'startLat', onChange(_, state) { state.linksNeedsRepopulating = true }},
-    linkStartLng: { default: 'endLng', onChange(_, state) { state.linksNeedsRepopulating = true }},
-    linkEndLat: { default: 'endLat', onChange(_, state) { state.linksNeedsRepopulating = true }},
-    linkEndLng: { default: 'endLng', onChange(_, state) { state.linksNeedsRepopulating = true }},
-    linkColor: { default: () => '#ffffaa', onChange(_, state) { state.linksNeedsRepopulating = true }},
-    linkHeight: { default: 0.4, onChange(_, state) { state.linksNeedsRepopulating = true }}, // in units of globe radius
-    linkStroke: { default: null, onChange(_, state) { state.linksNeedsRepopulating = true }}, // in deg
-    linkCurveResolution: { default: 64, onChange(_, state) { state.linksNeedsRepopulating = true }}, // how many slice segments in the tube's circumference
-    linkCircularResolution: { default: 6, onChange(_, state) { state.linksNeedsRepopulating = true }}, // how many slice segments in the tube's circumference
-    linksMerge: { default: false, onChange(_, state) { state.linksNeedsRepopulating = true }}, // boolean. Whether to merge all links into a single mesh for rendering performance
+    arcsData: { default: [], onChange(_, state) { state.arcsNeedsRepopulating = true }},
+    arcStartLat: { default: 'startLat', onChange(_, state) { state.arcsNeedsRepopulating = true }},
+    arcStartLng: { default: 'endLng', onChange(_, state) { state.arcsNeedsRepopulating = true }},
+    arcEndLat: { default: 'endLat', onChange(_, state) { state.arcsNeedsRepopulating = true }},
+    arcEndLng: { default: 'endLng', onChange(_, state) { state.arcsNeedsRepopulating = true }},
+    arcColor: { default: () => '#ffffaa', onChange(_, state) { state.arcsNeedsRepopulating = true }},
+    arcAltitude: { onChange(_, state) { state.arcsNeedsRepopulating = true }}, // in units of globe radius
+    arcAltitudeAutoScale: { default: 0.5, onChange(_, state) { state.arcsNeedsRepopulating = true }}, // scale altitude proportional to great-arc distance between the two points
+    arcStroke: { onChange(_, state) { state.arcsNeedsRepopulating = true }}, // in deg
+    arcCurveResolution: { default: 64, onChange(_, state) { state.arcsNeedsRepopulating = true }}, // how many slice segments in the tube's circumference
+    arcCircularResolution: { default: 6, onChange(_, state) { state.arcsNeedsRepopulating = true }}, // how many slice segments in the tube's circumference
+    arcsMerge: { default: false, onChange(_, state) { state.arcsNeedsRepopulating = true }}, // boolean. Whether to merge all arcs into a single mesh for rendering performance
     customLayerData: { default: [], onChange(_, state) { state.customLayerNeedsRepopulating = true }},
     customThreeObject: { onChange(_, state) { state.customLayerNeedsRepopulating = true }}
   },
@@ -179,7 +181,7 @@ export default Kapsule({
 
   stateInit: () => ({
     pointsNeedsRepopulating: true,
-    linksNeedsRepopulating: true,
+    arcsNeedsRepopulating: true,
     customLayerNeedsRepopulating: true
   }),
 
@@ -220,8 +222,8 @@ export default Kapsule({
     // add points group
     state.scene.add(state.pointsG = new THREE.Group());
 
-    // add links group
-    state.scene.add(state.linksG = new THREE.Group());
+    // add arcs group
+    state.scene.add(state.arcsG = new THREE.Group());
 
     // add custom layer group
     state.scene.add(state.customLayerG = new THREE.Group());
@@ -239,7 +241,7 @@ export default Kapsule({
       // Data accessors
       const latAccessor = accessorFn(state.pointLat);
       const lngAccessor = accessorFn(state.pointLng);
-      const heightAccessor = accessorFn(state.pointHeight);
+      const altitudeAccessor = accessorFn(state.pointAltitude);
       const radiusAccessor = accessorFn(state.pointRadius);
       const colorAccessor = accessorFn(state.pointColor);
 
@@ -261,7 +263,7 @@ export default Kapsule({
 
         // scale radius and altitude
         obj.scale.x = obj.scale.y = Math.min(30, radiusAccessor(pnt)) * pxPerDeg;
-        obj.scale.z = Math.max(heightAccessor(pnt) * GLOBE_RADIUS, 0.1); // avoid non-invertible matrix
+        obj.scale.z = Math.max(altitudeAccessor(pnt) * GLOBE_RADIUS, 0.1); // avoid non-invertible matrix
 
         obj.__globeObjType = 'point'; // Add object type
         obj.__data = pnt; // Attach point data
@@ -317,97 +319,109 @@ export default Kapsule({
       }
     }
 
-    if (state.linksNeedsRepopulating) {
-      state.linksNeedsRepopulating = false;
+    if (state.arcsNeedsRepopulating) {
+      state.arcsNeedsRepopulating = false;
 
-      // Clear the existing links
-      emptyObject(state.linksG);
+      // Clear the existing arcs
+      emptyObject(state.arcsG);
 
       // Data accessors
-      const startLatAccessor = accessorFn(state.linkStartLat);
-      const startLngAccessor = accessorFn(state.linkStartLng);
-      const endLatAccessor = accessorFn(state.linkEndLat);
-      const endLngAccessor = accessorFn(state.linkEndLng);
-      const heightAccessor = accessorFn(state.linkHeight);
-      const strokeAccessor = accessorFn(state.linkStroke);
-      const colorAccessor = accessorFn(state.linkColor);
+      const startLatAccessor = accessorFn(state.arcStartLat);
+      const startLngAccessor = accessorFn(state.arcStartLng);
+      const endLatAccessor = accessorFn(state.arcEndLat);
+      const endLngAccessor = accessorFn(state.arcEndLng);
+      const altitudeAccessor = accessorFn(state.arcAltitude);
+      const altitudeAutoScaleAccessor = accessorFn(state.arcAltitudeAutoScale);
+      const strokeAccessor = accessorFn(state.arcStroke);
+      const colorAccessor = accessorFn(state.arcColor);
 
-      const linkObjs = [];
+      const arcObjs = [];
 
-      state.linksData.forEach(link => {
-        const startPnt = [...[startLatAccessor, startLngAccessor].map(fn => fn(link)), 0];
-        const endPnt = [...[endLatAccessor, endLngAccessor].map(fn => fn(link)), 0];
+      state.arcsData.forEach(arc => {
+        let curve;
+        {
+          const getVec = ([lng, lat, alt]) => {
+            const { x, y, z } = this.getCoords(lat, lng, alt);
+            return new THREE.Vector3(x, y, z);
+          };
 
-        const getMiddle = (a, b) => a + (b-a) / 2;
-        const middlePoint = [getMiddle(startPnt[0], endPnt[0]), getMiddle(startPnt[1], endPnt[1]), heightAccessor(link) * 2];
+          //calculate curve
+          const startPnt = [startLngAccessor, startLatAccessor].map(fn => fn(arc));
+          const endPnt = [endLngAccessor, endLatAccessor].map(fn => fn(arc));
 
-        const curveVecs = [startPnt, middlePoint, endPnt].map(([lat, lng, alt]) => {
-          const coords = this.getCoords(lat, lng, alt);
-          return new THREE.Vector3(coords.x, coords.y, coords.z);
-        });
+          let altitude = altitudeAccessor(arc);
+          (altitude === null || altitude === undefined) &&
+            // by default set altitude proportional to the great-arc distance
+            (altitude = geoDistance(startPnt, endPnt) / 2 * altitudeAutoScaleAccessor(arc));
 
-        const curve = new THREE.QuadraticBezierCurve3(...curveVecs);
+          const interpolate = geoInterpolate(startPnt, endPnt);
+          const [m1Pnt, m2Pnt] = [0.25, 0.75].map(t => [...interpolate(t), altitude * 1.5]);
+          curve = new THREE.CubicBezierCurve3(...[startPnt, m1Pnt, m2Pnt, endPnt].map(getVec));
 
-        const stroke = strokeAccessor(link);
+          //const mPnt = [...interpolate(0.5), altitude * 2];
+          //curve = new THREE.QuadraticBezierCurve3(...[startPnt, mPnt, endPnt].map(getVec));
+        }
 
-        const obj = stroke
-          ? new THREE.Mesh(
-            new THREE.TubeGeometry(curve, state.linkCurveResolution, stroke / 2, state.linkCircularResolution)
+        const stroke = strokeAccessor(arc);
+
+        const obj = (stroke === null || stroke === undefined)
+          ? new THREE.Line(
+            new THREE.BufferGeometry().setFromPoints(curve.getPoints(state.arcCurveResolution))
           )
-          : new THREE.Line(
-            new THREE.BufferGeometry().setFromPoints(curve.getPoints(state.linkCurveResolution))
+          : new THREE.Mesh(
+            new THREE.TubeGeometry(curve, state.arcCurveResolution, stroke / 2, state.arcCircularResolution)
           );
 
-        obj.__globeObjType = 'link'; // Add object type
-        obj.__data = link; // Attach point data
+        obj.__globeObjType = 'arc'; // Add object type
+        obj.__data = arc; // Attach point data
 
-        linkObjs.push(obj);
+        arcObjs.push(obj);
       });
 
-      if (state.linksMerge) { // merge links into a single mesh
-        const linksGeometry = new THREE.Geometry();
+      if (state.arcsMerge) { // merge arcs into a single mesh
+        const arcsGeometry = new THREE.Geometry();
 
-        linkObjs.forEach(obj => {
-          const link = obj.__data;
+        arcObjs.forEach(obj => {
+          const arc = obj.__data;
 
-          const color = new THREE.Color(colorAccessor(link));
+          const color = new THREE.Color(colorAccessor(arc));
           obj.geometry.faces.forEach(face => face.color = color);
 
           obj.updateMatrix();
 
-          linksGeometry.merge(obj.geometry, obj.matrix);
+          arcsGeometry.merge(obj.geometry, obj.matrix);
         });
 
-        const links = new THREE.Mesh(linksGeometry, new THREE.MeshBasicMaterial({
+        const arcs = new THREE.Mesh(arcsGeometry, new THREE.MeshBasicMaterial({
           color: 0xffffff,
           vertexColors: THREE.FaceColors,
           morphTargets: false
         }));
 
-        links.__globeObjType = 'links'; // Add object type
-        links.__data = state.linksData; // Attach obj data
+        arcs.__globeObjType = 'arcs'; // Add object type
+        arcs.__data = state.arcsData; // Attach obj data
 
-        state.linksG.add(links);
+        state.arcsG.add(arcs);
 
-      } else { // Add individual meshes per link
+      } else { // Add individual meshes per arc
 
-        const linkMaterials = {}; // indexed by color
+        const arcMaterials = {}; // indexed by color
 
-        linkObjs.forEach(obj => {
-          const link = obj.__data;
-          const color = colorAccessor(link);
+        arcObjs.forEach(obj => {
+          const arc = obj.__data;
+          const color = colorAccessor(arc);
           const opacity = colorAlpha(color);
-          if (!linkMaterials.hasOwnProperty(color)) {
-            linkMaterials[color] = new THREE.MeshLambertMaterial({
+          if (!arcMaterials.hasOwnProperty(color)) {
+            arcMaterials[color] = new THREE.MeshLambertMaterial({
               color: colorStr2Hex(color),
               transparent: opacity < 1,
               opacity: opacity
             });
           }
 
-          obj.material = linkMaterials[color];
+          obj.material = arcMaterials[color];
 
-          state.linksG.add(link.__threeObj = obj);
+          state.arcsG.add(arc.__threeObj = obj);
         });
       }
     }

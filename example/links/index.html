@@ -14,20 +14,18 @@
     // Gen random data
     const N = 30;
 
-    const linksData = [...Array(N).keys()].map(() => ({
+    const arcsData = [...Array(N).keys()].map(() => ({
       startLat: (Math.random() - 0.5) * 180,
       startLng: (Math.random() - 0.5) * 360,
       endLat: (Math.random() - 0.5) * 180,
       endLng: (Math.random() - 0.5) * 360,
-      height: Math.random(),
       color: ['red', 'white', 'blue', 'green'][Math.round(Math.random() * 3)]
     }));
 
     const Globe = new ThreeGlobe()
       .globeImageUrl('//unpkg.com/three-globe/example/world.jpg')
-      .linksData(linksData)
-      .linkHeight('height')
-      .linkColor('color');
+      .arcsData(arcsData)
+      .arcColor('color');
 
     // Setup renderer
     const renderer = new THREE.WebGLRenderer();
@@ -47,6 +45,7 @@
 
     // Add camera controls
     const tbControls = new TrackballControls(camera, renderer.domElement);
+    tbControls.minDistance = 101;
 
     // Kick-off renderer
     (function animate() { // IIFE
