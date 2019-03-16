@@ -138,7 +138,7 @@ export default Kapsule({
     pointsMerge: { default: false, onChange(_, state) { state.pointsNeedsRepopulating = true }}, // boolean. Whether to merge all points into a single mesh for rendering performance
     arcsData: { default: [], onChange(_, state) { state.arcsNeedsRepopulating = true }},
     arcStartLat: { default: 'startLat', onChange(_, state) { state.arcsNeedsRepopulating = true }},
-    arcStartLng: { default: 'endLng', onChange(_, state) { state.arcsNeedsRepopulating = true }},
+    arcStartLng: { default: 'startLng', onChange(_, state) { state.arcsNeedsRepopulating = true }},
     arcEndLat: { default: 'endLat', onChange(_, state) { state.arcsNeedsRepopulating = true }},
     arcEndLng: { default: 'endLng', onChange(_, state) { state.arcsNeedsRepopulating = true }},
     arcColor: { default: () => '#ffffaa', onChange(_, state) { state.arcsNeedsRepopulating = true }},
