@@ -12,7 +12,7 @@
 
   <script>
     // Gen random data
-    const N = 30;
+    const N = 20;
 
     const arcsData = [...Array(N).keys()].map(() => ({
       startLat: (Math.random() - 0.5) * 180,
@@ -46,6 +46,8 @@
     // Add camera controls
     const tbControls = new TrackballControls(camera, renderer.domElement);
     tbControls.minDistance = 101;
+    tbControls.rotateSpeed = 5;
+    tbControls.zoomSpeed = 0.8;
 
     // Kick-off renderer
     (function animate() { // IIFE
