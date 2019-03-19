@@ -12,6 +12,7 @@ import {
   Mesh,
   MeshBasicMaterial,
   MeshLambertMaterial,
+  MeshPhongMaterial,
   QuadraticBezierCurve3,
   ShaderMaterial,
   SphereGeometry,
@@ -37,6 +38,7 @@ const THREE = window.THREE
   Mesh,
   MeshBasicMaterial,
   MeshLambertMaterial,
+  MeshPhongMaterial,
   QuadraticBezierCurve3,
   ShaderMaterial,
   SphereGeometry,
@@ -80,31 +82,6 @@ const emptyObject = obj => {
 };
 
 const Shaders = {
-  earth : {
-    uniforms: {
-      'texture': { type: 't', value: null }
-    },
-    vertexShader: [
-      'varying vec3 vNormal;',
-      'varying vec2 vUv;',
-      'void main() {',
-      'gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );',
-      'vNormal = normalize( normalMatrix * normal );',
-      'vUv = uv;',
-      '}'
-    ].join('\n'),
-    fragmentShader: [
-      'uniform sampler2D texture;',
-      'varying vec3 vNormal;',
-      'varying vec2 vUv;',
-      'void main() {',
-      'vec3 diffuse = texture2D( texture, vUv ).xyz;',
-      'float intensity = 1.05 - dot( vNormal, vec3( 0.0, 0.0, 1.0 ) );',
-      'vec3 atmosphere = vec3( 1.0, 1.0, 1.0 ) * pow( intensity, 3.0 );',
-      'gl_FragColor = vec4( diffuse + atmosphere, 1.0 );',
-      '}'
-    ].join('\n')
-  },
   atmosphere : {
     uniforms: {},
     vertexShader: [
@@ -181,7 +158,7 @@ export default Kapsule({
 
     // add globe
     const globeGeometry = new THREE.SphereGeometry(GLOBE_RADIUS, 40, 30);
-    const globeObj = state.globeObj = new THREE.Mesh(globeGeometry, new THREE.MeshBasicMaterial({ color: 0x000000 }));
+    const globeObj = state.globeObj = new THREE.Mesh(globeGeometry, new THREE.MeshPhongMaterial({ color: 0x000000 }));
     globeObj.rotation.y = Math.PI / 4; // face Greenwich Meridian
     globeObj.__globeObjType = 'globe'; // Add object type
     state.scene.add(globeObj);
@@ -221,19 +198,16 @@ export default Kapsule({
     if (state.globeNeedsUpdate) {
       state.globeNeedsUpdate = false;
 
+      const globeMaterial = state.globeObj.material;
+      globeMaterial.needsUpdate = true;
+
       if (!state.globeImageUrl) {
         // Black globe
-        state.globeObj.material = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        globeMaterial.color = new THREE.Color(0x000000);
+        globeMaterial.map = null;
       } else {
-        const shader = Shaders.earth;
-        const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-        uniforms.texture.value = new THREE.TextureLoader().load(state.globeImageUrl);
-
-        state.globeObj.material = new THREE.ShaderMaterial({
-          uniforms: uniforms,
-          vertexShader: shader.vertexShader,
-          fragmentShader: shader.fragmentShader
-        });
+        globeMaterial.color = null;
+        globeMaterial.map = new THREE.TextureLoader().load(state.globeImageUrl);
       }
     }
 
