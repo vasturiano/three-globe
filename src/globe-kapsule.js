@@ -127,7 +127,7 @@ const Shaders = {
 export default Kapsule({
 
   props: {
-    globeImageUrl: { onChange(url) { this._loadGlobeImage(url)}, triggerUpdate: false},
+    globeImageUrl: { onChange(_, state) { state.globeNeedsUpdate = true }},
     pointsData: { default: [], onChange(_, state) { state.pointsNeedsRepopulating = true }},
     pointLat: { default: 'lat', onChange(_, state) { state.pointsNeedsRepopulating = true }},
     pointLng: { default: 'lng', onChange(_, state) { state.pointsNeedsRepopulating = true }},
@@ -162,24 +162,11 @@ export default Kapsule({
         y: r * Math.cos(phi),
         z: r * Math.sin(phi) * Math.sin(theta)
       };
-    },
-    _loadGlobeImage: function(state, imageUrl) {
-      if (state.globeObj && imageUrl) {
-        const shader = Shaders.earth;
-        const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-        uniforms.texture.value = new THREE.TextureLoader().load(imageUrl);
-
-        state.globeObj.material = new THREE.ShaderMaterial({
-          uniforms: uniforms,
-          vertexShader: shader.vertexShader,
-          fragmentShader: shader.fragmentShader
-        });
-      }
-      return this;
     }
   },
 
   stateInit: () => ({
+    globeNeedsUpdate: true,
     pointsNeedsRepopulating: true,
     arcsNeedsRepopulating: true,
     customLayerNeedsRepopulating: true
@@ -198,7 +185,6 @@ export default Kapsule({
     globeObj.rotation.y = Math.PI / 4; // face Greenwich Meridian
     globeObj.__globeObjType = 'globe'; // Add object type
     state.scene.add(globeObj);
-    state.globeImageUrl && this._loadGlobeImage(state.globeImageUrl);
 
     // add atmosphere
     {
@@ -232,8 +218,27 @@ export default Kapsule({
   update(state) {
     const pxPerDeg = 2 * Math.PI * GLOBE_RADIUS / 360;
 
+    if (state.globeNeedsUpdate) {
+      state.globeNeedsUpdate = false;
+
+      if (!state.globeImageUrl) {
+        // Black globe
+        state.globeObj.material = new THREE.MeshBasicMaterial({ color: 0x000000 });
+      } else {
+        const shader = Shaders.earth;
+        const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
+        uniforms.texture.value = new THREE.TextureLoader().load(state.globeImageUrl);
+
+        state.globeObj.material = new THREE.ShaderMaterial({
+          uniforms: uniforms,
+          vertexShader: shader.vertexShader,
+          fragmentShader: shader.fragmentShader
+        });
+      }
+    }
+
     if (state.pointsNeedsRepopulating) {
-      state.pointsNeedRepopulating = false;
+      state.pointsNeedsRepopulating = false;
 
       // Clear the existing points
       emptyObject(state.pointsG);
