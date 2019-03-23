@@ -18,7 +18,6 @@ import {
   SphereGeometry,
   TextureLoader,
   TubeGeometry,
-  UniformsUtils,
   Vector3
 } from 'three';
 
@@ -44,7 +43,6 @@ const THREE = window.THREE
   SphereGeometry,
   TextureLoader,
   TubeGeometry,
-  UniformsUtils,
   Vector3
 };
 
@@ -53,58 +51,16 @@ import accessorFn from 'accessor-fn';
 import { geoDistance, geoInterpolate } from 'd3-geo';
 
 import { colorStr2Hex, colorAlpha } from './color-utils';
+import { emptyObject } from './gc';
 
 //
 
 const GLOBE_RADIUS = 100;
 
-const emptyObject = obj => {
-  const materialDispose = material => {
-    if (material instanceof Array) {
-      material.forEach(materialDispose);
-    } else {
-      if (material.map) { material.map.dispose(); }
-      material.dispose();
-    }
-  };
-  const deallocate = obj => {
-    if (obj.geometry) { obj.geometry.dispose(); }
-    if (obj.material) { materialDispose(obj.material); }
-    if (obj.texture) { obj.texture.dispose(); }
-    if (obj.children) { obj.children.forEach(deallocate); }
-  };
-
-  while (obj.children.length) {
-    const childObj = state.pointsG.children[0];
-    state.pointsG.remove(childObj);
-    deallocate(childObj);
-  }
-};
-
-const Shaders = {
-  atmosphere : {
-    uniforms: {},
-    vertexShader: [
-      'varying vec3 vNormal;',
-      'void main() {',
-      'vNormal = normalize( normalMatrix * normal );',
-      'gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );',
-      '}'
-    ].join('\n'),
-    fragmentShader: [
-      'varying vec3 vNormal;',
-      'void main() {',
-      'float intensity = pow( 0.8 - dot( vNormal, vec3( 0, 0, 1.0 ) ), 12.0 );',
-      'gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 ) * intensity;',
-      '}'
-    ].join('\n')
-  }
-};
-
 export default Kapsule({
-
   props: {
     globeImageUrl: { onChange(_, state) { state.globeNeedsUpdate = true }},
+    showAtmosphere: { default: true, onChange(_, state) { state.globeNeedsUpdate = true }},
     pointsData: { default: [], onChange(_, state) { state.pointsNeedsRepopulating = true }},
     pointLat: { default: 'lat', onChange(_, state) { state.pointsNeedsRepopulating = true }},
     pointLng: { default: 'lng', onChange(_, state) { state.pointsNeedsRepopulating = true }},
@@ -165,21 +121,34 @@ export default Kapsule({
 
     // add atmosphere
     {
-      const shader = Shaders['atmosphere'];
-      const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
+      const shaders = {
+        vertex: [
+          'varying vec3 vNormal;',
+          'void main() {',
+          'vNormal = normalize( normalMatrix * normal );',
+          'gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );',
+          '}'
+        ].join('\n'),
+        fragment: [
+          'varying vec3 vNormal;',
+          'void main() {',
+          'float intensity = pow( 0.8 - dot( vNormal, vec3( 0, 0, 1.0 ) ), 12.0 );',
+          'gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 ) * intensity;',
+          '}'
+        ].join('\n')
+      };
       const material = new THREE.ShaderMaterial({
-        uniforms: uniforms,
-        vertexShader: shader.vertexShader,
-        fragmentShader: shader.fragmentShader,
+        uniforms: {},
+        vertexShader: shaders.vertex,
+        fragmentShader: shaders.fragment,
         side: THREE.BackSide,
         blending: THREE.AdditiveBlending,
         transparent: true
       });
 
-      const mesh = new THREE.Mesh(globeGeometry, material);
-      mesh.scale.set(1.1, 1.1, 1.1);
-      mesh.__globeObjType = 'atmosphere'; // Add object type
-      state.scene.add(mesh);
+      const atmObj = state.atmosphereObj = new THREE.Mesh(globeGeometry, material);
+      atmObj.__globeObjType = 'atmosphere'; // Add object type
+      state.scene.add(atmObj);
     }
 
     // add points group
@@ -209,6 +178,10 @@ export default Kapsule({
         globeMaterial.color = null;
         globeMaterial.map = new THREE.TextureLoader().load(state.globeImageUrl);
       }
+
+      // show/hide (by scaling) atmosphere
+      const atmScale = state.showAtmosphere ? 1.1 : 1e-6;
+      state.atmosphereObj.scale.set(atmScale, atmScale, atmScale);
     }
 
     if (state.pointsNeedsRepopulating) {
