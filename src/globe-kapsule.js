@@ -105,7 +105,7 @@ export default Kapsule({
 
   stateInit: () => {
     // create globe
-    const globeGeometry = new THREE.SphereGeometry(GLOBE_RADIUS, 40, 30);
+    const globeGeometry = new THREE.SphereGeometry(GLOBE_RADIUS, 75, 75);
     const globeObj = new THREE.Mesh(globeGeometry, new THREE.MeshPhongMaterial({ color: 0x000000 }));
     globeObj.rotation.y = -Math.PI / 2; // face prime meridian along Z axis
     globeObj.__globeObjType = 'globe'; // Add object type
