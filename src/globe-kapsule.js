@@ -63,6 +63,7 @@ const GLOBE_RADIUS = 100;
 export default Kapsule({
   props: {
     globeImageUrl: { onChange(_, state) { state.globeNeedsUpdate = true }},
+    bumpImageUrl: { onChange(_, state) { state.globeNeedsUpdate = true }},
     showAtmosphere: { default: true, onChange(showAtmosphere, state) { state.atmosphereObj.visible = !!showAtmosphere }, triggerUpdate: false },
     showGraticules: { default: false, onChange(showGraticules, state) { state.graticulesObj.visible = !!showGraticules }, triggerUpdate: false},
     pointsData: { default: [], onChange(_, state) { state.pointsNeedsRepopulating = true }},
@@ -193,14 +194,11 @@ export default Kapsule({
       const globeMaterial = state.globeObj.material;
       globeMaterial.needsUpdate = true;
 
-      if (!state.globeImageUrl) {
-        // Black globe
-        globeMaterial.color = new THREE.Color(0x000000);
-        globeMaterial.map = null;
-      } else {
-        globeMaterial.color = null;
-        globeMaterial.map = new THREE.TextureLoader().load(state.globeImageUrl);
-      }
+      // Black globe if no image
+      globeMaterial.color = !state.globeImageUrl ? new THREE.Color(0x000000) : null;
+
+      globeMaterial.map = state.globeImageUrl ? new THREE.TextureLoader().load(state.globeImageUrl) : null;
+      globeMaterial.bumpMap = state.bumpImageUrl ? new THREE.TextureLoader().load(state.bumpImageUrl) : null;
     }
 
     if (state.pointsNeedsRepopulating) {
