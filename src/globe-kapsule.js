@@ -52,7 +52,7 @@ import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
 import { geoDistance, geoInterpolate, geoGraticule10 } from 'd3-geo';
 
-import drawThreeGeo from './third-party/ThreeGeoJSON';
+import drawThreeGeo from './third-party/ThreeGeoJSON/threeGeoJSON';
 import { colorStr2Hex, colorAlpha } from './color-utils';
 import { emptyObject } from './gc';
 
