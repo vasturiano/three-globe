@@ -21,7 +21,9 @@
     }));
 
     const Globe = new ThreeGlobe()
-      .globeImageUrl('//unpkg.com/three-globe/example/world.jpg')
+      //.globeImageUrl('//unpkg.com/three-globe/example/world.jpg')
+      .globeImageUrl('//unpkg.com/three-globe/example/blue-marble.jpg')
+      .bumpImageUrl('//unpkg.com/three-globe/example/earth-elevation.png')
       .pointsData(gData)
       .pointAltitude('size')
       .pointColor('color');
@@ -35,6 +37,7 @@
     const scene = new THREE.Scene();
     scene.add(Globe);
     scene.add(new THREE.AmbientLight(0xbbbbbb));
+    scene.add(new THREE.DirectionalLight(0xffffff, 0.6));
 
     // Setup camera
     const camera = new THREE.PerspectiveCamera();
