@@ -29,7 +29,7 @@ import { geoGraticule10 } from 'd3-geo';
 
 import drawThreeGeo from '../third-party/ThreeGeoJSON/threeGeoJSON';
 import { emptyObject } from '../gc';
-import { GLOBE_RADIUS} from '../constants';
+import { GLOBE_RADIUS } from '../constants';
 
 //
 
@@ -99,8 +99,7 @@ export default Kapsule({
     return {
       globeObj,
       atmosphereObj,
-      graticulesObj,
-      globeNeedsUpdate: true,
+      graticulesObj
     }
   },
 
@@ -117,17 +116,13 @@ export default Kapsule({
   },
 
   update(state) {
-    if (state.globeNeedsUpdate) {
-      state.globeNeedsUpdate = false;
+    const globeMaterial = state.globeObj.material;
+    globeMaterial.needsUpdate = true;
 
-      const globeMaterial = state.globeObj.material;
-      globeMaterial.needsUpdate = true;
+    // Black globe if no image
+    globeMaterial.color = !state.globeImageUrl ? new THREE.Color(0x000000) : null;
 
-      // Black globe if no image
-      globeMaterial.color = !state.globeImageUrl ? new THREE.Color(0x000000) : null;
-
-      globeMaterial.map = state.globeImageUrl ? new THREE.TextureLoader().load(state.globeImageUrl) : null;
-      globeMaterial.bumpMap = state.bumpImageUrl ? new THREE.TextureLoader().load(state.bumpImageUrl) : null;
-    }
+    globeMaterial.map = state.globeImageUrl ? new THREE.TextureLoader().load(state.globeImageUrl) : null;
+    globeMaterial.bumpMap = state.bumpImageUrl ? new THREE.TextureLoader().load(state.bumpImageUrl) : null;
   }
 });
