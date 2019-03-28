@@ -54,53 +54,29 @@ export default Kapsule({
   },
 
   update(state) {
-    const pxPerDeg = 2 * Math.PI * GLOBE_RADIUS / 360;
+    const { enter, update, exit } = dataBindDiff(state.scene.children, state.pointsData, { objType: 'point' });
 
-    // console.log(dataBindDiff(state.scene.children, state.pointsData, { objType: 'point' }));
-
-    // Clear the existing points
-    emptyObject(state.scene);
-
-    // Data accessors
-    const latAccessor = accessorFn(state.pointLat);
-    const lngAccessor = accessorFn(state.pointLng);
-    const altitudeAccessor = accessorFn(state.pointAltitude);
-    const radiusAccessor = accessorFn(state.pointRadius);
-    const colorAccessor = accessorFn(state.pointColor);
-
-    // Add WebGL points
-    const pointGeometry = new THREE.CylinderGeometry(1, 1, 1, state.pointResolution);
-    pointGeometry.applyMatrix(new THREE.Matrix4().makeRotationX(Math.PI / 2));
-    pointGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, -0.5));
-
-    const pointObjs = [];
-
-    state.pointsData.forEach(pnt => {
-      const obj = new THREE.Mesh(pointGeometry);
-
-      // position cylinder ground
-      Object.assign(obj.position, polar2Cartesian(latAccessor(pnt), lngAccessor(pnt)));
-
-      // orientate outwards
-      obj.lookAt(0, 0, 0);
-
-      // scale radius and altitude
-      obj.scale.x = obj.scale.y = Math.min(30, radiusAccessor(pnt)) * pxPerDeg;
-      obj.scale.z = Math.max(altitudeAccessor(pnt) * GLOBE_RADIUS, 0.1); // avoid non-invertible matrix
-
-      obj.__globeObjType = 'point'; // Add object type
-      obj.__data = pnt; // Attach point data
-
-      pointObjs.push(obj);
+    // Remove exiting points
+    exit.forEach(d => {
+      const obj = d.__threeObj;
+      emptyObject(obj);
+      state.scene.remove(obj);
     });
+
+    createPointObjs(enter);
+    const pointsData = [...enter, ...update];
+    updatePointObjs(pointsData);
 
     if (state.pointsMerge) { // merge points into a single mesh
       const pointsGeometry = new THREE.Geometry();
+      const colorAccessor = accessorFn(state.pointColor);
 
-      pointObjs.forEach(obj => {
-        const pnt = obj.__data;
+      pointsData.forEach(d => {
+        const obj = d.__threeObj;
+        d.__threeObj = undefined; // unbind merged points
 
-        const color = new THREE.Color(colorAccessor(pnt));
+        // color faces
+        const color = new THREE.Color(colorAccessor(d));
         obj.geometry.faces.forEach(face => face.color = color);
 
         obj.updateMatrix();
@@ -119,26 +95,73 @@ export default Kapsule({
 
       state.scene.add(points);
 
-    } else { // Add individual meshes per point
+    }
 
-      const pointMaterials = {}; // indexed by color
+    //
 
-      pointObjs.forEach(obj => {
-        const pnt = obj.__data;
-        const color = colorAccessor(pnt);
-        const opacity = colorAlpha(color);
-        if (!pointMaterials.hasOwnProperty(color)) {
-          pointMaterials[color] = new THREE.MeshLambertMaterial({
-            color: colorStr2Hex(color),
-            transparent: opacity < 1,
-            opacity: opacity
-          });
+    function createPointObjs(data) {
+      // shared geometry
+      const pointGeometry = new THREE.CylinderGeometry(1, 1, 1, state.pointResolution);
+      pointGeometry.applyMatrix(new THREE.Matrix4().makeRotationX(Math.PI / 2));
+      pointGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, -0.5));
+
+      data.forEach(d => {
+        const obj = new THREE.Mesh(pointGeometry);
+
+        obj.__globeObjType = 'point'; // Add object type
+        d.__threeObj = obj;
+
+        if (!state.pointsMerge) {
+          state.scene.add(obj); // Add to scene
         }
-
-        obj.material = pointMaterials[color];
-
-        state.scene.add(pnt.__threeObj = obj);
       });
+    }
+
+    function updatePointObjs(data) {
+      // Data accessors
+      const latAccessor = accessorFn(state.pointLat);
+      const lngAccessor = accessorFn(state.pointLng);
+      const altitudeAccessor = accessorFn(state.pointAltitude);
+      const radiusAccessor = accessorFn(state.pointRadius);
+      const colorAccessor = accessorFn(state.pointColor);
+
+      const pxPerDeg = 2 * Math.PI * GLOBE_RADIUS / 360;
+
+      data.forEach(d => {
+        const obj = d.__threeObj;
+        obj.__data = d; // Attach point data
+
+        // position cylinder ground
+        Object.assign(obj.position, polar2Cartesian(latAccessor(d), lngAccessor(d)));
+
+        // orientate outwards
+        obj.lookAt(0, 0, 0);
+
+        // scale radius and altitude
+        obj.scale.x = obj.scale.y = Math.min(30, radiusAccessor(d)) * pxPerDeg;
+        obj.scale.z = Math.max(altitudeAccessor(d) * GLOBE_RADIUS, 0.1); // avoid non-invertible matrix
+      });
+
+      if (!state.pointsMerge) {
+        // Update materials on individual points
+        const pointMaterials = {}; // indexed by color
+
+        data.forEach(d => {
+          const obj = d.__threeObj;
+
+          const color = colorAccessor(d);
+          const opacity = colorAlpha(color);
+          if (!pointMaterials.hasOwnProperty(color)) {
+            pointMaterials[color] = new THREE.MeshLambertMaterial({
+              color: colorStr2Hex(color),
+              transparent: opacity < 1,
+              opacity: opacity
+            });
+          }
+
+          obj.material = pointMaterials[color];
+        });
+      }
     }
   }
 });
