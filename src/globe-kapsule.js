@@ -171,7 +171,7 @@ export default Kapsule({
     }
   },
 
-  init(threeObj, state, { animateIn = false }) {
+  init(threeObj, state, { animateIn = true }) {
     // Clear the scene
     emptyObject(threeObj);
 
