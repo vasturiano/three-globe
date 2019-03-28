@@ -40,6 +40,7 @@
     "@tweenjs/tween.js": "^17.3.0",
     "accessor-fn": "^1.2.2",
     "d3-geo": "^1.11.3",
+    "index-array-by": "^1.2.3",
     "kapsule": "^1.10.0",
     "tinycolor2": "^1.4.1"
   },

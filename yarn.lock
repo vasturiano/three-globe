@@ -1261,6 +1261,11 @@ ignore-walk@^3.0.1:
   dependencies:
     minimatch "^3.0.4"
 
+index-array-by@^1.2.3:
+  version "1.2.3"
+  resolved "https://registry.npmjs.org/index-array-by/-/index-array-by-1.2.3.tgz#52a7025144f4184825c69f8e61ea9fa2a62501cc"
+  integrity sha512-HOo76wfh+2yQ5ifRL0zmUHCfGOVQ0v0Bh9E+Vs4OpIlwXgcsTLgCALGB+L0AVemjSUhYBxCTNukxSj4oXwhIzQ==
+
 inflight@^1.0.4:
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/inflight/-/inflight-1.0.6.tgz#49bd6331d7d02d0c09bc910a1075ba8165b56df9"

@@ -27,6 +27,7 @@ import accessorFn from 'accessor-fn';
 
 import { colorStr2Hex, colorAlpha } from '../color-utils';
 import { emptyObject } from '../gc';
+import { dataBindDiff } from '../differ';
 import { polar2Cartesian } from '../coordTranslate';
 import { GLOBE_RADIUS } from '../constants';
 
@@ -54,6 +55,8 @@ export default Kapsule({
 
   update(state) {
     const pxPerDeg = 2 * Math.PI * GLOBE_RADIUS / 360;
+
+    // console.log(dataBindDiff(state.scene.children, state.pointsData, { objType: 'point' }));
 
     // Clear the existing points
     emptyObject(state.scene);
