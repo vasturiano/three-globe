@@ -3,8 +3,8 @@
 
   <script src="//unpkg.com/three"></script>
   <script src="//unpkg.com/three-trackballcontrols-web/dist/three-trackballcontrols.min.js"></script>
-  <!--<script src="//unpkg.com/three-globe"></script>-->
-  <script src="../../dist/three-globe.js"></script>
+  <script src="//unpkg.com/three-globe"></script>
+  <!--<script src="../../dist/three-globe.js"></script>-->
 </head>
 
 <body>
@@ -22,7 +22,7 @@
 
     const Globe = new ThreeGlobe({ animateIn: true })
       .globeImageUrl('//unpkg.com/three-globe/example/world.jpg')
-//      .globeImageUrl('//unpkg.com/three-globe/example/blue-marble.jpg')
+      // .globeImageUrl('//unpkg.com/three-globe/example/blue-marble.jpg')
       .bumpImageUrl('//unpkg.com/three-globe/example/earth-elevation.png')
       .pointsData(gData)
       .pointAltitude('size')
