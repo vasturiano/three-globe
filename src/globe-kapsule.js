@@ -50,23 +50,32 @@ const THREE = window.THREE
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
-import { geoDistance, geoInterpolate, geoGraticule10 } from 'd3-geo';
+import { geoDistance, geoInterpolate } from 'd3-geo';
 import TWEEN from '@tweenjs/tween.js';
 
-import drawThreeGeo from './third-party/ThreeGeoJSON/threeGeoJSON';
 import { colorStr2Hex, colorAlpha } from './color-utils';
 import { emptyObject } from './gc';
+import linkKapsule from './kapsule-link.js';
+import { polar2Cartesian } from './coordTranslate';
+import { GLOBE_RADIUS} from './constants';
+
+import GlobeLayerKapsule from './layers/globe';
 
 //
 
-const GLOBE_RADIUS = 100;
+// Expose config from layers
+const bindGlobeLayer = linkKapsule('globeLayer', GlobeLayerKapsule);
+const linkedGlobeLayerProps = Object.assign(...[
+  'globeImageUrl',
+  'bumpImageUrl',
+  'showAtmosphere',
+  'showGraticules'
+].map(p => ({ [p]: bindGlobeLayer.linkProp(p)})));
+
+//
 
 export default Kapsule({
   props: {
-    globeImageUrl: { onChange(_, state) { state.globeNeedsUpdate = true }},
-    bumpImageUrl: { onChange(_, state) { state.globeNeedsUpdate = true }},
-    showAtmosphere: { default: true, onChange(showAtmosphere, state) { state.atmosphereObj.visible = !!showAtmosphere }, triggerUpdate: false },
-    showGraticules: { default: false, onChange(showGraticules, state) { state.graticulesObj.visible = !!showGraticules }, triggerUpdate: false},
     pointsData: { default: [], onChange(_, state) { state.pointsNeedsRepopulating = true }},
     pointLat: { default: 'lat', onChange(_, state) { state.pointsNeedsRepopulating = true }},
     pointLng: { default: 'lng', onChange(_, state) { state.pointsNeedsRepopulating = true }},
@@ -88,82 +97,17 @@ export default Kapsule({
     arcCircularResolution: { default: 6, onChange(_, state) { state.arcsNeedsRepopulating = true }}, // how many slice segments in the tube's circumference
     arcsMerge: { default: false, onChange(_, state) { state.arcsNeedsRepopulating = true }}, // boolean. Whether to merge all arcs into a single mesh for rendering performance
     customLayerData: { default: [], onChange(_, state) { state.customLayerNeedsRepopulating = true }},
-    customThreeObject: { onChange(_, state) { state.customLayerNeedsRepopulating = true }}
+    customThreeObject: { onChange(_, state) { state.customLayerNeedsRepopulating = true }},
+    ...linkedGlobeLayerProps
   },
 
   methods: {
-    getCoords(state, lat, lng, relAltitude = 0) {
-      const phi = (90 - lat) * Math.PI / 180;
-      const theta = (90 - lng) * Math.PI / 180;
-      const r = GLOBE_RADIUS * (1 + relAltitude);
-      return {
-        x: r * Math.sin(phi) * Math.cos(theta),
-        y: r * Math.cos(phi),
-        z: r * Math.sin(phi) * Math.sin(theta)
-      };
-    }
+    getCoords: (state, ...args) => polar2Cartesian(...args)
   },
 
   stateInit: () => {
-    // create globe
-    const globeGeometry = new THREE.SphereGeometry(GLOBE_RADIUS, 75, 75);
-    const globeObj = new THREE.Mesh(globeGeometry, new THREE.MeshPhongMaterial({ color: 0x000000 }));
-    globeObj.rotation.y = -Math.PI / 2; // face prime meridian along Z axis
-    globeObj.__globeObjType = 'globe'; // Add object type
-
-    // create atmosphere
-    let atmosphereObj;
-    {
-      const shaders = {
-        vertex: [
-          'varying vec3 vNormal;',
-          'void main() {',
-          'vNormal = normalize( normalMatrix * normal );',
-          'gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );',
-          '}'
-        ].join('\n'),
-        fragment: [
-          'varying vec3 vNormal;',
-          'void main() {',
-          'float intensity = pow( 0.8 - dot( vNormal, vec3( 0, 0, 1.0 ) ), 12.0 );',
-          'gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 ) * intensity;',
-          '}'
-        ].join('\n')
-      };
-      const material = new THREE.ShaderMaterial({
-        uniforms: {},
-        vertexShader: shaders.vertex,
-        fragmentShader: shaders.fragment,
-        side: THREE.BackSide,
-        blending: THREE.AdditiveBlending,
-        transparent: true
-      });
-
-      atmosphereObj = new THREE.Mesh(globeGeometry, material);
-      atmosphereObj.scale.set(1.1, 1.1, 1.1);
-      atmosphereObj.__globeObjType = 'atmosphere'; // Add object type
-    }
-
-    // create graticules
-    let graticulesObj;
-    {
-      // add graticules
-      graticulesObj = new THREE.Object3D();
-      drawThreeGeo(
-        { geometry: geoGraticule10(), type: 'Feature' },
-        GLOBE_RADIUS,
-        'sphere',
-        { color: 'lightgrey', transparent: true, opacity: 0.1 },
-        graticulesObj
-      );
-      graticulesObj.rotation.x = Math.PI / 2; // Align poles with Y axis
-    }
-
     return {
-      globeObj,
-      atmosphereObj,
-      graticulesObj,
-      globeNeedsUpdate: true,
+      globeLayer: GlobeLayerKapsule(),
       pointsNeedsRepopulating: true,
       arcsNeedsRepopulating: true,
       customLayerNeedsRepopulating: true,
@@ -178,9 +122,10 @@ export default Kapsule({
     // Main three object to manipulate
     threeObj.add(state.scene = new THREE.Group());
 
-    state.scene.add(state.globeObj); // add globe
-    state.scene.add(state.atmosphereObj); // add atmosphere
-    state.scene.add(state.graticulesObj); // add graticules
+    // add globe layer group
+    const globeObj = new THREE.Group();
+    state.scene.add(globeObj);
+    state.globeLayer(globeObj);
 
     state.scene.add(state.pointsG = new THREE.Group()); // add points group
     state.scene.add(state.arcsG = new THREE.Group()); // add arcs group
@@ -201,19 +146,6 @@ export default Kapsule({
 
   update(state) {
     const pxPerDeg = 2 * Math.PI * GLOBE_RADIUS / 360;
-
-    if (state.globeNeedsUpdate) {
-      state.globeNeedsUpdate = false;
-
-      const globeMaterial = state.globeObj.material;
-      globeMaterial.needsUpdate = true;
-
-      // Black globe if no image
-      globeMaterial.color = !state.globeImageUrl ? new THREE.Color(0x000000) : null;
-
-      globeMaterial.map = state.globeImageUrl ? new THREE.TextureLoader().load(state.globeImageUrl) : null;
-      globeMaterial.bumpMap = state.bumpImageUrl ? new THREE.TextureLoader().load(state.bumpImageUrl) : null;
-    }
 
     if (state.pointsNeedsRepopulating) {
       state.pointsNeedsRepopulating = false;
@@ -239,10 +171,10 @@ export default Kapsule({
         const obj = new THREE.Mesh(pointGeometry);
 
         // position cylinder ground
-        Object.assign(obj.position, this.getCoords(latAccessor(pnt), lngAccessor(pnt)));
+        Object.assign(obj.position, polar2Cartesian(latAccessor(pnt), lngAccessor(pnt)));
 
         // orientate outwards
-        obj.lookAt(state.globeObj.position);
+        obj.lookAt(0, 0, 0);
 
         // scale radius and altitude
         obj.scale.x = obj.scale.y = Math.min(30, radiusAccessor(pnt)) * pxPerDeg;
@@ -324,7 +256,7 @@ export default Kapsule({
         let curve;
         {
           const getVec = ([lng, lat, alt]) => {
-            const { x, y, z } = this.getCoords(lat, lng, alt);
+            const { x, y, z } = polar2Cartesian(lat, lng, alt);
             return new THREE.Vector3(x, y, z);
           };
 
