@@ -37,6 +37,7 @@
     "prepare": "npm run build && npm run minify && npm run build-module"
   },
   "dependencies": {
+    "@tweenjs/tween.js": "^17.3.0",
     "accessor-fn": "^1.2.2",
     "d3-geo": "^1.11.3",
     "kapsule": "^1.10.0",

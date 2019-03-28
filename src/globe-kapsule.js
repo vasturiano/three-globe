@@ -51,6 +51,7 @@ const THREE = window.THREE
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
 import { geoDistance, geoInterpolate, geoGraticule10 } from 'd3-geo';
+import TWEEN from '@tweenjs/tween.js';
 
 import drawThreeGeo from './third-party/ThreeGeoJSON/threeGeoJSON';
 import { colorStr2Hex, colorAlpha } from './color-utils';
@@ -165,16 +166,17 @@ export default Kapsule({
       globeNeedsUpdate: true,
       pointsNeedsRepopulating: true,
       arcsNeedsRepopulating: true,
-      customLayerNeedsRepopulating: true
+      customLayerNeedsRepopulating: true,
+      animateIn: false
     }
   },
 
-  init(threeObj, state) {
-    // Main three object to manipulate
-    state.scene = threeObj;
-
+  init(threeObj, state, { animateIn = false }) {
     // Clear the scene
-    emptyObject(state.scene);
+    emptyObject(threeObj);
+
+    // Main three object to manipulate
+    threeObj.add(state.scene = new THREE.Group());
 
     state.scene.add(state.globeObj); // add globe
     state.scene.add(state.atmosphereObj); // add atmosphere
@@ -183,6 +185,18 @@ export default Kapsule({
     state.scene.add(state.pointsG = new THREE.Group()); // add points group
     state.scene.add(state.arcsG = new THREE.Group()); // add arcs group
     state.scene.add(state.customLayerG = new THREE.Group()); // add custom layer group
+
+    // animate build in, one time only
+    state.animateIn = animateIn;
+    if (animateIn) {
+      state.scene.visible = false; // hide before animation
+    }
+
+    // run tween updates
+    (function onFrame() {
+      requestAnimationFrame(onFrame);
+      TWEEN.update();
+    })(); // IIFE
   },
 
   update(state) {
@@ -418,6 +432,25 @@ export default Kapsule({
           state.customLayerG.add(d.__threeObj = obj);
         }
       });
+    }
+
+    if (state.animateIn) {
+      // Animate build-in just once
+      state.animateIn = false;
+      state.scene.visible = true;
+
+      new TWEEN.Tween({ k: 1e-6 })
+        .to({ k: 1 }, 600)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .onUpdate(({ k }) => state.scene.scale.set(k, k, k))
+        .start();
+
+      const rotAxis = new THREE.Vector3(0, 1, 0);
+      new TWEEN.Tween({ rot: Math.PI * 2 })
+        .to({rot: 0}, 1200)
+        .easing(TWEEN.Easing.Quintic.Out)
+        .onUpdate(({ rot }) => state.scene.setRotationFromAxisAngle(rotAxis, rot))
+        .start();
     }
   }
 });

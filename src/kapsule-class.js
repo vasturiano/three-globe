@@ -3,7 +3,7 @@ export default function(kapsule, baseClass = Object, initKapsuleWithSelf = false
   class FromKapsule extends baseClass {
     constructor(...args) {
       super(...args);
-      this.__kapsuleInstance = kapsule()(...[...(initKapsuleWithSelf ? [this] : []), ...args]);
+      this.__kapsuleInstance = kapsule(...args)(...[...(initKapsuleWithSelf ? [this] : []), ...args]);
     }
   }
 
