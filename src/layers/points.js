@@ -96,7 +96,6 @@ export default Kapsule({
       points.__data = state.pointsData; // Attach obj data
 
       state.scene.add(points);
-
     }
 
     //

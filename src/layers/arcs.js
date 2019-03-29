@@ -30,6 +30,7 @@ const THREE = window.THREE
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
+import TWEEN from '@tweenjs/tween.js';
 import { geoDistance, geoInterpolate } from 'd3-geo';
 
 import { colorStr2Hex, colorAlpha } from '../color-utils';
@@ -47,14 +48,15 @@ export default Kapsule({
     arcEndLng: { default: 'endLng'},
     arcColor: { default: () => '#ffffaa'},
     arcAltitude: {}, // in units of globe radius
-    arcAltitudeAutoScale: { default: 0.5}, // scale altitude proportional to great-arc distance between the two points
+    arcAltitudeAutoScale: { default: 0.5 }, // scale altitude proportional to great-arc distance between the two points
     arcStroke: {}, // in deg
-    arcCurveResolution: { default: 64}, // how many slice segments in the tube's circumference
-    arcCircularResolution: { default: 6}, // how many slice segments in the tube's circumference
-    arcsMerge: { default: false} // boolean. Whether to merge all arcs into a single mesh for rendering performance
+    arcCurveResolution: { default: 64, triggerUpdate: false }, // how many slice segments in the tube's circumference
+    arcCircularResolution: { default: 6, triggerUpdate: false }, // how many slice segments in the tube's circumference
+    arcsMerge: { default: false}, // boolean. Whether to merge all arcs into a single mesh for rendering performance
+    arcsTransitionDuration: { default: 1000, triggerUpdate: false } // ms
   },
 
-  init(threeObj, state, { animateIn = true }) {
+  init(threeObj, state) {
     // Clear the scene
     emptyObject(threeObj);
 
@@ -79,39 +81,47 @@ export default Kapsule({
     const arcObjs = [];
 
     state.arcsData.forEach(arc => {
-      let curve;
-      {
-        const getVec = ([lng, lat, alt]) => {
-          const { x, y, z } = polar2Cartesian(lat, lng, alt);
-          return new THREE.Vector3(x, y, z);
-        };
-
-        //calculate curve
-        const startPnt = [startLngAccessor, startLatAccessor].map(fn => fn(arc));
-        const endPnt = [endLngAccessor, endLatAccessor].map(fn => fn(arc));
-
-        let altitude = altitudeAccessor(arc);
-        (altitude === null || altitude === undefined) &&
-          // by default set altitude proportional to the great-arc distance
-          (altitude = geoDistance(startPnt, endPnt) / 2 * altitudeAutoScaleAccessor(arc));
-
-        const interpolate = geoInterpolate(startPnt, endPnt);
-        const [m1Pnt, m2Pnt] = [0.25, 0.75].map(t => [...interpolate(t), altitude * 1.5]);
-        curve = new THREE.CubicBezierCurve3(...[startPnt, m1Pnt, m2Pnt, endPnt].map(getVec));
-
-        //const mPnt = [...interpolate(0.5), altitude * 2];
-        //curve = new THREE.QuadraticBezierCurve3(...[startPnt, mPnt, endPnt].map(getVec));
-      }
-
       const stroke = strokeAccessor(arc);
+      const useTube = stroke !== null && stroke !== undefined;
 
-      const obj = (stroke === null || stroke === undefined)
-        ? new THREE.Line(
-          new THREE.BufferGeometry().setFromPoints(curve.getPoints(state.arcCurveResolution))
-        )
-        : new THREE.Mesh(
-          new THREE.TubeGeometry(curve, state.arcCurveResolution, stroke / 2, state.arcCircularResolution)
-        );
+      const obj = useTube
+        ? new THREE.Mesh()
+        : new THREE.Line(new THREE.BufferGeometry());
+
+      const applyUpdate = ({ stroke, ...curveD }) => {
+        const curve = calcCurve(curveD);
+
+        if (useTube) {
+          obj.geometry = new THREE.TubeGeometry(curve, state.arcCurveResolution, stroke / 2, state.arcCircularResolution);
+        } else {
+          obj.geometry.setFromPoints(curve.getPoints(state.arcCurveResolution));
+        }
+      };
+
+      const targetD = {
+        stroke,
+        alt: altitudeAccessor(arc),
+        altAutoScale: altitudeAutoScaleAccessor(arc),
+        startLat: startLatAccessor(arc),
+        startLng: startLngAccessor(arc),
+        endLat: endLatAccessor(arc),
+        endLng: endLngAccessor(arc)
+      };
+
+      const currentTargetD = arc.__currentTargetD;
+      arc.__currentTargetD = targetD;
+
+      if (state.arcsMerge || !state.arcsTransitionDuration || state.arcsTransitionDuration < 0) {
+        // set final position
+        applyUpdate(targetD);
+      } else {
+        // animate
+        new TWEEN.Tween(currentTargetD || Object.assign({}, targetD, { altAutoScale: 0 }))
+          .to(targetD, state.arcsTransitionDuration)
+          .easing(TWEEN.Easing.Quadratic.InOut)
+          .onUpdate(applyUpdate)
+          .start();
+      }
 
       obj.__globeObjType = 'arc'; // Add object type
       obj.__data = arc; // Attach point data
@@ -164,6 +174,33 @@ export default Kapsule({
 
         state.scene.add(arc.__threeObj = obj);
       });
+    }
+
+    //
+
+    function calcCurve({ alt, altAutoScale, startLat, startLng, endLat, endLng }) {
+      const getVec = ([lng, lat, alt]) => {
+        const { x, y, z } = polar2Cartesian(lat, lng, alt);
+        return new THREE.Vector3(x, y, z);
+      };
+
+      //calculate curve
+      const startPnt = [startLng, startLat];
+      const endPnt = [endLng, endLat];
+
+      let altitude = alt;
+      (altitude === null || altitude === undefined) &&
+        // by default set altitude proportional to the great-arc distance
+      (altitude = geoDistance(startPnt, endPnt) / 2 * altAutoScale);
+
+      const interpolate = geoInterpolate(startPnt, endPnt);
+      const [m1Pnt, m2Pnt] = [0.25, 0.75].map(t => [...interpolate(t), altitude * 1.5]);
+      const curve = new THREE.CubicBezierCurve3(...[startPnt, m1Pnt, m2Pnt, endPnt].map(getVec));
+
+      //const mPnt = [...interpolate(0.5), altitude * 2];
+      //curve = new THREE.QuadraticBezierCurve3(...[startPnt, mPnt, endPnt].map(getVec));
+
+      return curve;
     }
   }
 });

@@ -59,7 +59,8 @@ const linkedArcsLayerProps = Object.assign(...[
   'arcStroke',
   'arcCurveResolution',
   'arcCircularResolution',
-  'arcsMerge'
+  'arcsMerge',
+  'arcsTransitionDuration'
 ].map(p => ({ [p]: bindArcsLayer.linkProp(p)})));
 
 const bindCustomLayer = linkKapsule('customLayer', CustomLayerKapsule);
