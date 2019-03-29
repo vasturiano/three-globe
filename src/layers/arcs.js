@@ -52,7 +52,6 @@ export default Kapsule({
     arcStroke: {}, // in deg
     arcCurveResolution: { default: 64, triggerUpdate: false }, // how many slice segments in the tube's circumference
     arcCircularResolution: { default: 6, triggerUpdate: false }, // how many slice segments in the tube's circumference
-    arcsMerge: { default: false}, // boolean. Whether to merge all arcs into a single mesh for rendering performance
     arcsTransitionDuration: { default: 1000, triggerUpdate: false } // ms
   },
 
@@ -78,7 +77,7 @@ export default Kapsule({
     const strokeAccessor = accessorFn(state.arcStroke);
     const colorAccessor = accessorFn(state.arcColor);
 
-    const arcObjs = [];
+    const arcMaterials = {}; // indexed by color
 
     state.arcsData.forEach(arc => {
       const stroke = strokeAccessor(arc);
@@ -111,7 +110,7 @@ export default Kapsule({
       const currentTargetD = arc.__currentTargetD;
       arc.__currentTargetD = targetD;
 
-      if (state.arcsMerge || !state.arcsTransitionDuration || state.arcsTransitionDuration < 0) {
+      if (!state.arcsTransitionDuration || state.arcsTransitionDuration < 0) {
         // set final position
         applyUpdate(targetD);
       } else {
@@ -126,55 +125,20 @@ export default Kapsule({
       obj.__globeObjType = 'arc'; // Add object type
       obj.__data = arc; // Attach point data
 
-      arcObjs.push(obj);
+      const color = colorAccessor(arc);
+      const opacity = colorAlpha(color);
+      if (!arcMaterials.hasOwnProperty(color)) {
+        arcMaterials[color] = new THREE.MeshLambertMaterial({
+          color: colorStr2Hex(color),
+          transparent: opacity < 1,
+          opacity: opacity
+        });
+      }
+
+      obj.material = arcMaterials[color];
+
+      state.scene.add(arc.__threeObj = obj);
     });
-
-    if (state.arcsMerge) { // merge arcs into a single mesh
-      const arcsGeometry = new THREE.Geometry();
-
-      arcObjs.forEach(obj => {
-        const arc = obj.__data;
-
-        const color = new THREE.Color(colorAccessor(arc));
-        obj.geometry.faces.forEach(face => face.color = color);
-
-        obj.updateMatrix();
-
-        arcsGeometry.merge(obj.geometry, obj.matrix);
-      });
-
-      const arcs = new THREE.Mesh(arcsGeometry, new THREE.MeshBasicMaterial({
-        color: 0xffffff,
-        vertexColors: THREE.FaceColors,
-        morphTargets: false
-      }));
-
-      arcs.__globeObjType = 'arcs'; // Add object type
-      arcs.__data = state.arcsData; // Attach obj data
-
-      state.scene.add(arcs);
-
-    } else { // Add individual meshes per arc
-
-      const arcMaterials = {}; // indexed by color
-
-      arcObjs.forEach(obj => {
-        const arc = obj.__data;
-        const color = colorAccessor(arc);
-        const opacity = colorAlpha(color);
-        if (!arcMaterials.hasOwnProperty(color)) {
-          arcMaterials[color] = new THREE.MeshLambertMaterial({
-            color: colorStr2Hex(color),
-            transparent: opacity < 1,
-            opacity: opacity
-          });
-        }
-
-        obj.material = arcMaterials[color];
-
-        state.scene.add(arc.__threeObj = obj);
-      });
-    }
 
     //
 

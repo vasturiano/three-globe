@@ -59,7 +59,6 @@ const linkedArcsLayerProps = Object.assign(...[
   'arcStroke',
   'arcCurveResolution',
   'arcCircularResolution',
-  'arcsMerge',
   'arcsTransitionDuration'
 ].map(p => ({ [p]: bindArcsLayer.linkProp(p)})));
 
