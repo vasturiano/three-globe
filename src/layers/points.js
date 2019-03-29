@@ -24,6 +24,7 @@ const THREE = window.THREE
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
+import TWEEN from '@tweenjs/tween.js';
 
 import { colorStr2Hex, colorAlpha } from '../color-utils';
 import { emptyObject } from '../gc';
@@ -41,8 +42,9 @@ export default Kapsule({
     pointColor: { default: () => '#ffffaa' },
     pointAltitude: { default: 0.1 }, // in units of globe radius
     pointRadius: { default: 0.25 }, // in deg
-    pointResolution: { default: 12 }, // how many slice segments in the cylinder's circumference
-    pointsMerge: { default: false } // boolean. Whether to merge all points into a single mesh for rendering performance
+    pointResolution: { default: 12, triggerUpdate: false }, // how many slice segments in the cylinder's circumference
+    pointsMerge: { default: false }, // boolean. Whether to merge all points into a single mesh for rendering performance
+    pointsTransitionDuration: { default: 1000, triggerUpdate: false } // ms
   },
 
   init(threeObj, state) {
@@ -129,17 +131,44 @@ export default Kapsule({
 
       data.forEach(d => {
         const obj = d.__threeObj;
+        const prevData = obj.__data;
         obj.__data = d; // Attach point data
 
-        // position cylinder ground
-        Object.assign(obj.position, polar2Cartesian(latAccessor(d), lngAccessor(d)));
+        const applyUpdate = ({ r, alt, lat, lng }) => {
+          // position cylinder ground
+          Object.assign(obj.position, polar2Cartesian(lat, lng));
 
-        // orientate outwards
-        obj.lookAt(0, 0, 0);
+          // orientate outwards
+          obj.lookAt(0, 0, 0);
 
-        // scale radius and altitude
-        obj.scale.x = obj.scale.y = Math.min(30, radiusAccessor(d)) * pxPerDeg;
-        obj.scale.z = Math.max(altitudeAccessor(d) * GLOBE_RADIUS, 0.1); // avoid non-invertible matrix
+          // scale radius and altitude
+          obj.scale.x = obj.scale.y = Math.min(30, r) * pxPerDeg;
+          obj.scale.z = Math.max(alt * GLOBE_RADIUS, 0.1); // avoid non-invertible matrix
+        };
+
+        const targetD = {
+          alt: altitudeAccessor(d),
+          r: radiusAccessor(d),
+          lat: latAccessor(d),
+          lng: lngAccessor(d)
+        };
+
+        if (state.pointsMerge || !state.pointsTransitionDuration || state.pointsTransitionDuration < 0) {
+          // set final position
+          applyUpdate(targetD);
+        } else {
+          // animate
+          new TWEEN.Tween({
+            alt: prevData ? altitudeAccessor(prevData) : 0,
+            r: prevData ? radiusAccessor(prevData) : targetD.r,
+            lat: prevData ? latAccessor(prevData) : targetD.lat,
+            lng: prevData ? lngAccessor(prevData) : targetD.lng
+          })
+            .to(targetD, state.pointsTransitionDuration)
+            .easing(TWEEN.Easing.Quadratic.InOut)
+            .onUpdate(applyUpdate)
+            .start();
+        }
       });
 
       if (!state.pointsMerge) {

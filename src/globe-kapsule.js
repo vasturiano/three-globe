@@ -42,7 +42,8 @@ const linkedPointsLayerProps = Object.assign(...[
   'pointAltitude',
   'pointRadius',
   'pointResolution',
-  'pointsMerge'
+  'pointsMerge',
+  'pointsTransitionDuration'
 ].map(p => ({ [p]: bindPointsLayer.linkProp(p)})));
 
 const bindArcsLayer = linkKapsule('arcsLayer', ArcsLayerKapsule);
