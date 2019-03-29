@@ -131,7 +131,6 @@ export default Kapsule({
 
       data.forEach(d => {
         const obj = d.__threeObj;
-        const prevData = obj.__data;
         obj.__data = d; // Attach point data
 
         const applyUpdate = ({ r, alt, lat, lng }) => {
@@ -153,17 +152,15 @@ export default Kapsule({
           lng: lngAccessor(d)
         };
 
+        const currentTargetD = obj.__currentTargetD;
+        obj.__currentTargetD = targetD;
+
         if (state.pointsMerge || !state.pointsTransitionDuration || state.pointsTransitionDuration < 0) {
           // set final position
           applyUpdate(targetD);
         } else {
           // animate
-          new TWEEN.Tween({
-            alt: prevData ? altitudeAccessor(prevData) : 0,
-            r: prevData ? radiusAccessor(prevData) : targetD.r,
-            lat: prevData ? latAccessor(prevData) : targetD.lat,
-            lng: prevData ? lngAccessor(prevData) : targetD.lng
-          })
+          new TWEEN.Tween(currentTargetD || Object.assign({}, targetD, { alt: 0 }))
             .to(targetD, state.pointsTransitionDuration)
             .easing(TWEEN.Easing.Quadratic.InOut)
             .onUpdate(applyUpdate)
