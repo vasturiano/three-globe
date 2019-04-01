@@ -3,13 +3,15 @@ import accessorFn from 'accessor-fn';
 
 import { emptyObject } from '../gc';
 import { GLOBE_RADIUS } from '../constants';
+import { dataBindDiff } from '../differ';
 
 //
 
 export default Kapsule({
   props: {
     customLayerData: { default: [] },
-    customThreeObject: {}
+    customThreeObject: {},
+    customThreeObjectUpdate: { triggerUpdate: false }
   },
 
   init(threeObj, state) {
@@ -21,25 +23,61 @@ export default Kapsule({
   },
 
   update(state) {
-    // Clear the existing objects
-    emptyObject(state.scene);
+    if (!state.customThreeObjectUpdate) {
 
-    const customObjectAccessor = accessorFn(state.customThreeObject);
+      emptyObject(state.scene); // Clear the existing objects
+      createObjs(state.customLayerData).forEach(obj => state.scene.add(obj)); // create all new
 
-    state.customLayerData.forEach(d => {
-      let obj = customObjectAccessor(d, GLOBE_RADIUS);
+    } else {
 
-      if (obj) {
-        if (state.customThreeObject === obj) {
-          // clone object if it's a shared object among all points
-          obj = obj.clone();
+      const { enter, update, exit } = dataBindDiff(state.scene.children, state.customLayerData, { objType: 'custom' });
+
+      const newObjs = createObjs(enter);
+      const pointsData = [...enter, ...update];
+      updateObjs(pointsData);
+
+      newObjs.forEach(obj => state.scene.add(obj));
+
+      // Remove exiting points
+      exit.forEach(d => {
+        const obj = d.__threeObj;
+        emptyObject(obj);
+        state.scene.remove(obj);
+      });
+    }
+
+    //
+
+    function createObjs(data) {
+      const customObjectAccessor = accessorFn(state.customThreeObject);
+
+      const newObjs = [];
+
+      data.forEach(d => {
+        let obj = customObjectAccessor(d, GLOBE_RADIUS);
+
+        if (obj) {
+          if (state.customThreeObject === obj) {
+            // clone object if it's a shared object among all points
+            obj = obj.clone();
+          }
+
+          obj.__globeObjType = 'custom'; // Add object type
+          obj.__data = d; // Attach point data
+
+          newObjs.push(d.__threeObj = obj);
         }
+      });
 
-        obj.__globeObjType = 'custom'; // Add object type
-        obj.__data = d; // Attach point data
+      return newObjs;
+    }
 
-        state.scene.add(d.__threeObj = obj);
-      }
-    });
+    function updateObjs(data) {
+      const customObjectUpdateAccessor = accessorFn(state.customThreeObjectUpdate);
+
+      data.forEach(d => {
+        customObjectUpdateAccessor(d.__threeObj, d, GLOBE_RADIUS);
+      });
+    }
   }
 });

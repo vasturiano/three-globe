@@ -65,7 +65,8 @@ const linkedArcsLayerProps = Object.assign(...[
 const bindCustomLayer = linkKapsule('customLayer', CustomLayerKapsule);
 const linkedCustomLayerProps = Object.assign(...[
   'customLayerData',
-  'customThreeObject'
+  'customThreeObject',
+  'customThreeObjectUpdate'
 ].map(p => ({ [p]: bindCustomLayer.linkProp(p)})));
 
 //
