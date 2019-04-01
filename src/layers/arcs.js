@@ -50,7 +50,7 @@ export default Kapsule({
     arcAltitude: {}, // in units of globe radius
     arcAltitudeAutoScale: { default: 0.5 }, // scale altitude proportional to great-arc distance between the two points
     arcStroke: {}, // in deg
-    arcCurveResolution: { default: 64, triggerUpdate: false }, // how many slice segments in the tube's circumference
+    arcCurveResolution: { default: 64, triggerUpdate: false }, // how many straight segments in the curve
     arcCircularResolution: { default: 6, triggerUpdate: false }, // how many slice segments in the tube's circumference
     arcsTransitionDuration: { default: 1000, triggerUpdate: false } // ms
   },
