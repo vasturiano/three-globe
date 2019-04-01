@@ -43,7 +43,6 @@ new ThreeGlobe({ configOptions })(<domElement>)
 | <b>animateIn</b>: <i>boolean</i> | Whether to animate the globe initialization, by scaling and rotating the globe into its inital position. | `true` |
 
 ### Globe Layer
-
 | Method | Description | Default |
 | --- | --- | :--: |
 | <b>globeImageUrl</b>([<i>url</i>]) | Getter/setter for the URL of the image used in the material that wraps the globe. If no image is provided, the globe is represented as a black sphere. | `null` |
@@ -52,7 +51,6 @@ new ThreeGlobe({ configOptions })(<domElement>)
 | <b>showGraticules</b>([<i>boolean</i>]) | Getter/setter for whether to show a graticule grid demarking latitude and longitude lines at every 10 degrees. | `false` |
 
 ### Points Layer
-
 | Method | Description | Default |
 | --- | --- | :--: |
 | <b>pointsData</b>([<i>array</i>]) | Getter/setter for the list of points to represent in the points map layer. Each point is displayed as a cylindrical 3D object rising perpendicularly from the surface of the globe. | `[]` |
@@ -66,7 +64,6 @@ new ThreeGlobe({ configOptions })(<domElement>)
 | <b>pointsTransitionDuration</b>([<i>num</i>]) | Getter/setter for duration (ms) of the transition to animate point changes involving geometry modifications. A value of `0` will move the objects immediately to their final position. New objects are animated by scaling them from the ground up. Only works if `pointsMerge=false`. | `1000` |
 
 ### Arcs Layer
-
 | Method | Description | Default |
 | --- | --- | :--: |
 | <b>arcsData</b>([<i>array</i>]) | Getter/setter for the list of links to represent in the arcs map layer. Each link is displayed as an arc line that rises from the surface of the globe, connecting the start to the end coordinates. | `[]` |
@@ -83,7 +80,6 @@ new ThreeGlobe({ configOptions })(<domElement>)
 | <b>arcsTransitionDuration</b>([<i>num</i>]) | Getter/setter for duration (ms) of the transition to animate arc changes involving geometry modifications. A value of `0` will move the objects immediately to their final position. New arcs are animated by rising them from the ground up. | `1000` |
 
 ### Custom Layer
-
 | Method | Description | Default |
 | --- | --- | :--: |
 | <b>customLayerData</b>([<i>array</i>]) | Getter/setter for the list of items to represent in the custom map layer. Each item is rendered according to the `customThreeObject` method. | `[]` |
