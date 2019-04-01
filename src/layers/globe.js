@@ -117,12 +117,19 @@ export default Kapsule({
 
   update(state) {
     const globeMaterial = state.globeObj.material;
-    globeMaterial.needsUpdate = true;
 
     // Black globe if no image
-    globeMaterial.color = !state.globeImageUrl ? new THREE.Color(0x000000) : null;
+    globeMaterial.color = new THREE.Color(0x000000);
 
-    globeMaterial.map = state.globeImageUrl ? new THREE.TextureLoader().load(state.globeImageUrl) : null;
-    globeMaterial.bumpMap = state.bumpImageUrl ? new THREE.TextureLoader().load(state.bumpImageUrl) : null;
+    state.globeImageUrl && new THREE.TextureLoader().load(state.globeImageUrl, texture => {
+      globeMaterial.map = texture;
+      globeMaterial.color = null;
+      globeMaterial.needsUpdate = true;
+    });
+
+    state.bumpImageUrl && new THREE.TextureLoader().load(state.bumpImageUrl, texture => {
+      globeMaterial.bumpMap = texture;
+      globeMaterial.needsUpdate = true;
+    });
   }
 });
