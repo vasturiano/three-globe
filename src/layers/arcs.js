@@ -1,6 +1,7 @@
 import {
   BufferGeometry,
   Color,
+  CubicBezierCurve3,
   FaceColors,
   Geometry,
   Line,
@@ -17,6 +18,7 @@ const THREE = window.THREE
   : {
     BufferGeometry,
     Color,
+    CubicBezierCurve3,
     FaceColors,
     Geometry,
     Line,
