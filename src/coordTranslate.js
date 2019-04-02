@@ -14,7 +14,7 @@ function polar2Cartesian(lat, lng, relAltitude = 0) {
 function cartesian2Polar({ x, y, z }) {
   const r = Math.sqrt(x*x + y*y + z*z);
   const phi = Math.acos(y / r);
-  const theta = Math.atan(z / x);
+  const theta = Math.atan2(z, x);
 
   return {
     lat: 90 - phi * 180/ Math.PI,
