@@ -11,4 +11,16 @@ function polar2Cartesian(lat, lng, relAltitude = 0) {
   };
 }
 
-export { polar2Cartesian };
+function cartesian2Polar({ x, y, z }) {
+  const r = Math.sqrt(x*x + y*y + z*z);
+  const phi = Math.acos(y / r);
+  const theta = Math.atan(z / x);
+
+  return {
+    lat: 90 - phi * 180/ Math.PI,
+    lng: 90 - theta * 180/ Math.PI,
+    altitude: r / GLOBE_RADIUS - 1
+  }
+}
+
+export { polar2Cartesian, cartesian2Polar };
