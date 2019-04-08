@@ -39,19 +39,42 @@ import { polar2Cartesian } from '../coordTranslate';
 //
 
 const gradientShaders = {
-  uniforms: {},
+  uniforms: {
+    // dash param defaults, all relative to full length
+    dashOffset: { value: 0 },
+    dashSize: { value: 1 },
+    gapSize: { value: 0 }
+  },
   vertexShader: `
     attribute vec4 vertexColor;
     varying vec4 vColor;
+    
+    attribute float vertexRelDistance;
+    varying float vRelDistance;
 
     void main() {
+      // pass through colors and distances
       vColor = vertexColor;
+      vRelDistance = vertexRelDistance;
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }
   `,
   fragmentShader: `
+    uniform float dashOffset; 
+    uniform float dashSize;
+    uniform float gapSize; 
+    
     varying vec4 vColor;
-    void main() { gl_FragColor = vColor; }
+    varying float vRelDistance;
+    
+    void main() {
+      // ignore pixels in the gap
+      if (vRelDistance < dashOffset) discard;
+      if (mod(vRelDistance - dashOffset, dashSize + gapSize) > dashSize) discard;
+    
+      // set px color: [r, g, b, a], interpolated between vertices 
+      gl_FragColor = vColor; 
+    }
   `
 };
 
@@ -93,7 +116,7 @@ export default Kapsule({
     const strokeAccessor = accessorFn(state.arcStroke);
     const colorAccessor = accessorFn(state.arcColor);
 
-    const objMaterial = new THREE.ShaderMaterial({
+    const sharedMaterial = new THREE.ShaderMaterial({
       ...gradientShaders,
       transparent: true,
       blending: THREE.AdditiveBlending
@@ -105,8 +128,10 @@ export default Kapsule({
       const useTube = stroke !== null && stroke !== undefined;
 
       const obj = useTube
-        ? new THREE.Mesh(undefined, objMaterial)
-        : new THREE.Line(new THREE.BufferGeometry(), objMaterial);
+        ? new THREE.Mesh()
+        : new THREE.Line(new THREE.BufferGeometry());
+
+      obj.material = sharedMaterial.clone(); // Separate material instance per object to have dedicated uniforms (but shared shaders)
 
       // calculate vertex colors (to create gradient)
       const vertexColorArray = calcColorVertexArray(
@@ -115,16 +140,26 @@ export default Kapsule({
         useTube ? state.arcCircularResolution + 1 : 1 // num vertices per segment
       );
 
+      // calculate vertex relative distances (for dashed lines)
+      const vertexRelDistanceArray = calcVertexRelDistances(
+        state.arcCurveResolution, // numSegments
+        useTube ? state.arcCircularResolution + 1 : 1 // num vertices per segment
+      );
+
       const applyUpdate = ({ stroke, ...curveD }) => {
         const curve = calcCurve(curveD);
 
         if (useTube) {
+          obj.geometry && obj.geometry.dispose();
           obj.geometry = new THREE.TubeBufferGeometry(curve, state.arcCurveResolution, stroke / 2, state.arcCircularResolution);
         } else {
           obj.geometry.setFromPoints(curve.getPoints(state.arcCurveResolution));
         }
 
         obj.geometry.addAttribute('vertexColor', vertexColorArray);
+        obj.geometry.addAttribute('vertexRelDistance', vertexRelDistanceArray);
+
+        // obj.material.uniforms.dashSize.value = obj.material.uniforms.gapSize.value = Math.random() / 10;
       };
 
       const targetD = {
@@ -212,6 +247,21 @@ export default Kapsule({
       }
 
       return vertexColorArray;
+    }
+
+    function calcVertexRelDistances(numSegments, numVerticesPerSegment = 1) {
+      const numVerticesGroup = numSegments + 1; // one between every two segments and two at the ends
+
+      const vertexDistanceArray = new THREE.Float32BufferAttribute(numVerticesGroup * numVerticesPerSegment, 1);
+
+      for (let v = 0, l = numVerticesGroup; v < l; v++) {
+        const relDistance = v / (l - 1);
+        for (let s = 0; s < numVerticesPerSegment; s++) {
+          vertexDistanceArray.setX(v * numVerticesPerSegment + s, relDistance);
+        }
+      }
+
+      return vertexDistanceArray;
     }
   }
 });
