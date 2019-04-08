@@ -43,9 +43,12 @@ const gradientShaders = {
     // dash param defaults, all relative to full length
     dashOffset: { value: 0 },
     dashSize: { value: 1 },
-    gapSize: { value: 0 }
+    gapSize: { value: 0 },
+    dashTranslate: { value: 0 } // used for animating the dash
   },
   vertexShader: `
+    uniform float dashTranslate; 
+
     attribute vec4 vertexColor;
     varying vec4 vColor;
     
@@ -55,7 +58,7 @@ const gradientShaders = {
     void main() {
       // pass through colors and distances
       vColor = vertexColor;
-      vRelDistance = vertexRelDistance;
+      vRelDistance = vertexRelDistance + dashTranslate;
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }
   `,
@@ -133,6 +136,9 @@ export default Kapsule({
 
       obj.material = sharedMaterial.clone(); // Separate material instance per object to have dedicated uniforms (but shared shaders)
 
+      // obj.material.uniforms.dashSize.value = obj.material.uniforms.gapSize.value = 0.05;
+      // (function f() { requestAnimationFrame(f); obj.material.uniforms.dashTranslate.value += 0.01; })();
+
       // calculate vertex colors (to create gradient)
       const vertexColorArray = calcColorVertexArray(
         colorAccessor(arc), // single or array of colors
@@ -158,8 +164,6 @@ export default Kapsule({
 
         obj.geometry.addAttribute('vertexColor', vertexColorArray);
         obj.geometry.addAttribute('vertexRelDistance', vertexRelDistanceArray);
-
-        // obj.material.uniforms.dashSize.value = obj.material.uniforms.gapSize.value = Math.random() / 10;
       };
 
       const targetD = {
