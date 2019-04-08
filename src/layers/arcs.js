@@ -1,32 +1,28 @@
 import {
+  AdditiveBlending,
   BufferGeometry,
-  Color,
   CubicBezierCurve3,
-  FaceColors,
-  Geometry,
+  Float32BufferAttribute,
   Line,
   Mesh,
-  MeshBasicMaterial,
-  MeshLambertMaterial,
   QuadraticBezierCurve3,
-  TubeGeometry,
+  ShaderMaterial,
+  TubeBufferGeometry,
   Vector3
 } from 'three';
 
 const THREE = window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
   : {
+    AdditiveBlending,
     BufferGeometry,
-    Color,
     CubicBezierCurve3,
-    FaceColors,
-    Geometry,
+    Float32BufferAttribute,
     Line,
     Mesh,
-    MeshBasicMaterial,
-    MeshLambertMaterial,
     QuadraticBezierCurve3,
-    TubeGeometry,
+    ShaderMaterial,
+    TubeBufferGeometry,
     Vector3
   };
 
@@ -34,12 +30,30 @@ import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
 import TWEEN from '@tweenjs/tween.js';
 import { geoDistance, geoInterpolate } from 'd3-geo';
+import { scaleLinear as d3ScaleLinear } from 'd3-scale';
 
-import { colorStr2Hex, colorAlpha } from '../color-utils';
+import { color2ShaderArr } from '../color-utils';
 import { emptyObject } from '../gc';
 import { polar2Cartesian } from '../coordTranslate';
 
 //
+
+const gradientShaders = {
+  uniforms: {},
+  vertexShader: `
+    attribute vec4 vertexColor;
+    varying vec4 vColor;
+
+    void main() {
+      vColor = vertexColor;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    varying vec4 vColor;
+    void main() { gl_FragColor = vColor; }
+  `
+};
 
 export default Kapsule({
   props: {
@@ -79,24 +93,38 @@ export default Kapsule({
     const strokeAccessor = accessorFn(state.arcStroke);
     const colorAccessor = accessorFn(state.arcColor);
 
-    const arcMaterials = {}; // indexed by color
+    const objMaterial = new THREE.ShaderMaterial({
+      ...gradientShaders,
+      transparent: true,
+      blending: THREE.AdditiveBlending
+      //depthTest: false,
+    });
 
     state.arcsData.forEach(arc => {
       const stroke = strokeAccessor(arc);
       const useTube = stroke !== null && stroke !== undefined;
 
       const obj = useTube
-        ? new THREE.Mesh()
-        : new THREE.Line(new THREE.BufferGeometry());
+        ? new THREE.Mesh(undefined, objMaterial)
+        : new THREE.Line(new THREE.BufferGeometry(), objMaterial);
+
+      // calculate vertex colors (to create gradient)
+      const vertexColorArray = calcColorVertexArray(
+        colorAccessor(arc), // single or array of colors
+        state.arcCurveResolution, // numSegments
+        useTube ? state.arcCircularResolution + 1 : 1 // num vertices per segment
+      );
 
       const applyUpdate = ({ stroke, ...curveD }) => {
         const curve = calcCurve(curveD);
 
         if (useTube) {
-          obj.geometry = new THREE.TubeGeometry(curve, state.arcCurveResolution, stroke / 2, state.arcCircularResolution);
+          obj.geometry = new THREE.TubeBufferGeometry(curve, state.arcCurveResolution, stroke / 2, state.arcCircularResolution);
         } else {
           obj.geometry.setFromPoints(curve.getPoints(state.arcCurveResolution));
         }
+
+        obj.geometry.addAttribute('vertexColor', vertexColorArray);
       };
 
       const targetD = {
@@ -127,18 +155,6 @@ export default Kapsule({
       obj.__globeObjType = 'arc'; // Add object type
       obj.__data = arc; // Attach point data
 
-      const color = colorAccessor(arc);
-      const opacity = colorAlpha(color);
-      if (!arcMaterials.hasOwnProperty(color)) {
-        arcMaterials[color] = new THREE.MeshLambertMaterial({
-          color: colorStr2Hex(color),
-          transparent: opacity < 1,
-          opacity: opacity
-        });
-      }
-
-      obj.material = arcMaterials[color];
-
       state.scene.add(arc.__threeObj = obj);
     });
 
@@ -167,6 +183,35 @@ export default Kapsule({
       //curve = new THREE.QuadraticBezierCurve3(...[startPnt, mPnt, endPnt].map(getVec));
 
       return curve;
+    }
+
+    function calcColorVertexArray(colors, numSegments, numVerticesPerSegment = 1) {
+      const numVerticesGroup = numSegments + 1; // one between every two segments and two at the ends
+
+      let getVertexColor;
+      if (colors instanceof Array) {
+        // array of colors, interpolate at each step
+        const colorScale = d3ScaleLinear()
+          .domain(colors.map((_, idx) => idx / (colors.length - 1))) // same number of stops as colors
+          .range(colors);
+
+        getVertexColor = t => color2ShaderArr(colorScale(t));
+      } else {
+        // single color, use constant
+        const vertexColor = color2ShaderArr(colors);
+        getVertexColor = () => vertexColor;
+      }
+
+      const vertexColorArray = new THREE.Float32BufferAttribute(numVerticesGroup * 4 * numVerticesPerSegment, 4);
+
+      for (let v = 0, l = numVerticesGroup; v < l; v++) {
+        const vertexColor = getVertexColor(v / (l - 1));
+        for (let s = 0; s < numVerticesPerSegment; s++) {
+          vertexColorArray.set(vertexColor, (v * numVerticesPerSegment + s) * 4);
+        }
+      }
+
+      return vertexColorArray;
     }
   }
 });
