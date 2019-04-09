@@ -1,6 +1,7 @@
 import {
   Color,
   CylinderGeometry,
+  CylinderBufferGeometry,
   FaceColors,
   Geometry,
   Matrix4,
@@ -14,6 +15,7 @@ const THREE = window.THREE
   : {
     Color,
     CylinderGeometry,
+    CylinderBufferGeometry,
     FaceColors,
     Geometry,
     Matrix4,
@@ -102,7 +104,7 @@ export default Kapsule({
 
     function createPointObjs(data) {
       // shared geometry
-      const pointGeometry = new THREE.CylinderGeometry(1, 1, 1, state.pointResolution);
+      const pointGeometry = new THREE[state.pointsMerge ? 'CylinderGeometry' : 'CylinderBufferGeometry'](1, 1, 1, state.pointResolution);
       pointGeometry.applyMatrix(new THREE.Matrix4().makeRotationX(Math.PI / 2));
       pointGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, -0.5));
 
