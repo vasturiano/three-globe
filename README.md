@@ -77,6 +77,10 @@ new ThreeGlobe({ configOptions })(<domElement>)
 | <b>arcStroke</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Arc object accessor function, attribute or a numeric constant for the line's diameter, in angular degrees. A value of `null` or `undefined` will render a [ThreeJS Line](https://threejs.org/docs/#api/objects/Line) whose width is constant (`1px`) regardless of the camera distance. Otherwise, a [TubeGeometry](https://threejs.org/docs/#api/en/geometries/TubeGeometry) is used. | `null` |
 | <b>arcCurveResolution</b>([<i>num</i>]) | Getter/setter for the arc's curve resolution, expressed in how many straight line segments to divide the curve by. Higher values yield smoother curves. | 64 |
 | <b>arcCircularResolution</b>([<i>num</i>]) | Getter/setter for the radial geometric resolution of each line, expressed in how many slice segments to divide the tube's circumference. Only applicable when using Tube geometries (defined `arcStroke`). | 6 |
+| <b>arcDashLength</b>([<i>num</i>]) | Getter/setter for the length of the dashed segments in the arc, in terms of relative length of the whole line (`1` = full line length). | 1 |
+| <b>arcDashGap</b>([<i>num</i>]) | Getter/setter for the length of the gap between dash segments, in terms of relative line length. | 0 |
+| <b>arcDashInitialGap</b>([<i>num</i>]) | Getter/setter for the length of the initial gap before the first dash segment, in terms of relative line length. | 0 |
+| <b>arcDashAnimateTime</b>([<i>num</i>]) | Getter/setter for the time duration (in `ms`) to animate the motion of dash positions from the start to the end point for a full line length. A value of `0` disables the animation. | 0 |
 | <b>arcsTransitionDuration</b>([<i>num</i>]) | Getter/setter for duration (ms) of the transition to animate arc changes involving geometry modifications. A value of `0` will move the objects immediately to their final position. New arcs are animated by rising them from the ground up. | `1000` |
 
 ### Custom Layer
