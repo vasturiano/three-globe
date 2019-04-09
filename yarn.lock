@@ -1258,6 +1258,13 @@ fragment-cache@^0.2.1:
   dependencies:
     map-cache "^0.2.2"
 
+frame-ticker@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.npmjs.org/frame-ticker/-/frame-ticker-1.0.3.tgz#2c99d3febb493fd1d3621351cd003189794a1245"
+  integrity sha1-LJnT/rtJP9HTYhNRzQAxiXlKEkU=
+  dependencies:
+    simplesignal "^2.1.6"
+
 fs-minipass@^1.2.5:
   version "1.2.5"
   resolved "https://registry.yarnpkg.com/fs-minipass/-/fs-minipass-1.2.5.tgz#06c277218454ec288df77ada54a03b8702aacb9d"
@@ -2269,6 +2276,11 @@ signal-exit@^3.0.0:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
   integrity sha1-tf3AjxKH6hF4Yo5BXiUTK3NkbG0=
+
+simplesignal@^2.1.6:
+  version "2.1.7"
+  resolved "https://registry.npmjs.org/simplesignal/-/simplesignal-2.1.7.tgz#8e15978b1f8b44d55bd7d7081dc37b7147cf129f"
+  integrity sha1-jhWXix+LRNVb19cIHcN7cUfPEp8=
 
 snapdragon-node@^2.0.1:
   version "2.1.1"

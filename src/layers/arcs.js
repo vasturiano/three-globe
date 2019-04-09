@@ -29,6 +29,7 @@ const THREE = window.THREE
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
 import TWEEN from '@tweenjs/tween.js';
+import FrameTicker from 'frame-ticker';
 import { geoDistance, geoInterpolate } from 'd3-geo';
 import { scaleLinear as d3ScaleLinear } from 'd3-scale';
 
@@ -94,6 +95,10 @@ export default Kapsule({
     arcStroke: {}, // in deg
     arcCurveResolution: { default: 64, triggerUpdate: false }, // how many straight segments in the curve
     arcCircularResolution: { default: 6, triggerUpdate: false }, // how many slice segments in the tube's circumference
+    arcDashLength: { default: 1 }, // in units of line length
+    arcDashGap: { default: 0 },
+    arcDashInitialGap: { default: 0 },
+    arcDashAnimateTime: { default: 0 }, // ms
     arcsTransitionDuration: { default: 1000, triggerUpdate: false } // ms
   },
 
@@ -103,6 +108,18 @@ export default Kapsule({
 
     // Main three object to manipulate
     state.scene = threeObj;
+
+    // Kick-off dash animations
+    new FrameTicker().onTick.add((_, timeDelta) => {
+      state.arcsData
+        .filter(d => d.__threeObj && d.__threeObj.material && d.__threeObj.__dashAnimateStep)
+        .forEach(d => {
+          const obj = d.__threeObj;
+          const step = obj.__dashAnimateStep * timeDelta;
+          const curTranslate = obj.material.uniforms.dashTranslate.value % 1e4; // reset after 10k loops
+          obj.material.uniforms.dashTranslate.value = curTranslate + step;
+        })
+    });
   },
 
   update(state) {
@@ -118,6 +135,10 @@ export default Kapsule({
     const altitudeAutoScaleAccessor = accessorFn(state.arcAltitudeAutoScale);
     const strokeAccessor = accessorFn(state.arcStroke);
     const colorAccessor = accessorFn(state.arcColor);
+    const dashLengthAccessor = accessorFn(state.arcDashLength);
+    const dashGapAccessor = accessorFn(state.arcDashGap);
+    const dashInitialGapAccessor = accessorFn(state.arcDashInitialGap);
+    const dashAnimateTimeAccessor = accessorFn(state.arcDashAnimateTime);
 
     const sharedMaterial = new THREE.ShaderMaterial({
       ...gradientShaders,
@@ -136,8 +157,14 @@ export default Kapsule({
 
       obj.material = sharedMaterial.clone(); // Separate material instance per object to have dedicated uniforms (but shared shaders)
 
-      // obj.material.uniforms.dashSize.value = obj.material.uniforms.gapSize.value = 0.05;
-      // (function f() { requestAnimationFrame(f); obj.material.uniforms.dashTranslate.value += 0.01; })();
+      // set dash uniforms
+      Object.assign(obj.material.uniforms, {
+        dashSize: { value: dashLengthAccessor(arc)},
+        gapSize: { value: dashGapAccessor(arc)},
+        dashOffset: { value: dashInitialGapAccessor(arc)}
+      });
+      // set dash animation step
+      obj.__dashAnimateStep = 1000 / dashAnimateTimeAccessor(arc); // per second
 
       // calculate vertex colors (to create gradient)
       const vertexColorArray = calcColorVertexArray(
