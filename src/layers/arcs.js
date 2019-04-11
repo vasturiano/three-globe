@@ -33,8 +33,9 @@ import FrameTicker from 'frame-ticker';
 import { geoDistance, geoInterpolate } from 'd3-geo';
 import { scaleLinear as d3ScaleLinear } from 'd3-scale';
 
-import { color2ShaderArr } from '../color-utils';
+import { threeDigest } from '../digest';
 import { emptyObject } from '../gc';
+import { color2ShaderArr } from '../color-utils';
 import { polar2Cartesian } from '../coordTranslate';
 
 //
@@ -123,9 +124,6 @@ export default Kapsule({
   },
 
   update(state) {
-    // Clear the existing arcs
-    emptyObject(state.scene);
-
     // Data accessors
     const startLatAccessor = accessorFn(state.arcStartLat);
     const startLngAccessor = accessorFn(state.arcStartLng);
@@ -147,83 +145,90 @@ export default Kapsule({
       //depthTest: false,
     });
 
-    state.arcsData.forEach(arc => {
-      const stroke = strokeAccessor(arc);
-      const useTube = stroke !== null && stroke !== undefined;
+    threeDigest(state.arcsData, state.scene, {
+      exitObj:  emptyObject,
+      createObj: arc => {
+        const stroke = strokeAccessor(arc);
+        const useTube = stroke !== null && stroke !== undefined;
 
-      const obj = useTube
-        ? new THREE.Mesh()
-        : new THREE.Line(new THREE.BufferGeometry());
+        const obj = useTube
+          ? new THREE.Mesh()
+          : new THREE.Line(new THREE.BufferGeometry());
 
-      obj.material = sharedMaterial.clone(); // Separate material instance per object to have dedicated uniforms (but shared shaders)
+        obj.material = sharedMaterial.clone(); // Separate material instance per object to have dedicated uniforms (but shared shaders)
 
-      // set dash uniforms
-      Object.assign(obj.material.uniforms, {
-        dashSize: { value: dashLengthAccessor(arc)},
-        gapSize: { value: dashGapAccessor(arc)},
-        dashOffset: { value: dashInitialGapAccessor(arc)}
-      });
-      // set dash animation step
-      const dashAnimateTime = dashAnimateTimeAccessor(arc);
-      obj.__dashAnimateStep = dashAnimateTime > 0 ? 1000 / dashAnimateTime : 0; // per second
+        obj.__globeObjType = 'arc'; // Add object type
 
-      // calculate vertex colors (to create gradient)
-      const vertexColorArray = calcColorVertexArray(
-        colorAccessor(arc), // single or array of colors
-        state.arcCurveResolution, // numSegments
-        useTube ? state.arcCircularResolution + 1 : 1 // num vertices per segment
-      );
+        return obj;
+      },
+      updateObj: (obj, arc) => {
+        const stroke = strokeAccessor(arc);
+        const useTube = stroke !== null && stroke !== undefined;
 
-      // calculate vertex relative distances (for dashed lines)
-      const vertexRelDistanceArray = calcVertexRelDistances(
-        state.arcCurveResolution, // numSegments
-        useTube ? state.arcCircularResolution + 1 : 1, // num vertices per segment
-        true // run from end to start, to animate in the correct direction
-      );
+        // set dash uniforms
+        Object.assign(obj.material.uniforms, {
+          dashSize: { value: dashLengthAccessor(arc)},
+          gapSize: { value: dashGapAccessor(arc)},
+          dashOffset: { value: dashInitialGapAccessor(arc)}
+        });
 
-      const applyUpdate = ({ stroke, ...curveD }) => {
-        const curve = calcCurve(curveD);
+        // set dash animation step
+        const dashAnimateTime = dashAnimateTimeAccessor(arc);
+        obj.__dashAnimateStep = dashAnimateTime > 0 ? 1000 / dashAnimateTime : 0; // per second
 
-        if (useTube) {
-          obj.geometry && obj.geometry.dispose();
-          obj.geometry = new THREE.TubeBufferGeometry(curve, state.arcCurveResolution, stroke / 2, state.arcCircularResolution);
+        // calculate vertex colors (to create gradient)
+        const vertexColorArray = calcColorVertexArray(
+          colorAccessor(arc), // single or array of colors
+          state.arcCurveResolution, // numSegments
+          useTube ? state.arcCircularResolution + 1 : 1 // num vertices per segment
+        );
+
+        // calculate vertex relative distances (for dashed lines)
+        const vertexRelDistanceArray = calcVertexRelDistances(
+          state.arcCurveResolution, // numSegments
+          useTube ? state.arcCircularResolution + 1 : 1, // num vertices per segment
+          true // run from end to start, to animate in the correct direction
+        );
+
+        const applyUpdate = ({ stroke, ...curveD }) => {
+          const curve = calcCurve(curveD);
+
+          if (useTube) {
+            obj.geometry && obj.geometry.dispose();
+            obj.geometry = new THREE.TubeBufferGeometry(curve, state.arcCurveResolution, stroke / 2, state.arcCircularResolution);
+          } else {
+            obj.geometry.setFromPoints(curve.getPoints(state.arcCurveResolution));
+          }
+
+          obj.geometry.addAttribute('vertexColor', vertexColorArray);
+          obj.geometry.addAttribute('vertexRelDistance', vertexRelDistanceArray);
+        };
+
+        const targetD = {
+          stroke,
+          alt: altitudeAccessor(arc),
+          altAutoScale: altitudeAutoScaleAccessor(arc),
+          startLat: startLatAccessor(arc),
+          startLng: startLngAccessor(arc),
+          endLat: endLatAccessor(arc),
+          endLng: endLngAccessor(arc)
+        };
+
+        const currentTargetD = arc.__currentTargetD;
+        arc.__currentTargetD = targetD;
+
+        if (!state.arcsTransitionDuration || state.arcsTransitionDuration < 0) {
+          // set final position
+          applyUpdate(targetD);
         } else {
-          obj.geometry.setFromPoints(curve.getPoints(state.arcCurveResolution));
+          // animate
+          new TWEEN.Tween(currentTargetD || Object.assign({}, targetD, { altAutoScale: 0 }))
+            .to(targetD, state.arcsTransitionDuration)
+            .easing(TWEEN.Easing.Quadratic.InOut)
+            .onUpdate(applyUpdate)
+            .start();
         }
-
-        obj.geometry.addAttribute('vertexColor', vertexColorArray);
-        obj.geometry.addAttribute('vertexRelDistance', vertexRelDistanceArray);
-      };
-
-      const targetD = {
-        stroke,
-        alt: altitudeAccessor(arc),
-        altAutoScale: altitudeAutoScaleAccessor(arc),
-        startLat: startLatAccessor(arc),
-        startLng: startLngAccessor(arc),
-        endLat: endLatAccessor(arc),
-        endLng: endLngAccessor(arc)
-      };
-
-      const currentTargetD = arc.__currentTargetD;
-      arc.__currentTargetD = targetD;
-
-      if (!state.arcsTransitionDuration || state.arcsTransitionDuration < 0) {
-        // set final position
-        applyUpdate(targetD);
-      } else {
-        // animate
-        new TWEEN.Tween(currentTargetD || Object.assign({}, targetD, { altAutoScale: 0 }))
-          .to(targetD, state.arcsTransitionDuration)
-          .easing(TWEEN.Easing.Quadratic.InOut)
-          .onUpdate(applyUpdate)
-          .start();
       }
-
-      obj.__globeObjType = 'arc'; // Add object type
-      obj.__data = arc; // Attach point data
-
-      state.scene.add(arc.__threeObj = obj);
     });
 
     //
@@ -292,7 +297,7 @@ export default Kapsule({
         const relDistance = v / (l - 1);
         for (let s = 0; s < numVerticesPerSegment; s++) {
           const idx = v * numVerticesPerSegment + s;
-          const pos = invert ? arrLen - idx :idx;
+          const pos = invert ? arrLen - 1 - idx :idx;
           vertexDistanceArray.setX(pos, relDistance);
         }
       }
