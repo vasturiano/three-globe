@@ -116,7 +116,7 @@ export default Kapsule({
         .forEach(d => {
           const obj = d.__threeObj;
           const step = obj.__dashAnimateStep * timeDelta;
-          const curTranslate = obj.material.uniforms.dashTranslate.value % 1e4; // reset after 10k loops
+          const curTranslate = obj.material.uniforms.dashTranslate.value % 1e9; // reset after 1B loops
           obj.material.uniforms.dashTranslate.value = curTranslate + step;
         })
     });
@@ -164,7 +164,8 @@ export default Kapsule({
         dashOffset: { value: dashInitialGapAccessor(arc)}
       });
       // set dash animation step
-      obj.__dashAnimateStep = 1000 / dashAnimateTimeAccessor(arc); // per second
+      const dashAnimateTime = dashAnimateTimeAccessor(arc);
+      obj.__dashAnimateStep = dashAnimateTime > 0 ? 1000 / dashAnimateTime : 0; // per second
 
       // calculate vertex colors (to create gradient)
       const vertexColorArray = calcColorVertexArray(
@@ -176,7 +177,8 @@ export default Kapsule({
       // calculate vertex relative distances (for dashed lines)
       const vertexRelDistanceArray = calcVertexRelDistances(
         state.arcCurveResolution, // numSegments
-        useTube ? state.arcCircularResolution + 1 : 1 // num vertices per segment
+        useTube ? state.arcCircularResolution + 1 : 1, // num vertices per segment
+        true // run from end to start, to animate in the correct direction
       );
 
       const applyUpdate = ({ stroke, ...curveD }) => {
@@ -280,15 +282,18 @@ export default Kapsule({
       return vertexColorArray;
     }
 
-    function calcVertexRelDistances(numSegments, numVerticesPerSegment = 1) {
+    function calcVertexRelDistances(numSegments, numVerticesPerSegment = 1, invert = false) {
       const numVerticesGroup = numSegments + 1; // one between every two segments and two at the ends
+      const arrLen = numVerticesGroup * numVerticesPerSegment;
 
-      const vertexDistanceArray = new THREE.Float32BufferAttribute(numVerticesGroup * numVerticesPerSegment, 1);
+      const vertexDistanceArray = new THREE.Float32BufferAttribute(arrLen, 1);
 
       for (let v = 0, l = numVerticesGroup; v < l; v++) {
         const relDistance = v / (l - 1);
         for (let s = 0; s < numVerticesPerSegment; s++) {
-          vertexDistanceArray.setX(v * numVerticesPerSegment + s, relDistance);
+          const idx = v * numVerticesPerSegment + s;
+          const pos = invert ? arrLen - idx :idx;
+          vertexDistanceArray.setX(pos, relDistance);
         }
       }
 
