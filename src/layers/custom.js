@@ -3,7 +3,7 @@ import accessorFn from 'accessor-fn';
 
 import { emptyObject } from '../gc';
 import { GLOBE_RADIUS } from '../constants';
-import { dataBindDiff } from '../differ';
+import { threeDigest } from '../digest';
 
 //
 
@@ -23,37 +23,13 @@ export default Kapsule({
   },
 
   update(state) {
-    if (!state.customThreeObjectUpdate) {
+    if (!state.customThreeObjectUpdate) { emptyObject(state.scene); } // Clear the existing objects to create all new, if there's no update method (brute-force)
 
-      emptyObject(state.scene); // Clear the existing objects
-      createObjs(state.customLayerData).forEach(obj => state.scene.add(obj)); // create all new
+    const customObjectAccessor = accessorFn(state.customThreeObject);
+    const customObjectUpdateAccessor = accessorFn(state.customThreeObjectUpdate);
 
-    } else {
-
-      const { enter, update, exit } = dataBindDiff(state.scene.children, state.customLayerData, { objType: 'custom' });
-
-      const newObjs = createObjs(enter);
-      const pointsData = [...enter, ...update];
-      updateObjs(pointsData);
-
-      newObjs.forEach(obj => state.scene.add(obj));
-
-      // Remove exiting points
-      exit.forEach(d => {
-        const obj = d.__threeObj;
-        emptyObject(obj);
-        state.scene.remove(obj);
-      });
-    }
-
-    //
-
-    function createObjs(data) {
-      const customObjectAccessor = accessorFn(state.customThreeObject);
-
-      const newObjs = [];
-
-      data.forEach(d => {
+    threeDigest(state.customLayerData, state.scene, {
+      createObj: d => {
         let obj = customObjectAccessor(d, GLOBE_RADIUS);
 
         if (obj) {
@@ -63,21 +39,12 @@ export default Kapsule({
           }
 
           obj.__globeObjType = 'custom'; // Add object type
-          obj.__data = d; // Attach point data
-
-          newObjs.push(d.__threeObj = obj);
         }
-      });
 
-      return newObjs;
-    }
-
-    function updateObjs(data) {
-      const customObjectUpdateAccessor = accessorFn(state.customThreeObjectUpdate);
-
-      data.forEach(d => {
-        customObjectUpdateAccessor(d.__threeObj, d, GLOBE_RADIUS);
-      });
-    }
+        return obj;
+      },
+      updateObj: (obj, d) => customObjectUpdateAccessor(obj, d, GLOBE_RADIUS),
+      exitObj: emptyObject
+    });
   }
 });
