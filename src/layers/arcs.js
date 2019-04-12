@@ -142,7 +142,6 @@ export default Kapsule({
       ...gradientShaders,
       transparent: true,
       blending: THREE.AdditiveBlending
-      //depthTest: false,
     });
 
     threeDigest(state.arcsData, state.scene, {

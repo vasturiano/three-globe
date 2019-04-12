@@ -52,28 +52,34 @@ export default Kapsule({
     let atmosphereObj;
     {
       const shaders = {
-        vertex: [
-          'varying vec3 vNormal;',
-          'void main() {',
-          'vNormal = normalize( normalMatrix * normal );',
-          'gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );',
-          '}'
-        ].join('\n'),
-        fragment: [
-          'varying vec3 vNormal;',
-          'void main() {',
-          'float intensity = pow( 0.8 - dot( vNormal, vec3( 0, 0, 1.0 ) ), 12.0 );',
-          'gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 ) * intensity;',
-          '}'
-        ].join('\n')
+        uniforms: {
+          coeficient: { value: 0.8 },
+          power: { value: 12 }
+        },
+        vertexShader: `
+          varying vec3 vNormal;
+          void main() {
+            vNormal = normalize(normalMatrix * normal);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform float	coeficient;
+          uniform float	power;
+
+          varying vec3 vNormal;
+          void main() {
+            float intensity = pow(coeficient - dot(vNormal, vec3(0, 0, 1.0)), power);
+            gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0) * intensity;
+          }
+        `
       };
       const material = new THREE.ShaderMaterial({
-        uniforms: {},
-        vertexShader: shaders.vertex,
-        fragmentShader: shaders.fragment,
+        ...shaders,
         side: THREE.BackSide,
         blending: THREE.AdditiveBlending,
-        transparent: true
+        transparent: true,
+        depthWrite: false
       });
 
       atmosphereObj = new THREE.Mesh(globeGeometry, material);
