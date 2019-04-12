@@ -140,22 +140,24 @@ export default Kapsule({
 
   update(state) {
     if (state.animateIn) {
-      // Animate build-in just once
-      state.animateIn = false;
-      state.scene.visible = true;
+      setTimeout(() => {
+        // Animate build-in just once
+        state.animateIn = false;
+        state.scene.visible = true;
 
-      new TWEEN.Tween({ k: 1e-6 })
-        .to({ k: 1 }, 600)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .onUpdate(({ k }) => state.scene.scale.set(k, k, k))
-        .start();
+        new TWEEN.Tween({k: 1e-6})
+          .to({k: 1}, 600)
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .onUpdate(({ k }) => state.scene.scale.set(k, k, k))
+          .start();
 
-      const rotAxis = new THREE.Vector3(0, 1, 0);
-      new TWEEN.Tween({ rot: Math.PI * 2 })
-        .to({rot: 0}, 1200)
-        .easing(TWEEN.Easing.Quintic.Out)
-        .onUpdate(({ rot }) => state.scene.setRotationFromAxisAngle(rotAxis, rot))
-        .start();
+        const rotAxis = new THREE.Vector3(0, 1, 0);
+        new TWEEN.Tween({rot: Math.PI * 2})
+          .to({rot: 0}, 1200)
+          .easing(TWEEN.Easing.Quintic.Out)
+          .onUpdate(({ rot }) => state.scene.setRotationFromAxisAngle(rotAxis, rot))
+          .start();
+      }, 600); // delay animation slightly to load globe texture
     }
   }
 });
