@@ -2,6 +2,7 @@ import {
   AdditiveBlending,
   BufferGeometry,
   CubicBezierCurve3,
+  Curve,
   Float32BufferAttribute,
   Line,
   Mesh,
@@ -17,6 +18,7 @@ const THREE = window.THREE
     AdditiveBlending,
     BufferGeometry,
     CubicBezierCurve3,
+    Curve,
     Float32BufferAttribute,
     Line,
     Mesh,
@@ -247,14 +249,35 @@ export default Kapsule({
         // by default set altitude proportional to the great-arc distance
       (altitude = geoDistance(startPnt, endPnt) / 2 * altAutoScale);
 
-      const interpolate = geoInterpolate(startPnt, endPnt);
-      const [m1Pnt, m2Pnt] = [0.25, 0.75].map(t => [...interpolate(t), altitude * 1.5]);
-      const curve = new THREE.CubicBezierCurve3(...[startPnt, m1Pnt, m2Pnt, endPnt].map(getVec));
+      if (altitude) {
+        const interpolate = geoInterpolate(startPnt, endPnt);
+        const [m1Pnt, m2Pnt] = [0.25, 0.75].map(t => [...interpolate(t), altitude * 1.5]);
+        const curve = new THREE.CubicBezierCurve3(...[startPnt, m1Pnt, m2Pnt, endPnt].map(getVec));
 
-      //const mPnt = [...interpolate(0.5), altitude * 2];
-      //curve = new THREE.QuadraticBezierCurve3(...[startPnt, mPnt, endPnt].map(getVec));
+        //const mPnt = [...interpolate(0.5), altitude * 2];
+        //curve = new THREE.QuadraticBezierCurve3(...[startPnt, mPnt, endPnt].map(getVec));
 
-      return curve;
+        return curve;
+      } else {
+        // ground line
+        const alt = 0.001; // slightly above the ground to prevent occlusion
+        return calcSphereArc(...[[...startPnt, alt], [...endPnt, alt]].map(getVec));
+      }
+
+      //
+
+      function calcSphereArc(startVec, endVec) {
+        const angle = startVec.angleTo(endVec);
+        const getGreatCirclePoint = t => new THREE.Vector3().addVectors(
+          startVec.clone().multiplyScalar(Math.sin( (1 - t) * angle)),
+          endVec.clone().multiplyScalar(Math.sin(t  * angle))
+        ).divideScalar(Math.sin(angle));
+
+        const sphereArc = new THREE.Curve();
+        sphereArc.getPoint = getGreatCirclePoint;
+
+        return sphereArc;
+      }
     }
 
     function calcColorVertexArray(colors, numSegments, numVerticesPerSegment = 1) {
