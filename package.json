@@ -40,6 +40,7 @@
     "@tweenjs/tween.js": "^17.3.0",
     "accessor-fn": "^1.2.2",
     "d3-geo": "^1.11.3",
+    "d3-hexbin": "^0.2.2",
     "d3-scale": "^3.0.0",
     "frame-ticker": "^1.0.3",
     "index-array-by": "^1.2.3",

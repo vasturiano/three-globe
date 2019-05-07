@@ -20,6 +20,7 @@ import { polar2Cartesian, cartesian2Polar } from './coordTranslate';
 import GlobeLayerKapsule from './layers/globe';
 import PointsLayerKapsule from './layers/points';
 import ArcsLayerKapsule from './layers/arcs';
+import HexBinLayerKapsule from './layers/hexbin';
 import CustomLayerKapsule from './layers/custom';
 
 //
@@ -66,6 +67,20 @@ const linkedArcsLayerProps = Object.assign(...[
   'arcsTransitionDuration'
 ].map(p => ({ [p]: bindArcsLayer.linkProp(p)})));
 
+const bindHexBinLayer = linkKapsule('hexBinLayer', HexBinLayerKapsule);
+const linkedHexBinLayerProps = Object.assign(...[
+  'hexBinPointsData',
+  'hexBinPointLat',
+  'hexBinPointLng',
+  'hexBinPointWeight',
+  'hexRadius',
+  'hexMargin',
+  'hexColor',
+  'hexAltitude',
+  'hexBinMerge',
+  'hexTransitionDuration'
+].map(p => ({ [p]: bindHexBinLayer.linkProp(p)})));
+
 const bindCustomLayer = linkKapsule('customLayer', CustomLayerKapsule);
 const linkedCustomLayerProps = Object.assign(...[
   'customLayerData',
@@ -80,6 +95,7 @@ export default Kapsule({
     ...linkedGlobeLayerProps,
     ...linkedPointsLayerProps,
     ...linkedArcsLayerProps,
+    ...linkedHexBinLayerProps,
     ...linkedCustomLayerProps
   },
 
@@ -93,6 +109,7 @@ export default Kapsule({
       globeLayer: GlobeLayerKapsule(),
       pointsLayer: PointsLayerKapsule(),
       arcsLayer: ArcsLayerKapsule(),
+      hexBinLayer: HexBinLayerKapsule(),
       customLayer: CustomLayerKapsule(),
       animateIn: false
     }
@@ -119,6 +136,11 @@ export default Kapsule({
     const arcsG = new THREE.Group();
     state.scene.add(arcsG);
     state.arcsLayer(arcsG);
+
+    // add hexbin layer group
+    const hexBinG = new THREE.Group();
+    state.scene.add(hexBinG);
+    state.hexBinLayer(hexBinG);
 
     // add custom layer group
     const customG = new THREE.Group();
