@@ -1,18 +1,36 @@
-function diffArrays(prev, next) {
-  const prevSet = new Set(prev);
-  const nextSet = new Set(next);
+import indexBy from 'index-array-by';
 
+function diffArrays(prev, next, idAccessor) {
   const result = { enter: [], update: [], exit: [] };
 
-  new Set([...prevSet, ...nextSet]).forEach(item => {
-    const type = !prevSet.has(item)
-      ? 'enter'
-      : !nextSet.has(item)
-        ? 'exit'
-        : 'update';
+  if (!idAccessor) { // use object references for comparison
+    const prevSet = new Set(prev);
+    const nextSet = new Set(next);
 
-    result[type].push(item);
-  });
+    new Set([...prevSet, ...nextSet]).forEach(item => {
+      const type = !prevSet.has(item)
+        ? 'enter'
+        : !nextSet.has(item)
+          ? 'exit'
+          : 'update';
+
+      result[type].push(type === 'update' ? [item, item]: item);
+    });
+  } else { // compare by id (duplicate keys are ignored)
+    const prevById = indexBy(prev, idAccessor, false);
+    const nextById = indexBy(next, idAccessor, false);
+    const byId = Object.assign({}, prevById, nextById);
+
+    Object.entries(byId).forEach(([id, item]) => {
+      const type = !prevById.hasOwnProperty(id)
+        ? 'enter'
+        : !nextById.hasOwnProperty(id)
+          ? 'exit'
+          : 'update';
+
+      result[type].push(type === 'update' ? [prevById[id], nextById[id]]: item);
+    });
+  }
 
   return result;
 }
@@ -22,21 +40,27 @@ function dataBindDiff(
   existingObjs,
   {
     objBindAttr = '__obj',
-    dataBindAttr = '__data'
+    dataBindAttr = '__data',
+    idAccessor
   }
 ) {
   const isObjValid = obj => obj.hasOwnProperty(dataBindAttr);
-  const isDataBound = d => d.hasOwnProperty(objBindAttr) && !!d[objBindAttr];
 
   const removeObjs = existingObjs.filter(obj => !isObjValid(obj));
-  const addData = data.filter(d => !isDataBound(d));
 
   const prevD = existingObjs.filter(isObjValid).map(obj => obj[dataBindAttr]);
-  const nextD = data.filter(isDataBound);
+  const nextD = data;
 
-  const diff = diffArrays(prevD, nextD);
+  const diff = diffArrays(prevD, nextD, idAccessor);
 
-  diff.enter = diff.enter.concat(addData);
+  diff.update = diff.update.map(([prevD, nextD]) => {
+    if (prevD !== nextD) {
+      // transfer obj to new data point (if different)
+      nextD[objBindAttr] = prevD[objBindAttr];
+      nextD[objBindAttr][dataBindAttr] = nextD;
+    }
+    return nextD;
+  });
   diff.exit = diff.exit.concat(removeObjs.map(obj => ({
     [objBindAttr]: obj
   })));
@@ -54,10 +78,11 @@ function viewDigest(
     updateObj = (obj, d) => {},
     exitObj = obj => {},
     objBindAttr = '__obj',
-    dataBindAttr = '__data'
+    dataBindAttr = '__data',
+    idAccessor
   }
 ) {
-  const { enter, update, exit } = dataBindDiff(data, existingObjs, { objBindAttr, dataBindAttr });
+  const { enter, update, exit } = dataBindDiff(data, existingObjs, { objBindAttr, dataBindAttr, idAccessor });
 
   const newObjs = createObjs(enter);
   const pointsData = [...enter, ...update];
@@ -102,7 +127,7 @@ function viewDigest(
   }
 }
 
-function threeDigest(data, scene, { createObj, updateObj, exitObj }) {
+function threeDigest(data, scene, { createObj, updateObj, exitObj, idAccessor }) {
   return viewDigest(
     data,
     scene.children,
@@ -112,7 +137,8 @@ function threeDigest(data, scene, { createObj, updateObj, exitObj }) {
       objBindAttr: '__threeObj',
       createObj,
       updateObj,
-      exitObj
+      exitObj,
+      idAccessor
     }
   );
 }
