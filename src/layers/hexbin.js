@@ -84,8 +84,6 @@ export default Kapsule({
         sumWeight: bin.reduce((agg, d) => agg + weightAccessor(d), 0)
       }));
 
-    //hexBins.forEach(bin => bin.sumWeight = bin.reduce((agg, d) => agg + weightAccessor(d), 0));
-
     // shared geometry
     const hexGeometry = new THREE[state.hexBinMerge ? 'CylinderGeometry' : 'CylinderBufferGeometry'](1, 1, 1, 6);
     hexGeometry.applyMatrix(new THREE.Matrix4().makeRotationX(Math.PI / 2));
@@ -96,7 +94,12 @@ export default Kapsule({
 
     const scene = state.hexBinMerge ? new THREE.Object3D() : state.scene; // use fake scene if merging hex points
 
-    threeDigest(hexBins, scene, { createObj, updateObj, exitObj: emptyObject });
+    threeDigest(hexBins, scene, {
+      createObj,
+      updateObj,
+      exitObj: emptyObject,
+      idAccessor: d => `${Math.round(d.center.lat * 1e6)}-${Math.round(d.center.lng * 1e6)}`
+    });
 
     if (state.hexBinMerge) { // merge points into a single mesh
       const hexPointsGeometry = new THREE.Geometry();
