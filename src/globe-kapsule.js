@@ -21,6 +21,7 @@ import GlobeLayerKapsule from './layers/globe';
 import PointsLayerKapsule from './layers/points';
 import ArcsLayerKapsule from './layers/arcs';
 import HexBinLayerKapsule from './layers/hexbin';
+import PolygonsLayerKapsule from './layers/polygons';
 import CustomLayerKapsule from './layers/custom';
 
 //
@@ -81,6 +82,15 @@ const linkedHexBinLayerProps = Object.assign(...[
   'hexTransitionDuration'
 ].map(p => ({ [p]: bindHexBinLayer.linkProp(p)})));
 
+const bindPolygonsLayer = linkKapsule('polygonsLayer', PolygonsLayerKapsule);
+const linkedPolygonsLayerProps = Object.assign(...[
+  'polygonsData',
+  'polygonGeoJsonGeometry',
+  'polygonColor',
+  'polygonAltitude',
+  'polygonsTransitionDuration'
+].map(p => ({ [p]: bindPolygonsLayer.linkProp(p)})));
+
 const bindCustomLayer = linkKapsule('customLayer', CustomLayerKapsule);
 const linkedCustomLayerProps = Object.assign(...[
   'customLayerData',
@@ -96,6 +106,7 @@ export default Kapsule({
     ...linkedPointsLayerProps,
     ...linkedArcsLayerProps,
     ...linkedHexBinLayerProps,
+    ...linkedPolygonsLayerProps,
     ...linkedCustomLayerProps
   },
 
@@ -110,6 +121,7 @@ export default Kapsule({
       pointsLayer: PointsLayerKapsule(),
       arcsLayer: ArcsLayerKapsule(),
       hexBinLayer: HexBinLayerKapsule(),
+      polygonsLayer: PolygonsLayerKapsule(),
       customLayer: CustomLayerKapsule(),
       animateIn: false
     }
@@ -141,6 +153,11 @@ export default Kapsule({
     const hexBinG = new THREE.Group();
     state.scene.add(hexBinG);
     state.hexBinLayer(hexBinG);
+
+    // add polygons layer group
+    const polygonsG = new THREE.Group();
+    state.scene.add(polygonsG);
+    state.polygonsLayer(polygonsG);
 
     // add custom layer group
     const customG = new THREE.Group();
