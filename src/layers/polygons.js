@@ -28,7 +28,7 @@ import { GLOBE_RADIUS } from '../constants';
 export default Kapsule({
   props: {
     polygonsData: { default: [] },
-    polygonGeoJsonGeometry: {},
+    polygonGeoJsonGeometry: { default: 'geometry' },
     polygonSideColor: { default: () => '#ffffaa' },
     polygonCapColor: { default: () => '#ffffaa' },
     polygonAltitude: { default: 0.1 }, // in units of globe radius
