@@ -108,15 +108,15 @@ export default Kapsule({
           alt: altitudeAccessor(data)
         };
 
-        const currentTargetD = data.__currentTargetD;
-        data.__currentTargetD = targetD;
+        const currentTargetD = obj.__currentTargetD || { alt: 0 };
+        obj.__currentTargetD = targetD;
 
         if (!state.polygonsTransitionDuration || state.polygonsTransitionDuration < 0) {
           // set final position
           applyUpdate(targetD);
         } else {
           // animate
-          new TWEEN.Tween(currentTargetD || targetD)
+          new TWEEN.Tween(currentTargetD)
             .to(targetD, state.polygonsTransitionDuration)
             .easing(TWEEN.Easing.Quadratic.InOut)
             .onUpdate(applyUpdate)
