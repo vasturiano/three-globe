@@ -3,7 +3,7 @@ import accessorFn from 'accessor-fn';
 
 import { emptyObject } from '../gc';
 import { GLOBE_RADIUS } from '../constants';
-import { threeDigest } from '../digest';
+import threeDigest from '../digest';
 
 //
 

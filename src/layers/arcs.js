@@ -35,7 +35,7 @@ import FrameTicker from 'frame-ticker';
 import { geoDistance, geoInterpolate } from 'd3-geo';
 import { scaleLinear as d3ScaleLinear } from 'd3-scale';
 
-import { threeDigest } from '../digest';
+import threeDigest from '../digest';
 import { emptyObject } from '../gc';
 import { color2ShaderArr } from '../color-utils';
 import { polar2Cartesian } from '../coordTranslate';

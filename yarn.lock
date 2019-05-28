@@ -1138,6 +1138,13 @@ d3-time@1:
   resolved "https://registry.yarnpkg.com/d3-time/-/d3-time-1.0.11.tgz#1d831a3e25cd189eb256c17770a666368762bbce"
   integrity sha512-Z3wpvhPLW4vEScGeIMUckDW7+3hWKOQfAWg/U7PlWBnQmeKQ00gCUsTtWSYulrKNA7ta8hJ+xXc6MHrMuITwEw==
 
+data-joint@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/data-joint/-/data-joint-1.1.0.tgz#7df6f4afe0e503a8904227af50e9aed053d054a6"
+  integrity sha512-V744ulDAaNZf9CChBRhdBa8d/ioDWazntdSeJ2wxwz2UL0JQJK3brYOcT5xqWI1nX/HIDZNKqbFDg1BvCcibIg==
+  dependencies:
+    index-array-by "^1.2.3"
+
 debounce@^1.1.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/debounce/-/debounce-1.2.0.tgz#44a540abc0ea9943018dc0eaa95cce87f65cd131"

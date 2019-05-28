@@ -20,7 +20,7 @@ import TWEEN from '@tweenjs/tween.js';
 
 import { colorStr2Hex, colorAlpha } from '../../color-utils';
 import { emptyObject } from '../../gc';
-import { threeDigest } from '../../digest';
+import threeDigest from '../../digest';
 import { GLOBE_RADIUS } from '../../constants';
 
 //
