@@ -74,26 +74,14 @@ export default Kapsule({
     });
 
     threeDigest(singlePolygons, state.scene, {
-      idAccessor: 'id',
+      idAccessor: d => d.id,
       exitObj: emptyObject,
-      createObj: ({ coords, data }) => {
-        // one material per side/cap
-        const colors = [sideColorAccessor, capColorAccessor].map(acc => {
-          const color = acc(data);
-          return {
-            color: colorStr2Hex(color),
-            opacity: colorAlpha(color)
-          }
-        });
-
+      createObj: () => {
         const obj = new THREE.Mesh(
-          new ConicPolygonBufferGeometry(coords, GLOBE_RADIUS, GLOBE_RADIUS * (1 + altitudeAccessor(data)), false),
-          colors.map(({ color, opacity }) => new THREE.MeshLambertMaterial({
-            color,
-            transparent: opacity < 1,
-            opacity: opacity,
-            side: THREE.DoubleSide
-          }))
+          undefined,
+          [
+            new THREE.MeshLambertMaterial({ side: THREE.DoubleSide }), // side material
+            new THREE.MeshLambertMaterial()] // cap material
         );
 
         obj.__globeObjType = 'polygon'; // Add object type
@@ -101,7 +89,6 @@ export default Kapsule({
         return obj;
       },
       updateObj: (obj, { coords, data }) => {
-
         // update materials
         [sideColorAccessor, capColorAccessor].forEach((acc, materialIdx) => {
           const color = acc(data);
