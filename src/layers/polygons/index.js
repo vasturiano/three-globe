@@ -79,7 +79,7 @@ export default Kapsule({
         const opacity = colorAlpha(color);
 
         const obj = new THREE.Mesh(
-          new ConicPolygonBufferGeometry(coords, GLOBE_RADIUS, GLOBE_RADIUS * (1 + altitudeAccessor(data))),
+          new ConicPolygonBufferGeometry(coords, GLOBE_RADIUS, GLOBE_RADIUS * (1 + altitudeAccessor(data)), false),
           new THREE.MeshLambertMaterial({
             color: colorStr2Hex(color),
             transparent: opacity < 1,
@@ -101,7 +101,7 @@ export default Kapsule({
         obj.material.opacity = opacity;
 
         const applyUpdate = ({ alt }) => {
-          obj.geometry = new ConicPolygonBufferGeometry(coords, GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt));
+          obj.geometry = new ConicPolygonBufferGeometry(coords, GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false);
         };
 
         const targetD = {

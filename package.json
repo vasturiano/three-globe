@@ -42,6 +42,7 @@
     "d3-geo": "^1.11.3",
     "d3-hexbin": "^0.2.2",
     "d3-scale": "^3.0.0",
+    "earcut": "^2.1.5",
     "frame-ticker": "^1.0.3",
     "index-array-by": "^1.2.3",
     "kapsule": "^1.10.0",

@@ -12,9 +12,9 @@ const THREE = window.THREE
   Geometry
 };
 
-import { geoCentroid } from 'd3-geo';
+import earcut from 'earcut';
 
-function ConicPolygonGeometry(polygonGeoJson, startHeight, endHeight, capSegments) {
+function ConicPolygonGeometry(polygonGeoJson, startHeight, endHeight, closedBottom, closedTop, includeSides) {
   Geometry.call(this);
 
   this.type = 'ConicPolygonGeometry';
@@ -23,17 +23,19 @@ function ConicPolygonGeometry(polygonGeoJson, startHeight, endHeight, capSegment
     polygonGeoJson,
     startHeight,
     endHeight,
-    capSegments
+    closedBottom,
+    closedTop,
+    includeSides
   };
 
-  this.fromBufferGeometry(new ConicPolygonBufferGeometry(polygonGeoJson, startHeight, endHeight, capSegments));
+  this.fromBufferGeometry(new ConicPolygonBufferGeometry(polygonGeoJson, startHeight, endHeight, closedBottom, closedTop, includeSides));
   this.mergeVertices();
 }
 
 ConicPolygonGeometry.prototype = Object.create(Geometry.prototype);
 ConicPolygonGeometry.prototype.constructor = ConicPolygonGeometry;
 
-function ConicPolygonBufferGeometry(polygonGeoJson, startHeight, endHeight, capSegments) {
+function ConicPolygonBufferGeometry(polygonGeoJson, startHeight, endHeight, closedBottom, closedTop, includeSides) {
 
   BufferGeometry.call(this);
 
@@ -43,71 +45,78 @@ function ConicPolygonBufferGeometry(polygonGeoJson, startHeight, endHeight, capS
     polygonGeoJson,
     startHeight,
     endHeight,
-    capSegments
+    closedBottom,
+    closedTop,
+    includeSides
   };
 
+  // defaults
   startHeight = startHeight || 0;
   endHeight = endHeight || 1;
-  capSegments = Math.floor(capSegments) || 8;
+  closedBottom = closedBottom !== undefined ? closedBottom : true;
+  closedTop = closedTop !== undefined ? closedTop : true;
+  includeSides = includeSides !== undefined ? includeSides : true;
 
-  // buffers
+  // calc vertices & indices
+  const { vertices: bottomVerts, holes } = generateVertices(startHeight);
+  const { vertices: topVerts } = generateVertices(endHeight);
+  const numPoints = Math.round(topVerts.length / 3);
+  const vertices = [...topVerts, ...bottomVerts];
+
   const indices = [];
-  const vertices = [];
 
-  generateVertices();
-  generateTorso();
-  generateCap();
+  includeSides && indices.push(...generateTorso());
+  closedBottom && indices.push(...generateCap(false));
+  closedTop && indices.push(...generateCap(true));
 
   // build geometry
   this.setIndex(indices);
   this.addAttribute('position', new Float32BufferAttribute(vertices, 3));
 
-  return;
+  //
 
-  // each coord is stored as 6 coords (x,y,z * (startHeight + endHeight))
-  function generateVertices() {
-    const [exterior = [], ...holes] = polygonGeoJson;
-
-    exterior.forEach(([lng, lat]) => {
-      vertices.push(...polar2Cartesian(lat, lng, startHeight));
-      vertices.push(...polar2Cartesian(lat, lng, endHeight));
-    });
+  function generateVertices(altitude) {
+    const coords3d = polygonGeoJson.map(coords => coords.map(([lng, lat]) => polar2Cartesian(lat, lng, altitude)));
+    // returns { vertices, holes, coordinates }. Each point generates 3 vertice items (x,y,z).
+    return earcut.flatten(coords3d);
   }
 
   function generateTorso() {
-    const [exterior = [], ...holes] = polygonGeoJson;
+    const holesIdx = new Set(holes);
+    let lastHoleIdx = 0;
 
-    for (let pntIdx = 0, len = exterior.length; pntIdx < len; pntIdx++) {
-      const v0Idx = pntIdx * 2; // 2 vertices per point
-      const v1Idx = pntIdx === len - 1 ? 0 : (pntIdx + 1) * 2; // close the loop
+    const indices = [];
+    for (let v0Idx = 0; v0Idx < numPoints; v0Idx++) {
+      let v1Idx = v0Idx + 1; // next point
+      if (v1Idx === numPoints) {
+        v1Idx = lastHoleIdx; // close final loop
+      } else if (holesIdx.has(v1Idx)) {
+        const holeIdx = v1Idx;
+        v1Idx = lastHoleIdx; // close hole loop
+        lastHoleIdx = holeIdx;
+      }
 
       // Each pair of coords generates two triangles (faces)
-      indices.push(v0Idx, v0Idx + 1, v1Idx + 1);
-      indices.push(v1Idx + 1, v1Idx, v0Idx);
+      indices.push(v0Idx, v0Idx + numPoints, v1Idx + numPoints);
+      indices.push(v1Idx + numPoints, v1Idx, v0Idx);
     }
+
+    return indices;
   }
 
   function generateCap(top = true) {
-    // append centroid vertex
-    const [centroidLng, centroidLat] = geoCentroid({ type: 'Polygon', coordinates: polygonGeoJson });
-    const centroidIdx = Math.round(vertices.length / 3);
-    vertices.push(...polar2Cartesian(centroidLat, centroidLng, top ? endHeight: startHeight));
+    let capIndices = earcut(top ? topVerts : bottomVerts, holes, 3);
 
-    const [exterior = [], ...holes] = polygonGeoJson;
+    !top && (capIndices = capIndices.map(v => v + numPoints)); // translate bottom indices
 
-    for (let pntIdx = 0, len = exterior.length; pntIdx < len; pntIdx++) {
-      const v0Idx = pntIdx * 2; // 2 vertices per point
-      const v1Idx = pntIdx === len - 1 ? 0 : (pntIdx + 1) * 2; // close the loop
-
-      // One triangle per coord to the centroid
-      indices.push(v0Idx + (top ? 1 : 0), v1Idx + (top ? 1 : 0), centroidIdx);
-    }
-
+    return capIndices;
   }
 }
 
 ConicPolygonBufferGeometry.prototype = Object.create(BufferGeometry.prototype);
 ConicPolygonBufferGeometry.prototype.constructor = ConicPolygonBufferGeometry;
+
+//
 
 function polar2Cartesian(lat, lng, r = 0) {
   const phi = (90 - lat) * Math.PI / 180;
