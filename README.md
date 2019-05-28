@@ -35,7 +35,7 @@ myScene.add(myGlobe);
 
 ### Initialisation
 ```
-new ThreeGlobe({ configOptions })(<domElement>)
+new ThreeGlobe({ configOptions })
 ```
 
 | Config options | Description | Default |
