@@ -87,8 +87,8 @@ export default Kapsule({
         const obj = new THREE.Mesh(
           undefined,
           [
-            new THREE.MeshLambertMaterial({ side: THREE.DoubleSide }), // side material
-            new THREE.MeshLambertMaterial()] // cap material
+            new THREE.MeshLambertMaterial({ side: THREE.DoubleSide, depthWrite: true }), // side material
+            new THREE.MeshLambertMaterial({ side: THREE.DoubleSide, depthWrite: true })] // cap material
         );
 
         obj.__globeObjType = 'polygon'; // Add object type
