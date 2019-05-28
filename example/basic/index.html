@@ -28,6 +28,11 @@
       .pointAltitude('size')
       .pointColor('color');
 
+    setTimeout(() => {
+      gData.forEach(d => d.size = Math.random());
+      Globe.pointsData(gData);
+    }, 4000);
+
     // Setup renderer
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
