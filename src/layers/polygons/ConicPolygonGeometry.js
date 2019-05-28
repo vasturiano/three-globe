@@ -120,7 +120,10 @@ function ConicPolygonBufferGeometry(polygonGeoJson, startHeight, endHeight, clos
   }
 
   function generateCap(top = true) {
-    let capIndices = earcut(top ? topVerts : bottomVerts, holes, 3);
+    // !! using the 3d coords generates shapes with the wrong winding, connecting the outsides of the contour
+    // so we derive the indexes from the lat,lng coordinates directly
+    // let capIndices = earcut(top ? topVerts : bottomVerts, holes, 3);
+    let capIndices = earcut(earcut.flatten(polygonGeoJson).vertices, holes, 2);
 
     !top && (capIndices = capIndices.map(v => v + numPoints)); // translate bottom indices
 
