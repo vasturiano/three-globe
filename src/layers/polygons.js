@@ -12,16 +12,16 @@ const THREE = window.THREE
   MeshLambertMaterial
 };
 
-import { ConicPolygonBufferGeometry } from './ConicPolygonGeometry';
+import { ConicPolygonBufferGeometry } from 'three-conic-polygon-geometry';
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
 import TWEEN from '@tweenjs/tween.js';
 
-import { colorStr2Hex, colorAlpha } from '../../color-utils';
-import { emptyObject } from '../../gc';
-import threeDigest from '../../digest';
-import { GLOBE_RADIUS } from '../../constants';
+import { colorStr2Hex, colorAlpha } from '../color-utils';
+import { emptyObject } from '../gc';
+import threeDigest from '../digest';
+import { GLOBE_RADIUS } from '../constants';
 
 //
 
@@ -88,7 +88,8 @@ export default Kapsule({
           undefined,
           [
             new THREE.MeshLambertMaterial({ side: THREE.DoubleSide, depthWrite: true }), // side material
-            new THREE.MeshLambertMaterial({ side: THREE.DoubleSide, depthWrite: true })] // cap material
+            new THREE.MeshLambertMaterial({ side: THREE.DoubleSide, depthWrite: true }) // cap material
+          ]
         );
 
         obj.__globeObjType = 'polygon'; // Add object type

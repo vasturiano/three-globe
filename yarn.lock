@@ -1909,6 +1909,13 @@ terser@^4.0.0:
     source-map "~0.6.1"
     source-map-support "~0.5.10"
 
+three-conic-polygon-geometry@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/three-conic-polygon-geometry/-/three-conic-polygon-geometry-1.1.0.tgz#d87d40c070c852bff0e4cc8dcb76c2b1aadcec3d"
+  integrity sha512-DupxEJb8mzspbmrv2YtWPf+rZUGhleYwZmV7vPMSeKidjYPmGtUlAwcaNbsr6m+VGjrc4vnVl0WJo3f80VavWg==
+  dependencies:
+    earcut "^2.1.5"
+
 tinycolor2@^1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/tinycolor2/-/tinycolor2-1.4.1.tgz#f4fad333447bc0b07d4dc8e9209d8f39a8ac77e8"

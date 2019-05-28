@@ -47,6 +47,7 @@
     "frame-ticker": "^1.0.3",
     "index-array-by": "^1.2.3",
     "kapsule": "^1.10.0",
+    "three-conic-polygon-geometry": "^1.1.0",
     "tinycolor2": "^1.4.1"
   },
   "peerDependencies": {

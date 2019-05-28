@@ -21,7 +21,7 @@ import GlobeLayerKapsule from './layers/globe';
 import PointsLayerKapsule from './layers/points';
 import ArcsLayerKapsule from './layers/arcs';
 import HexBinLayerKapsule from './layers/hexbin';
-import PolygonsLayerKapsule from './layers/polygons/index';
+import PolygonsLayerKapsule from './layers/polygons';
 import CustomLayerKapsule from './layers/custom';
 
 //
