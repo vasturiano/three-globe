@@ -1,4 +1,4 @@
-import { GLOBE_RADIUS } from './constants';
+import { GLOBE_RADIUS } from './../constants';
 
 function polar2Cartesian(lat, lng, relAltitude = 0) {
   const phi = (90 - lat) * Math.PI / 180;

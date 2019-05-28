@@ -13,9 +13,9 @@ const THREE = window.THREE
 import Kapsule from 'kapsule';
 import TWEEN from '@tweenjs/tween.js';
 
-import { emptyObject } from './gc';
-import linkKapsule from './kapsule-link.js';
-import { polar2Cartesian, cartesian2Polar } from './coordTranslate';
+import { emptyObject } from './utils/gc';
+import linkKapsule from './utils/kapsule-link.js';
+import { polar2Cartesian, cartesian2Polar } from './utils/coordTranslate';
 
 import GlobeLayerKapsule from './layers/globe';
 import PointsLayerKapsule from './layers/points';

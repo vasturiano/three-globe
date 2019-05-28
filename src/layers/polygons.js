@@ -18,9 +18,9 @@ import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
 import TWEEN from '@tweenjs/tween.js';
 
-import { colorStr2Hex, colorAlpha } from '../color-utils';
-import { emptyObject } from '../gc';
-import threeDigest from '../digest';
+import { colorStr2Hex, colorAlpha } from '../utils/color-utils';
+import { emptyObject } from '../utils/gc';
+import threeDigest from '../utils/digest';
 import { GLOBE_RADIUS } from '../constants';
 
 //

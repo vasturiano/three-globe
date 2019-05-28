@@ -1,9 +1,9 @@
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
 
-import { emptyObject } from '../gc';
+import { emptyObject } from '../utils/gc';
 import { GLOBE_RADIUS } from '../constants';
-import threeDigest from '../digest';
+import threeDigest from '../utils/digest';
 
 //
 

@@ -27,8 +27,8 @@ const THREE = window.THREE
 import Kapsule from 'kapsule';
 import { geoGraticule10 } from 'd3-geo';
 
-import drawThreeGeo from '../third-party/ThreeGeoJSON/threeGeoJSON';
-import { emptyObject } from '../gc';
+import drawThreeGeo from '../utils/third-party/ThreeGeoJSON/threeGeoJSON';
+import { emptyObject } from '../utils/gc';
 import { GLOBE_RADIUS } from '../constants';
 
 //
