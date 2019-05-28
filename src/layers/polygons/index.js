@@ -52,21 +52,28 @@ export default Kapsule({
 
     const singlePolygons = [];
     state.polygonsData.forEach(polygon => {
+      const objAttrs = {
+        data: polygon,
+        capColor: capColorAccessor(polygon),
+        sideColor: sideColorAccessor(polygon),
+        altitude: altitudeAccessor(polygon)
+      };
+
       const geoJson = geoJsonAccessor(polygon);
       const geoId = polygon.__id || `${Math.round(Math.random() * 1e9)}`; // generate and stamp polygon ids to keep track in digest
       polygon.__id = geoId;
 
       if (geoJson.type === 'Polygon') {
         singlePolygons.push({
+          id: `${geoId}_0`,
           coords: geoJson.coordinates,
-          data: polygon,
-          id: `${geoId}_0`
+          ...objAttrs
         });
       } else if (geoJson.type === 'MultiPolygon') {
         singlePolygons.push(...geoJson.coordinates.map((coords, idx) => ({
+          id: `${geoId}_${idx}`,
           coords,
-          data: polygon,
-          id: `${geoId}_${idx}`
+          ...objAttrs
         })));
       } else {
         console.warn(`Unsupported GeoJson geometry type: ${geoJson.type}. Skipping geometry...`);
@@ -88,10 +95,9 @@ export default Kapsule({
 
         return obj;
       },
-      updateObj: (obj, { coords, data }) => {
+      updateObj: (obj, { coords, capColor, sideColor, altitude }) => {
         // update materials
-        [sideColorAccessor, capColorAccessor].forEach((acc, materialIdx) => {
-          const color = acc(data);
+        [sideColor, capColor].forEach((color, materialIdx) => {
           const opacity = colorAlpha(color);
           const material = obj.material[materialIdx];
 
@@ -104,10 +110,7 @@ export default Kapsule({
           obj.geometry = new ConicPolygonBufferGeometry(coords, GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false);
         };
 
-        const targetD = {
-          alt: altitudeAccessor(data)
-        };
-
+        const targetD = { alt: altitude };
         const currentTargetD = obj.__currentTargetD || { alt: 0 };
         obj.__currentTargetD = targetD;
 
