@@ -29,7 +29,8 @@ export default Kapsule({
   props: {
     polygonsData: { default: [] },
     polygonGeoJsonGeometry: {},
-    polygonColor: { default: () => '#ffffaa' },
+    polygonSideColor: { default: () => '#ffffaa' },
+    polygonCapColor: { default: () => '#ffffaa' },
     polygonAltitude: { default: 0.1 }, // in units of globe radius
     polygonsTransitionDuration: { default: 1000, triggerUpdate: false } // ms
   },
@@ -46,7 +47,8 @@ export default Kapsule({
     // Data accessors
     const geoJsonAccessor = accessorFn(state.polygonGeoJsonGeometry);
     const altitudeAccessor = accessorFn(state.polygonAltitude);
-    const colorAccessor = accessorFn(state.polygonColor);
+    const capColorAccessor = accessorFn(state.polygonCapColor);
+    const sideColorAccessor = accessorFn(state.polygonSideColor);
 
     const singlePolygons = [];
     state.polygonsData.forEach(polygon => {
@@ -75,17 +77,23 @@ export default Kapsule({
       idAccessor: 'id',
       exitObj: emptyObject,
       createObj: ({ coords, data }) => {
-        const color = colorAccessor(data);
-        const opacity = colorAlpha(color);
+        // one material per side/cap
+        const colors = [sideColorAccessor, capColorAccessor].map(acc => {
+          const color = acc(data);
+          return {
+            color: colorStr2Hex(color),
+            opacity: colorAlpha(color)
+          }
+        });
 
         const obj = new THREE.Mesh(
           new ConicPolygonBufferGeometry(coords, GLOBE_RADIUS, GLOBE_RADIUS * (1 + altitudeAccessor(data)), false),
-          new THREE.MeshLambertMaterial({
-            color: colorStr2Hex(color),
+          colors.map(({ color, opacity }) => new THREE.MeshLambertMaterial({
+            color,
             transparent: opacity < 1,
             opacity: opacity,
             side: THREE.DoubleSide
-          })
+          }))
         );
 
         obj.__globeObjType = 'polygon'; // Add object type
@@ -93,12 +101,17 @@ export default Kapsule({
         return obj;
       },
       updateObj: (obj, { coords, data }) => {
-        const color = colorAccessor(data);
-        const opacity = colorAlpha(color);
 
-        obj.material.color.set(colorStr2Hex(color));
-        obj.material.transparent = opacity < 1;
-        obj.material.opacity = opacity;
+        // update materials
+        [sideColorAccessor, capColorAccessor].forEach((acc, materialIdx) => {
+          const color = acc(data);
+          const opacity = colorAlpha(color);
+          const material = obj.material[materialIdx];
+
+          material.color.set(colorStr2Hex(color));
+          material.transparent = opacity < 1;
+          material.opacity = opacity;
+        });
 
         const applyUpdate = ({ alt }) => {
           obj.geometry = new ConicPolygonBufferGeometry(coords, GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false);

@@ -86,7 +86,8 @@ const bindPolygonsLayer = linkKapsule('polygonsLayer', PolygonsLayerKapsule);
 const linkedPolygonsLayerProps = Object.assign(...[
   'polygonsData',
   'polygonGeoJsonGeometry',
-  'polygonColor',
+  'polygonCapColor',
+  'polygonSideColor',
   'polygonAltitude',
   'polygonsTransitionDuration'
 ].map(p => ({ [p]: bindPolygonsLayer.linkProp(p)})));

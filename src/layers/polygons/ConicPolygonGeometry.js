@@ -64,10 +64,25 @@ function ConicPolygonBufferGeometry(polygonGeoJson, startHeight, endHeight, clos
   const vertices = [...topVerts, ...bottomVerts];
 
   const indices = [];
+  let groupCnt = 0; // add groups to apply different materials to torso / caps
 
-  includeSides && indices.push(...generateTorso());
-  closedBottom && indices.push(...generateCap(false));
-  closedTop && indices.push(...generateCap(true));
+  if (includeSides) {
+    const prevIndCnt = indices.length;
+    indices.push(...generateTorso());
+    this.addGroup(prevIndCnt, indices.length - prevIndCnt, groupCnt++);
+  }
+
+  if (closedBottom) {
+    const prevIndCnt = indices.length;
+    indices.push(...generateCap(false));
+    this.addGroup(prevIndCnt, indices.length - prevIndCnt, groupCnt++);
+  }
+
+  if (closedTop) {
+    const prevIndCnt = indices.length;
+    indices.push(...generateCap(true));
+    this.addGroup(prevIndCnt, indices.length - prevIndCnt, groupCnt++);
+  }
 
   // build geometry
   this.setIndex(indices);
