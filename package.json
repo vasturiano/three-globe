@@ -24,11 +24,7 @@
   "bugs": {
     "url": "https://github.com/vasturiano/three-globe/issues"
   },
-  "files": [
-    "src/**/*",
-    "dist/**/*",
-    "example/**/*"
-  ],
+  "files": [ "dist/**/*" ],
   "scripts": {
     "build": "rimraf dist && rollup -c",
     "dev": "rollup -c -w",
