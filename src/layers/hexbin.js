@@ -157,19 +157,21 @@ export default Kapsule({
         lng: d.center.lng
       };
 
-      const currentTargetD = obj.__currentTargetD;
+      const currentTargetD = obj.__currentTargetD || Object.assign({}, targetD, { alt: -1e-3 });
       obj.__currentTargetD = targetD;
 
-      if (state.hexBinMerge || !state.hexTransitionDuration || state.hexTransitionDuration < 0) {
-        // set final position
-        applyUpdate(targetD);
-      } else {
-        // animate
-        new TWEEN.Tween(currentTargetD || Object.assign({}, targetD, { alt: 0 }))
-          .to(targetD, state.hexTransitionDuration)
-          .easing(TWEEN.Easing.Quadratic.InOut)
-          .onUpdate(applyUpdate)
-          .start();
+      if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD)) {
+        if (state.hexBinMerge || !state.hexTransitionDuration || state.hexTransitionDuration < 0) {
+          // set final position
+          applyUpdate(targetD);
+        } else {
+          // animate
+          new TWEEN.Tween(currentTargetD)
+            .to(targetD, state.hexTransitionDuration)
+            .easing(TWEEN.Easing.Quadratic.InOut)
+            .onUpdate(applyUpdate)
+            .start();
+        }
       }
 
       if (!state.hexBinMerge) {

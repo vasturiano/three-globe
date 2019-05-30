@@ -135,19 +135,21 @@ export default Kapsule({
         lng: lngAccessor(d)
       };
 
-      const currentTargetD = obj.__currentTargetD;
+      const currentTargetD = obj.__currentTargetD || Object.assign({}, targetD, {alt: -1e-3});
       obj.__currentTargetD = targetD;
 
-      if (state.pointsMerge || !state.pointsTransitionDuration || state.pointsTransitionDuration < 0) {
-        // set final position
-        applyUpdate(targetD);
-      } else {
-        // animate
-        new TWEEN.Tween(currentTargetD || Object.assign({}, targetD, { alt: 0 }))
-          .to(targetD, state.pointsTransitionDuration)
-          .easing(TWEEN.Easing.Quadratic.InOut)
-          .onUpdate(applyUpdate)
-          .start();
+      if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD)) {
+        if (state.pointsMerge || !state.pointsTransitionDuration || state.pointsTransitionDuration < 0) {
+          // set final position
+          applyUpdate(targetD);
+        } else {
+          // animate
+          new TWEEN.Tween(currentTargetD)
+            .to(targetD, state.pointsTransitionDuration)
+            .easing(TWEEN.Easing.Quadratic.InOut)
+            .onUpdate(applyUpdate)
+            .start();
+        }
       }
 
       if (!state.pointsMerge) {

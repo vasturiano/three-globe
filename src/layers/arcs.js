@@ -215,19 +215,21 @@ export default Kapsule({
           endLng: endLngAccessor(arc)
         };
 
-        const currentTargetD = arc.__currentTargetD;
+        const currentTargetD = arc.__currentTargetD || Object.assign({}, targetD, {altAutoScale: -1e-3});
         arc.__currentTargetD = targetD;
 
-        if (!state.arcsTransitionDuration || state.arcsTransitionDuration < 0) {
-          // set final position
-          applyUpdate(targetD);
-        } else {
-          // animate
-          new TWEEN.Tween(currentTargetD || Object.assign({}, targetD, { altAutoScale: 0 }))
-            .to(targetD, state.arcsTransitionDuration)
-            .easing(TWEEN.Easing.Quadratic.InOut)
-            .onUpdate(applyUpdate)
-            .start();
+        if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD)) {
+          if (!state.arcsTransitionDuration || state.arcsTransitionDuration < 0) {
+            // set final position
+            applyUpdate(targetD);
+          } else {
+            // animate
+            new TWEEN.Tween(currentTargetD)
+              .to(targetD, state.arcsTransitionDuration)
+              .easing(TWEEN.Easing.Quadratic.InOut)
+              .onUpdate(applyUpdate)
+              .start();
+          }
         }
       }
     });

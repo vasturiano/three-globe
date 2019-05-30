@@ -112,19 +112,21 @@ export default Kapsule({
         };
 
         const targetD = { alt: altitude };
-        const currentTargetD = obj.__currentTargetD || { alt: 0 };
+        const currentTargetD = obj.__currentTargetD || { alt: -1e-3 };
         obj.__currentTargetD = targetD;
 
-        if (!state.polygonsTransitionDuration || state.polygonsTransitionDuration < 0) {
-          // set final position
-          applyUpdate(targetD);
-        } else {
-          // animate
-          new TWEEN.Tween(currentTargetD)
-            .to(targetD, state.polygonsTransitionDuration)
-            .easing(TWEEN.Easing.Quadratic.InOut)
-            .onUpdate(applyUpdate)
-            .start();
+        if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD)) {
+          if (!state.polygonsTransitionDuration || state.polygonsTransitionDuration < 0) {
+            // set final position
+            applyUpdate(targetD);
+          } else {
+            // animate
+            new TWEEN.Tween(currentTargetD)
+              .to(targetD, state.polygonsTransitionDuration)
+              .easing(TWEEN.Easing.Quadratic.InOut)
+              .onUpdate(applyUpdate)
+              .start();
+          }
         }
       }
     });
