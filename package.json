@@ -1,6 +1,6 @@
 {
   "name": "three-globe",
-  "version": "1.7.4",
+  "version": "1.7.5",
   "description": "Globe data visualization as a ThreeJS reusable 3D object",
   "unpkg": "dist/three-globe.min.js",
   "main": "dist/three-globe.common.js",
@@ -24,7 +24,9 @@
   "bugs": {
     "url": "https://github.com/vasturiano/three-globe/issues"
   },
-  "files": [ "dist/**/*" ],
+  "files": [
+    "dist/**/*"
+  ],
   "scripts": {
     "build": "rimraf dist && rollup -c",
     "dev": "rollup -c -w",
