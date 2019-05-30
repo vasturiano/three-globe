@@ -138,7 +138,7 @@ export default Kapsule({
       const currentTargetD = obj.__currentTargetD || Object.assign({}, targetD, {alt: -1e-3});
       obj.__currentTargetD = targetD;
 
-      if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD)) {
+      if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD[k])) {
         if (state.pointsMerge || !state.pointsTransitionDuration || state.pointsTransitionDuration < 0) {
           // set final position
           applyUpdate(targetD);

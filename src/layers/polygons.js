@@ -115,7 +115,7 @@ export default Kapsule({
         const currentTargetD = obj.__currentTargetD || { alt: -1e-3 };
         obj.__currentTargetD = targetD;
 
-        if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD)) {
+        if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD[k])) {
           if (!state.polygonsTransitionDuration || state.polygonsTransitionDuration < 0) {
             // set final position
             applyUpdate(targetD);

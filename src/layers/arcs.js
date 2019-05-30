@@ -218,7 +218,7 @@ export default Kapsule({
         const currentTargetD = arc.__currentTargetD || Object.assign({}, targetD, {altAutoScale: -1e-3});
         arc.__currentTargetD = targetD;
 
-        if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD)) {
+        if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD[k])) {
           if (!state.arcsTransitionDuration || state.arcsTransitionDuration < 0) {
             // set final position
             applyUpdate(targetD);
