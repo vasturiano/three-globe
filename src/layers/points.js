@@ -116,7 +116,9 @@ export default Kapsule({
     }
 
     function updateObj(obj, d) {
-      const applyUpdate = ({ r, alt, lat, lng }) => {
+      const applyUpdate = td => {
+        const { r, alt, lat, lng } = obj.__currentTargetD = td;
+
         // position cylinder ground
         Object.assign(obj.position, polar2Cartesian(lat, lng));
 
@@ -136,7 +138,6 @@ export default Kapsule({
       };
 
       const currentTargetD = obj.__currentTargetD || Object.assign({}, targetD, {alt: -1e-3});
-      obj.__currentTargetD = targetD;
 
       if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD[k])) {
         if (state.pointsMerge || !state.pointsTransitionDuration || state.pointsTransitionDuration < 0) {

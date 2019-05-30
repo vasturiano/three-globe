@@ -107,13 +107,14 @@ export default Kapsule({
           material.opacity = opacity;
         });
 
-        const applyUpdate = ({ alt }) => {
+        const applyUpdate = td => {
+          const { alt } = obj.__currentTargetD = td;
+
           obj.geometry = new ConicPolygonBufferGeometry(coords, GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false);
         };
 
         const targetD = { alt: altitude };
         const currentTargetD = obj.__currentTargetD || { alt: -1e-3 };
-        obj.__currentTargetD = targetD;
 
         if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD[k])) {
           if (!state.polygonsTransitionDuration || state.polygonsTransitionDuration < 0) {
