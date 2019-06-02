@@ -43,7 +43,7 @@ export default Kapsule({
     labelTypeFace: { default: defaultTypeFace, onChange(tf, state) { state.font = new Font(tf) }},
     labelColor: { default: () => 'lightgrey' },
     labelRotation: { default: 0 }, // clockwise degrees, relative to the latitute parallel plane
-    labelResolution: { default: 12 }, // how many segments in the text's curves
+    labelResolution: { default: 3 }, // how many segments in the text's curves
     labelIncludeDot: { default: true },
     labelDotRadius: { default: 0.1 }, // in deg
     labelDotOrientation: { default: () => 'bottom' }, // right, top, bottom
