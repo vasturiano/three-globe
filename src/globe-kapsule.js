@@ -104,7 +104,10 @@ const linkedLabelsLayerProps = Object.assign(...[
   'labelSize',
   'labelTypeFace',
   'labelColor',
-  'labelResolution'
+  'labelResolution',
+  'labelIncludeDot',
+  'labelDotRadius',
+  'labelDotOrientation'
 ].map(p => ({ [p]: bindLabelsLayer.linkProp(p)})));
 
 const bindCustomLayer = linkKapsule('customLayer', CustomLayerKapsule);
