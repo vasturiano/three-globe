@@ -1,6 +1,7 @@
 import {
   CircleBufferGeometry,
   Font,
+  Group,
   Mesh,
   MeshLambertMaterial,
   TextBufferGeometry
@@ -11,6 +12,7 @@ const THREE = window.THREE
   : {
   CircleBufferGeometry,
   Font,
+  Group,
   Mesh,
   MeshLambertMaterial,
   TextBufferGeometry
@@ -78,7 +80,9 @@ export default Kapsule({
       createObj: () => {
         const material = new MeshLambertMaterial();
 
-        const obj = new Mesh(new CircleBufferGeometry(1, 16), material); // dot & container
+        const obj = new THREE.Group(); // container
+
+        obj.add(new Mesh(new CircleBufferGeometry(1, 16), material)); // dot
         obj.add(new Mesh(undefined, material)); // text
 
         obj.__globeObjType = 'label'; // Add object type
@@ -86,15 +90,14 @@ export default Kapsule({
         return obj;
       },
       updateObj: (obj, d) => {
-        const dotObj = obj;
-        const [textObj] = obj.children;
+        const [dotObj, textObj] = obj.children;
 
         // update color
         const color = colorAccessor(d);
         const opacity = colorAlpha(color);
-        obj.material.color.set(colorStr2Hex(color));
-        obj.material.transparent = opacity < 1;
-        obj.material.opacity = opacity;
+        textObj.material.color.set(colorStr2Hex(color));
+        textObj.material.transparent = opacity < 1;
+        textObj.material.opacity = opacity;
 
         // update dot
         const includeDot = includeDotAccessor(d);
@@ -103,7 +106,7 @@ export default Kapsule({
 
         // size dot
         const dotR = includeDot ? dotRadiusAccessor(d) * pxPerDeg : 1e-12;
-        dotObj.geometry.scale(dotR, dotR, 1);
+        dotObj.scale.x = dotObj.scale.y = dotR;
 
         // create text geometry
         const textHeight = sizeAccessor(d) * pxPerDeg;
@@ -121,39 +124,34 @@ export default Kapsule({
           // translate text
           const padding = dotR * 2;
 
-          textObj.geometry.translate({
-              // x
-              right: padding,
-              top: 0,
-              bottom: 0
-            }[dotOrient], {
-              // y
-              right: -textHeight / 2, // center vertically
-              top: padding + textHeight / 2,
-              bottom: -padding - textHeight / 2
-            }[dotOrient],
-          0);
+          dotOrient === 'right' && (textObj.position.x = padding);
+
+          textObj.position.y = {
+            right: -textHeight / 2, // center vertically
+            top: padding + textHeight / 2,
+            bottom: -padding - textHeight / 2
+          }[dotOrient];
         }
 
         // animations
         const applyPosition = td => {
-          const { lat, lng, alt, scale } = obj.__currentTargetD = td;
+          const { lat, lng, alt, rot, scale } = obj.__currentTargetD = td;
 
           // position center
           Object.assign(obj.position, polar2Cartesian(lat, lng, alt));
 
-          // orientate outwards
-          const outDir = polar2Cartesian(lat, lng, alt + 10);
-          obj.lookAt(outDir.x, outDir.y, outDir.z);
+          // rotate
+          obj.lookAt(0, 0, 0);
+          obj.rotateY(Math.PI); // face outwards
 
           // rotate clockwise relative to lat parallel
-          obj.rotateZ(-rotationAccessor(d) * Math.PI / 180);
+          obj.rotateZ(-rot * Math.PI / 180);
 
           // scale it
           obj.scale.x = obj.scale.y = obj.scale.z = scale;
         };
 
-        const targetD = { lat: latAccessor(d), lng: lngAccessor(d), alt: altitudeAccessor(d), scale: 1 };
+        const targetD = { lat: latAccessor(d), lng: lngAccessor(d), alt: altitudeAccessor(d), rot: rotationAccessor(d), scale: 1 };
         const currentTargetD = obj.__currentTargetD || Object.assign({}, targetD, { scale: 1e-12 });
 
         if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD[k])) {
