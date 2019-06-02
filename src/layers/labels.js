@@ -122,7 +122,7 @@ export default Kapsule({
 
         if (includeDot) {
           // translate text
-          const padding = dotR * 2;
+          const padding = dotR * 2.3;
 
           dotOrient === 'right' && (textObj.position.x = padding);
 
