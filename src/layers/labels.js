@@ -18,6 +18,7 @@ const THREE = window.THREE
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
+import TWEEN from '@tweenjs/tween.js';
 
 import { colorStr2Hex, colorAlpha } from '../utils/color-utils';
 import { emptyObject } from '../utils/gc';
@@ -43,7 +44,8 @@ export default Kapsule({
     labelResolution: { default: 12 }, // how many segments in the text's curves
     labelIncludeDot: { default: true },
     labelDotRadius: { default: 0.1 }, // in deg
-    labelDotOrientation: { default: () => 'bottom' } // right, top, bottom
+    labelDotOrientation: { default: () => 'bottom' }, // right, top, bottom
+    labelsTransitionDuration: { default: 1000, triggerUpdate: false } // ms
   },
 
   init(threeObj, state) {
@@ -133,20 +135,40 @@ export default Kapsule({
           0);
         }
 
-        // update position
-        const lat = latAccessor(d);
-        const lng = lngAccessor(d);
-        const alt = altitudeAccessor(d);
+        // animations
+        const applyPosition = td => {
+          const { lat, lng, alt, scale } = obj.__currentTargetD = td;
 
-        // position center
-        Object.assign(obj.position, polar2Cartesian(lat, lng, alt));
+          // position center
+          Object.assign(obj.position, polar2Cartesian(lat, lng, alt));
 
-        // orientate outwards
-        const outDir = polar2Cartesian(lat, lng, alt + 10);
-        obj.lookAt(outDir.x, outDir.y, outDir.z);
+          // orientate outwards
+          const outDir = polar2Cartesian(lat, lng, alt + 10);
+          obj.lookAt(outDir.x, outDir.y, outDir.z);
 
-        // rotate clockwise relative to lat parallel
-        obj.rotateZ(-rotationAccessor(d) * Math.PI / 180);
+          // rotate clockwise relative to lat parallel
+          obj.rotateZ(-rotationAccessor(d) * Math.PI / 180);
+
+          // scale it
+          obj.scale.x = obj.scale.y = obj.scale.z = scale;
+        };
+
+        const targetD = { lat: latAccessor(d), lng: lngAccessor(d), alt: altitudeAccessor(d), scale: 1 };
+        const currentTargetD = obj.__currentTargetD || Object.assign({}, targetD, { scale: 1e-12 });
+
+        if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD[k])) {
+          if (!state.labelsTransitionDuration || state.labelsTransitionDuration < 0) {
+            // set final position
+            applyPosition(targetD);
+          } else {
+            // animate
+            new TWEEN.Tween(currentTargetD)
+              .to(targetD, state.labelsTransitionDuration)
+              .easing(TWEEN.Easing.Quadratic.InOut)
+              .onUpdate(applyPosition)
+              .start();
+          }
+        }
       }
     });
   }
