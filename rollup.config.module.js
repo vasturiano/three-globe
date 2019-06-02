@@ -1,4 +1,5 @@
 import babel from 'rollup-plugin-babel';
+import json from 'rollup-plugin-json';
 import { name, dependencies, peerDependencies } from './package.json';
 
 export default {
@@ -15,6 +16,7 @@ export default {
   ],
   external: [...Object.keys(dependencies), ...Object.keys(peerDependencies)],
   plugins: [
+    json({ compact: true }),
     babel()
   ]
 };

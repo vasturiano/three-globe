@@ -22,6 +22,7 @@ import PointsLayerKapsule from './layers/points';
 import ArcsLayerKapsule from './layers/arcs';
 import HexBinLayerKapsule from './layers/hexbin';
 import PolygonsLayerKapsule from './layers/polygons';
+import LabelsLayerKapsule from './layers/labels';
 import CustomLayerKapsule from './layers/custom';
 
 //
@@ -92,6 +93,20 @@ const linkedPolygonsLayerProps = Object.assign(...[
   'polygonsTransitionDuration'
 ].map(p => ({ [p]: bindPolygonsLayer.linkProp(p)})));
 
+const bindLabelsLayer = linkKapsule('labelsLayer', LabelsLayerKapsule);
+const linkedLabelsLayerProps = Object.assign(...[
+  'labelsData',
+  'labelLat',
+  'labelLng',
+  'labelAltitude',
+  'labelRotation',
+  'labelText',
+  'labelSize',
+  'labelTypeFace',
+  'labelColor',
+  'labelResolution'
+].map(p => ({ [p]: bindLabelsLayer.linkProp(p)})));
+
 const bindCustomLayer = linkKapsule('customLayer', CustomLayerKapsule);
 const linkedCustomLayerProps = Object.assign(...[
   'customLayerData',
@@ -108,6 +123,7 @@ export default Kapsule({
     ...linkedArcsLayerProps,
     ...linkedHexBinLayerProps,
     ...linkedPolygonsLayerProps,
+    ...linkedLabelsLayerProps,
     ...linkedCustomLayerProps
   },
 
@@ -123,6 +139,7 @@ export default Kapsule({
       arcsLayer: ArcsLayerKapsule(),
       hexBinLayer: HexBinLayerKapsule(),
       polygonsLayer: PolygonsLayerKapsule(),
+      labelsLayer: LabelsLayerKapsule(),
       customLayer: CustomLayerKapsule(),
       animateIn: false
     }
@@ -159,6 +176,11 @@ export default Kapsule({
     const polygonsG = new THREE.Group();
     state.scene.add(polygonsG);
     state.polygonsLayer(polygonsG);
+
+    // add labels layer group
+    const labelsG = new THREE.Group();
+    state.scene.add(labelsG);
+    state.labelsLayer(labelsG);
 
     // add custom layer group
     const customG = new THREE.Group();
