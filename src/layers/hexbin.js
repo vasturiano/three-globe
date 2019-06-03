@@ -71,7 +71,7 @@ export default Kapsule({
     const marginAccessor = accessorFn(state.hexMargin);
 
     const hexBins = d3Hexbin()
-      .radius(state.hexRadius)
+      .radius(+state.hexRadius)
       .y(latAccessor)
       .x(d => lngAccessor(d) * Math.cos(latAccessor(d) * Math.PI / 180))
       (state.hexBinPointsData)
@@ -81,7 +81,7 @@ export default Kapsule({
           lat: bin.y,
           lng: bin.x / Math.cos(bin.y * Math.PI / 180)
         },
-        sumWeight: bin.reduce((agg, d) => agg + weightAccessor(d), 0)
+        sumWeight: bin.reduce((agg, d) => agg + +weightAccessor(d), 0)
       }));
 
     // shared geometry
@@ -153,10 +153,10 @@ export default Kapsule({
       };
 
       const targetD = {
-        alt: altitudeAccessor(d),
-        r: state.hexRadius * (1 - Math.max(0, Math.min(1, marginAccessor(d)))),
-        lat: d.center.lat,
-        lng: d.center.lng
+        alt: +altitudeAccessor(d),
+        r: +state.hexRadius * (1 - Math.max(0, Math.min(1, +marginAccessor(d)))),
+        lat: +d.center.lat,
+        lng: +d.center.lng
       };
 
       const currentTargetD = obj.__currentTargetD || Object.assign({}, targetD, { alt: -1e-3 });

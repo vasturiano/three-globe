@@ -210,14 +210,14 @@ export default Kapsule({
         const targetD = {
           stroke,
           alt: altitudeAccessor(arc),
-          altAutoScale: altitudeAutoScaleAccessor(arc),
-          startLat: startLatAccessor(arc),
-          startLng: startLngAccessor(arc),
-          endLat: endLatAccessor(arc),
-          endLng: endLngAccessor(arc)
+          altAutoScale: +altitudeAutoScaleAccessor(arc),
+          startLat: +startLatAccessor(arc),
+          startLng: +startLngAccessor(arc),
+          endLat: +endLatAccessor(arc),
+          endLng: +endLngAccessor(arc)
         };
 
-        const currentTargetD = arc.__currentTargetD || Object.assign({}, targetD, {altAutoScale: -1e-3});
+        const currentTargetD = arc.__currentTargetD || Object.assign({}, targetD, { altAutoScale: -1e-3 });
 
         if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD[k])) {
           if (!state.arcsTransitionDuration || state.arcsTransitionDuration < 0) {

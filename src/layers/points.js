@@ -131,10 +131,10 @@ export default Kapsule({
       };
 
       const targetD = {
-        alt: altitudeAccessor(d),
-        r: radiusAccessor(d),
-        lat: latAccessor(d),
-        lng: lngAccessor(d)
+        alt: +altitudeAccessor(d),
+        r: +radiusAccessor(d),
+        lat: +latAccessor(d),
+        lng: +lngAccessor(d)
       };
 
       const currentTargetD = obj.__currentTargetD || Object.assign({}, targetD, {alt: -1e-3});

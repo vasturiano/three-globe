@@ -107,11 +107,11 @@ export default Kapsule({
         !includeDot || !orientations.has(dotOrient) && (dotOrient = 'bottom');
 
         // size dot
-        const dotR = includeDot ? dotRadiusAccessor(d) * pxPerDeg : 1e-12;
+        const dotR = includeDot ? +dotRadiusAccessor(d) * pxPerDeg : 1e-12;
         dotObj.scale.x = dotObj.scale.y = dotR;
 
         // create text geometry
-        const textHeight = sizeAccessor(d) * pxPerDeg;
+        const textHeight = +sizeAccessor(d) * pxPerDeg;
         textObj.geometry = new TextBufferGeometry(textAccessor(d), {
           font: state.font,
           size: textHeight,
@@ -153,7 +153,13 @@ export default Kapsule({
           obj.scale.x = obj.scale.y = obj.scale.z = scale;
         };
 
-        const targetD = { lat: latAccessor(d), lng: lngAccessor(d), alt: altitudeAccessor(d), rot: rotationAccessor(d), scale: 1 };
+        const targetD = {
+          lat: +latAccessor(d),
+          lng: +lngAccessor(d),
+          alt: +altitudeAccessor(d),
+          rot: +rotationAccessor(d),
+          scale: 1
+        };
         const currentTargetD = obj.__currentTargetD || Object.assign({}, targetD, { scale: 1e-12 });
 
         if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD[k])) {

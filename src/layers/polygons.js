@@ -56,7 +56,7 @@ export default Kapsule({
         data: polygon,
         capColor: capColorAccessor(polygon),
         sideColor: sideColorAccessor(polygon),
-        altitude: altitudeAccessor(polygon)
+        altitude: +altitudeAccessor(polygon)
       };
 
       const geoJson = geoJsonAccessor(polygon);
