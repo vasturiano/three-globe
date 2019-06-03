@@ -75,6 +75,8 @@ export default Kapsule({
 
     const pxPerDeg = 2 * Math.PI * GLOBE_RADIUS / 360;
 
+    const circleGeometry = new CircleBufferGeometry(1, 16);
+
     threeDigest(state.labelsData, state.scene, {
       exitObj: emptyObject,
       createObj: () => {
@@ -82,7 +84,7 @@ export default Kapsule({
 
         const obj = new THREE.Group(); // container
 
-        obj.add(new Mesh(new CircleBufferGeometry(1, 16), material)); // dot
+        obj.add(new Mesh(circleGeometry, material)); // dot
         obj.add(new Mesh(undefined, material)); // text
 
         obj.__globeObjType = 'label'; // Add object type
