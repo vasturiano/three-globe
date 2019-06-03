@@ -191,6 +191,9 @@ export default Kapsule({
           true // run from end to start, to animate in the correct direction
         );
 
+        obj.geometry.addAttribute('vertexColor', vertexColorArray);
+        obj.geometry.addAttribute('vertexRelDistance', vertexRelDistanceArray);
+
         const applyUpdate = td => {
           const { stroke, ...curveD } = arc.__currentTargetD = td;
 
@@ -199,12 +202,11 @@ export default Kapsule({
           if (useTube) {
             obj.geometry && obj.geometry.dispose();
             obj.geometry = new THREE.TubeBufferGeometry(curve, state.arcCurveResolution, stroke / 2, state.arcCircularResolution);
+            obj.geometry.addAttribute('vertexColor', vertexColorArray);
+            obj.geometry.addAttribute('vertexRelDistance', vertexRelDistanceArray);
           } else {
             obj.geometry.setFromPoints(curve.getPoints(state.arcCurveResolution));
           }
-
-          obj.geometry.addAttribute('vertexColor', vertexColorArray);
-          obj.geometry.addAttribute('vertexRelDistance', vertexRelDistanceArray);
         };
 
         const targetD = {
