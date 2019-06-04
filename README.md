@@ -16,6 +16,8 @@ Check out the examples:
 * [Labels](https://vasturiano.github.io/three-globe/example/labels/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/labels/index.html))
 * [Custom Layer](https://vasturiano.github.io/three-globe/example/custom/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/custom/index.html))
 
+See also the [standalone version](https://github.com/vasturiano/globe.gl).
+
 ## Quick start
 
 ```
