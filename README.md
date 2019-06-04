@@ -3,10 +3,18 @@
 [![NPM](https://nodei.co/npm/three-globe.png?compact=true)](https://nodei.co/npm/three-globe/)
 
 <p align="center">
-     <a href="//vasturiano.github.io/three-globe/example/basic/"><img width="80%" src="https://vasturiano.github.io/three-globe/example/sshot.png"></a>
+  <a href="//vasturiano.github.io/three-globe/example/basic/"><img width="80%" src="https://vasturiano.github.io/three-globe/example/preview.png"></a>
 </p>
 
 Largely inspired by [WebGL Globe](https://experiments.withgoogle.com/chrome/globe), this is a [ThreeJS](https://threejs.org/) WebGL class to represent data visualization layers on a globe, using a spherical projection.
+
+Check out the examples:
+* [Basic](https://vasturiano.github.io/three-globe/example/basic/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/basic/index.html))
+* [Arc Links](https://vasturiano.github.io/three-globe/example/links/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/links/index.html))
+* [Country Polygons](https://vasturiano.github.io/three-globe/example/country-polygons/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/country-polygons/index.html))
+* [Hexagonal Binning](https://vasturiano.github.io/three-globe/example/hexbin/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/hexbin/index.html))
+* [Labels](https://vasturiano.github.io/three-globe/example/labels/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/labels/index.html))
+* [Custom Layer](https://vasturiano.github.io/three-globe/example/custom/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/custom/index.html))
 
 ## Quick start
 
