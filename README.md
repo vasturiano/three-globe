@@ -1,9 +1,9 @@
 ThreeJS Globe Visualization
 ===========================
 
-[![NPM package][npm]][npm-url]
-[![Build Size][build-size]][build-size-url]
-[![Dependencies][dependencies]][dependencies-url]
+[![NPM package][npm-img]][npm-url]
+[![Build Size][build-size-img]][build-size-url]
+[![Dependencies][dependencies-img]][dependencies-url]
 
 [![NPM](https://nodei.co/npm/three-globe.png?compact=true)](https://nodei.co/npm/three-globe/)
 
@@ -165,3 +165,9 @@ new ThreeGlobe({ configOptions })
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=L398E7PKP47E8&currency_code=USD&source=url) If this project has helped you and you'd like to contribute back, you can always [buy me a ☕](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=L398E7PKP47E8&currency_code=USD&source=url)!
 
+[npm-img]: https://img.shields.io/npm/v/three-globe.svg
+[npm-url]: https://npmjs.org/package/three-globe
+[build-size-img]: https://badgen.net/bundlephobia/minzip/three-globe
+[build-size-url]: https://bundlephobia.com/result?p=three-globe
+[dependencies-img]: https://img.shields.io/david/vasturiano/three-globe.svg
+[dependencies-url]: https://david-dm.org/vasturiano/three-globe
