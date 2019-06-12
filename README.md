@@ -1,4 +1,9 @@
-# ThreeJS Globe Visualization
+ThreeJS Globe Visualization
+===========================
+
+[![NPM package][npm]][npm-url]
+[![Build Size][build-size]][build-size-url]
+[![Dependencies][dependencies]][dependencies-url]
 
 [![NPM](https://nodei.co/npm/three-globe.png?compact=true)](https://nodei.co/npm/three-globe/)
 
