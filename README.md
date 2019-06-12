@@ -5,8 +5,6 @@ ThreeJS Globe Visualization
 [![Build Size][build-size-img]][build-size-url]
 [![Dependencies][dependencies-img]][dependencies-url]
 
-[![NPM](https://nodei.co/npm/three-globe.png?compact=true)](https://nodei.co/npm/three-globe/)
-
 <p align="center">
   <a href="//vasturiano.github.io/three-globe/example/basic/"><img width="80%" src="https://vasturiano.github.io/three-globe/example/preview.png"></a>
 </p>
@@ -167,7 +165,7 @@ new ThreeGlobe({ configOptions })
 
 [npm-img]: https://img.shields.io/npm/v/three-globe.svg
 [npm-url]: https://npmjs.org/package/three-globe
-[build-size-img]: https://badgen.net/bundlephobia/minzip/three-globe
+[build-size-img]: https://img.shields.io/bundlephobia/minzip/three-globe.svg
 [build-size-url]: https://bundlephobia.com/result?p=three-globe
 [dependencies-img]: https://img.shields.io/david/vasturiano/three-globe.svg
 [dependencies-url]: https://david-dm.org/vasturiano/three-globe
