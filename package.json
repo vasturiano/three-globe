@@ -21,6 +21,7 @@
     "name": "Vasco Asturiano",
     "url": "http://bl.ocks.org/vasturiano"
   },
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/vasturiano/three-globe/issues"
   },
