@@ -75,9 +75,10 @@ const linkedHexBinLayerProps = Object.assign(...[
   'hexBinPointLat',
   'hexBinPointLng',
   'hexBinPointWeight',
-  'hexRadius',
+  'hexBinResolution',
   'hexMargin',
-  'hexColor',
+  'hexTopColor',
+  'hexSideColor',
   'hexAltitude',
   'hexBinMerge',
   'hexTransitionDuration'

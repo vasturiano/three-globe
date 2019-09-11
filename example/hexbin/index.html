@@ -12,9 +12,9 @@
 
   <script>
     // Gen random data
-    const N = 3000;
+    const N = 6000;
     const gData = [...Array(N).keys()].map(() => ({
-      lat: (Math.random() - 0.5) * 180 / 4,
+      lat: (Math.random() - 0.5) * 180 * 0.9,
       lng: (Math.random() - 0.5) * 360 / 1
     }));
 
@@ -23,10 +23,11 @@
       .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
       .hexBinPointsData(gData)
       .hexBinPointWeight(3)
-      .hexRadius(3)
+      .hexBinResolution(2)
       .hexMargin(0.2)
-      .hexColor(() => 'green')
-      .hexBinMerge(false);
+      .hexTopColor(() => 'red')
+      .hexSideColor(() => 'rgba(0,255,0,0.8)')
+      .hexBinMerge(true);
 
     // Setup renderer
     const renderer = new THREE.WebGLRenderer();

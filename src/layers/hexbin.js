@@ -1,10 +1,7 @@
 import {
   Color,
-  CylinderGeometry,
-  CylinderBufferGeometry,
   FaceColors,
   Geometry,
-  Matrix4,
   Mesh,
   MeshBasicMaterial,
   MeshLambertMaterial,
@@ -15,20 +12,20 @@ const THREE = window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
   : {
     Color,
-    CylinderGeometry,
-    CylinderBufferGeometry,
     FaceColors,
     Geometry,
-    Matrix4,
     Mesh,
     MeshBasicMaterial,
     MeshLambertMaterial,
     Object3D
   };
 
+import { ConicPolygonGeometry, ConicPolygonBufferGeometry } from 'three-conic-polygon-geometry';
+
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
-import { hexbin as d3Hexbin } from 'd3-hexbin';
+import indexBy from 'index-array-by';
+import { geoToH3, h3ToGeo, h3ToGeoBoundary } from 'h3-js';
 import TWEEN from '@tweenjs/tween.js';
 
 import { colorStr2Hex, colorAlpha } from '../utils/color-utils';
@@ -45,9 +42,10 @@ export default Kapsule({
     hexBinPointLat: { default: 'lat' },
     hexBinPointLng: { default: 'lng' },
     hexBinPointWeight: { default: 1 },
-    hexRadius: { default: 0.25 }, // in deg
+    hexBinResolution: { default: 4 }, // 0-15. Level 0 partitions the earth in 122 (mostly) hexagonal cells. Each subsequent level sub-divides the previous in roughly 7 hexagons.
     hexMargin: { default: 0.2 }, // in fraction of diameter
-    hexColor: { default: () => '#ffffaa' },
+    hexTopColor: { default: () => '#ffffaa' },
+    hexSideColor: { default: () => '#ffffaa' },
     hexAltitude: { default: ({ sumWeight }) => sumWeight * 0.01 }, // in units of globe radius
     hexBinMerge: { default: false }, // boolean. Whether to merge all hex geometries into a single mesh for rendering performance
     hexTransitionDuration: { default: 1000, triggerUpdate: false } // ms
@@ -67,29 +65,20 @@ export default Kapsule({
     const lngAccessor = accessorFn(state.hexBinPointLng);
     const weightAccessor = accessorFn(state.hexBinPointWeight);
     const altitudeAccessor = accessorFn(state.hexAltitude);
-    const colorAccessor = accessorFn(state.hexColor);
+    const topColorAccessor = accessorFn(state.hexTopColor);
+    const sideColorAccessor = accessorFn(state.hexSideColor);
     const marginAccessor = accessorFn(state.hexMargin);
 
-    const hexBins = d3Hexbin()
-      .radius(+state.hexRadius)
-      .y(latAccessor)
-      .x(d => lngAccessor(d) * Math.cos(latAccessor(d) * Math.PI / 180))
-      (state.hexBinPointsData)
-      .map(bin => ({
-        points: bin.map(d => d),
-        center: {
-          lat: bin.y,
-          lng: bin.x / Math.cos(bin.y * Math.PI / 180)
-        },
-        sumWeight: bin.reduce((agg, d) => agg + +weightAccessor(d), 0)
-      }));
+    const byH3Idx = indexBy(state.hexBinPointsData.map(d => ({ ...d,
+      h3Idx: geoToH3(latAccessor(d), lngAccessor(d), state.hexBinResolution)
+    })), 'h3Idx');
 
-    // shared geometry
-    const hexGeometry = new THREE[state.hexBinMerge ? 'CylinderGeometry' : 'CylinderBufferGeometry'](1, 1, 1, 6);
-    hexGeometry.applyMatrix(new THREE.Matrix4().makeRotationX(Math.PI / 2));
-    hexGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, -0.5));
+    const hexBins = Object.entries(byH3Idx).map(([h3Idx, points]) => ({
+      h3Idx,
+      points,
+      sumWeight: points.reduce((agg, d) => agg + +weightAccessor(d), 0)
+    }));
 
-    const pxPerDeg = 2 * Math.PI * GLOBE_RADIUS / 360;
     const hexMaterials = {}; // indexed by color
 
     const scene = state.hexBinMerge ? new THREE.Object3D() : state.scene; // use fake scene if merging hex points
@@ -98,7 +87,7 @@ export default Kapsule({
       createObj,
       updateObj,
       exitObj: emptyObject,
-      idAccessor: d => `${Math.round(d.center.lat * 1e6)}-${Math.round(d.center.lng * 1e6)}`
+      idAccessor: d => d.h3Idx
     });
 
     if (state.hexBinMerge) { // merge points into a single mesh
@@ -109,8 +98,10 @@ export default Kapsule({
         d.__threeObj = undefined; // unbind merged points
 
         // color faces
-        const color = new THREE.Color(colorAccessor(d));
-        obj.geometry.faces.forEach(face => face.color = color);
+        const topColor = new THREE.Color(topColorAccessor(d));
+        const sideColor = new THREE.Color(sideColorAccessor(d));
+        const topFaceIdx = obj.geometry.faces.length - 4;
+        obj.geometry.faces.forEach((face, idx) => face.color = idx >= topFaceIdx ? topColor : sideColor);
 
         obj.updateMatrix();
 
@@ -131,32 +122,44 @@ export default Kapsule({
 
     //
 
-    function createObj() {
-      const obj = new THREE.Mesh(hexGeometry);
+    function createObj(d) {
+      const obj = new THREE.Mesh();
+      obj.__hexCenter = h3ToGeo(d.h3Idx);
+      obj.__hexGeoJson = h3ToGeoBoundary(d.h3Idx, true);
+
+      // stitch longitudes at the anti-meridian
+      const centerLng = obj.__hexCenter[1];
+      obj.__hexGeoJson.forEach(d => {
+        const edgeLng = d[0];
+        if (Math.abs(centerLng - edgeLng) > 170) {
+          // normalize large lng distances
+          d[0] += (centerLng > edgeLng ? 360 : -360);
+        }
+      });
+
       obj.__globeObjType = 'hexbin'; // Add object type
       return obj;
     }
 
     function updateObj(obj, d) {
+      const GeometryClass = state.hexBinMerge ? ConicPolygonGeometry : ConicPolygonBufferGeometry;
+
       const applyUpdate = td => {
-        const { r, alt, lat, lng } = obj.__currentTargetD = td;
+        const { alt, margin } = obj.__currentTargetD = td;
 
-        // position cylinder ground
-        Object.assign(obj.position, polar2Cartesian(lat, lng));
+        // compute new geojson with relative margin
+        const relNum = (st, end, rat) => st - (st - end) * rat;
+        const [clat, clng] = obj.__hexCenter;
+        const geoJson = margin === 0
+          ? obj.__hexGeoJson
+          : obj.__hexGeoJson.map(([elng, elat]) => [[elng, clng], [elat, clat]].map(([st, end]) => relNum(st, end, margin)));
 
-        // orientate outwards
-        obj.lookAt(0, 0, 0);
-
-        // scale radius and altitude
-        obj.scale.x = obj.scale.y = Math.min(30, r) * pxPerDeg;
-        obj.scale.z = Math.max(alt * GLOBE_RADIUS, 0.1); // avoid non-invertible matrix
+        obj.geometry = new GeometryClass([geoJson], GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false);
       };
 
       const targetD = {
         alt: +altitudeAccessor(d),
-        r: +state.hexRadius * (1 - Math.max(0, Math.min(1, +marginAccessor(d)))),
-        lat: +d.center.lat,
-        lng: +d.center.lng
+        margin: Math.max(0, Math.min(1, +marginAccessor(d)))
       };
 
       const currentTargetD = obj.__currentTargetD || Object.assign({}, targetD, { alt: -1e-3 });
@@ -177,17 +180,21 @@ export default Kapsule({
 
       if (!state.hexBinMerge) {
         // Update materials on individual hex points
-        const color = colorAccessor(d);
-        const opacity = colorAlpha(color);
-        if (!hexMaterials.hasOwnProperty(color)) {
-          hexMaterials[color] = new THREE.MeshLambertMaterial({
-            color: colorStr2Hex(color),
-            transparent: opacity < 1,
-            opacity: opacity
-          });
-        }
+        const sideColor = sideColorAccessor(d);
+        const topColor = topColorAccessor(d);
 
-        obj.material = hexMaterials[color];
+        [sideColor, topColor].forEach(color => {
+          if (!hexMaterials.hasOwnProperty(color)) {
+            const opacity = colorAlpha(color);
+            hexMaterials[color] = new THREE.MeshLambertMaterial({
+              color: colorStr2Hex(color),
+              transparent: opacity < 1,
+              opacity: opacity
+            });
+          }
+        });
+
+        obj.material = [sideColor, topColor].map(color => hexMaterials[color]);
       }
     }
   }
