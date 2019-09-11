@@ -142,7 +142,7 @@ export default Kapsule({
     }
 
     function updateObj(obj, d) {
-      const GeometryClass = state.hexBinMerge ? ConicPolygonGeometry : ConicPolygonBufferGeometry;
+      const GeometryClass = state.hexBinMerge ? ConicPolygonGeometry : ConicPolygonGeometry;
 
       const applyUpdate = td => {
         const { alt, margin } = obj.__currentTargetD = td;
