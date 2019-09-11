@@ -37,7 +37,7 @@
     "prepare": "npm run build && npm run minify && npm run build-module"
   },
   "dependencies": {
-    "@tweenjs/tween.js": "^18.1.2",
+    "@tweenjs/tween.js": "^18.3.1",
     "accessor-fn": "^1.2.2",
     "d3-geo": "^1.11.6",
     "d3-scale": "^3.1.0",
@@ -47,7 +47,7 @@
     "h3-js": "^3.5.0",
     "index-array-by": "^1.2.6",
     "kapsule": "^1.10.1",
-    "three-conic-polygon-geometry": "^1.1.1",
+    "three-conic-polygon-geometry": "^1.1.2",
     "tinycolor2": "^1.4.1"
   },
   "peerDependencies": {
@@ -59,11 +59,11 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
     "@babel/preset-env": "^7.6.0",
     "rimraf": "^3.0.0",
-    "rollup": "^1.21.0",
+    "rollup": "^1.21.2",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "terser": "^4.3.0"
+    "terser": "^4.3.1"
   }
 }
