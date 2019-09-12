@@ -150,7 +150,7 @@ export default Kapsule({
           const { alt } = obj.__currentTargetD = td;
 
           conicObj.geometry = new ConicPolygonBufferGeometry(coords, GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false);
-          addStroke && (strokeObj.geometry = new GeoJsonGeometry(geoJsonGeometry, GLOBE_RADIUS  * (1 + alt + 1e-3))); // stroke slightly above the conic mesh
+          addStroke && (strokeObj.geometry = new GeoJsonGeometry(geoJsonGeometry, GLOBE_RADIUS  * (1 + alt + 1e-4))); // stroke slightly above the conic mesh
         };
 
         const targetD = { alt: altitude };
