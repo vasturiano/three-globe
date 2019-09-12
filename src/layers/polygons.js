@@ -1,5 +1,9 @@
 import {
   DoubleSide,
+  Geometry,
+  Group,
+  Line,
+  LineBasicMaterial,
   Mesh,
   MeshLambertMaterial
 } from 'three';
@@ -8,6 +12,10 @@ const THREE = window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
   : {
   DoubleSide,
+  Geometry,
+  Group,
+  Line,
+  LineBasicMaterial,
   Mesh,
   MeshLambertMaterial
 };
@@ -21,6 +29,7 @@ import TWEEN from '@tweenjs/tween.js';
 import { colorStr2Hex, colorAlpha } from '../utils/color-utils';
 import { emptyObject } from '../utils/gc';
 import threeDigest from '../utils/digest';
+import createLineGeometry from '../utils/coordLineTranslate';
 import { GLOBE_RADIUS } from '../constants';
 
 //
@@ -84,13 +93,26 @@ export default Kapsule({
       idAccessor: d => d.id,
       exitObj: emptyObject,
       createObj: () => {
-        const obj = new THREE.Mesh(
+        const obj = new THREE.Group();
+
+        const mesh = new THREE.Mesh(
           undefined,
           [
             new THREE.MeshLambertMaterial({ side: THREE.DoubleSide, depthWrite: true }), // side material
             new THREE.MeshLambertMaterial({ side: THREE.DoubleSide, depthWrite: true }) // cap material
           ]
         );
+
+        obj.add(mesh);
+
+        const line_material = new THREE.LineBasicMaterial({
+          color: 'black'
+        });
+
+        const line = new THREE.Line(undefined, line_material);
+
+        obj.add(line);
+
 
         obj.__globeObjType = 'polygon'; // Add object type
 
@@ -100,7 +122,8 @@ export default Kapsule({
         // update materials
         [sideColor, capColor].forEach((color, materialIdx) => {
           const opacity = colorAlpha(color);
-          const material = obj.material[materialIdx];
+          const mesh = obj.children[0];
+          const material = mesh.material[materialIdx];
 
           material.color.set(colorStr2Hex(color));
           material.transparent = opacity < 1;
@@ -110,7 +133,17 @@ export default Kapsule({
         const applyUpdate = td => {
           const { alt } = obj.__currentTargetD = td;
 
-          obj.geometry = new ConicPolygonBufferGeometry(coords, GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false);
+          obj.children.map(c => {
+            if (c.type === 'Mesh') {
+              c.geometry = new ConicPolygonBufferGeometry(coords, GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false);
+            } else if (c.type === 'Line') {
+              c.geometry = new THREE.Geometry();
+              c.geometry.rotateX(-Math.PI);
+
+              createLineGeometry(c.geometry, coords, GLOBE_RADIUS, alt);
+            }
+          })
+
         };
 
         const targetD = { alt: altitude };
