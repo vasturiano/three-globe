@@ -1,5 +1,8 @@
 import {
   DoubleSide,
+  Group,
+  Line,
+  LineBasicMaterial,
   Mesh,
   MeshLambertMaterial
 } from 'three';
@@ -8,11 +11,15 @@ const THREE = window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
   : {
   DoubleSide,
+  Group,
+  Line,
+  LineBasicMaterial,
   Mesh,
   MeshLambertMaterial
 };
 
 import { ConicPolygonBufferGeometry } from 'three-conic-polygon-geometry';
+import { GeoJsonGeometry } from 'three-geojson-geometry';
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
@@ -31,6 +38,7 @@ export default Kapsule({
     polygonGeoJsonGeometry: { default: 'geometry' },
     polygonSideColor: { default: () => '#ffffaa' },
     polygonCapColor: { default: () => '#ffffaa' },
+    polygonStrokeColor: {},
     polygonAltitude: { default: 0.1 }, // in units of globe radius
     polygonsTransitionDuration: { default: 1000, triggerUpdate: false } // ms
   },
@@ -49,6 +57,7 @@ export default Kapsule({
     const altitudeAccessor = accessorFn(state.polygonAltitude);
     const capColorAccessor = accessorFn(state.polygonCapColor);
     const sideColorAccessor = accessorFn(state.polygonSideColor);
+    const strokeColorAccessor = accessorFn(state.polygonStrokeColor);
 
     const singlePolygons = [];
     state.polygonsData.forEach(polygon => {
@@ -56,6 +65,7 @@ export default Kapsule({
         data: polygon,
         capColor: capColorAccessor(polygon),
         sideColor: sideColorAccessor(polygon),
+        strokeColor: strokeColorAccessor(polygon),
         altitude: +altitudeAccessor(polygon)
       };
 
@@ -84,33 +94,63 @@ export default Kapsule({
       idAccessor: d => d.id,
       exitObj: emptyObject,
       createObj: () => {
-        const obj = new THREE.Mesh(
+        const obj = new THREE.Group();
+
+        // conic geometry
+        obj.add(new THREE.Mesh(
           undefined,
           [
             new THREE.MeshLambertMaterial({ side: THREE.DoubleSide, depthWrite: true }), // side material
             new THREE.MeshLambertMaterial({ side: THREE.DoubleSide, depthWrite: true }) // cap material
           ]
-        );
+        ));
+
+        // polygon stroke
+        obj.add(new THREE.Line(
+          undefined,
+          new THREE.LineBasicMaterial()
+        ));
 
         obj.__globeObjType = 'polygon'; // Add object type
 
         return obj;
       },
-      updateObj: (obj, { coords, capColor, sideColor, altitude }) => {
+      updateObj: (obj, { coords, capColor, sideColor, strokeColor, altitude }) => {
+        const [conicObj, strokeObj] = obj.children;
+
+        // hide stroke if no color set
+        const addStroke = !!strokeColor;
+        strokeObj.visible = addStroke;
+
         // update materials
         [sideColor, capColor].forEach((color, materialIdx) => {
+          // conic object
+          const material = conicObj.material[materialIdx];
           const opacity = colorAlpha(color);
-          const material = obj.material[materialIdx];
-
           material.color.set(colorStr2Hex(color));
           material.transparent = opacity < 1;
           material.opacity = opacity;
         });
 
+        if (addStroke) {
+          // stroke object
+          const material = strokeObj.material;
+          const opacity = colorAlpha(strokeColor);
+          material.color.set(colorStr2Hex(strokeColor));
+          material.transparent = opacity < 1;
+          material.opacity = opacity;
+        }
+
+        const geoJsonGeometry = {
+          type: 'Polygon',
+          coordinates: coords
+        };
+
         const applyUpdate = td => {
           const { alt } = obj.__currentTargetD = td;
 
-          obj.geometry = new ConicPolygonBufferGeometry(coords, GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false);
+          conicObj.geometry = new ConicPolygonBufferGeometry(coords, GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false);
+          addStroke && (strokeObj.geometry = new GeoJsonGeometry(geoJsonGeometry, GLOBE_RADIUS  * (1 + alt + 1e-3))); // stroke slightly above the conic mesh
         };
 
         const targetD = { alt: altitude };

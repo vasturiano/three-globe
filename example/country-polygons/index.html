@@ -17,7 +17,8 @@
       .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
       .polygonsData(countries.features)
       .polygonCapColor(() => 'rgba(200, 0, 0, 0.7)')
-      .polygonSideColor(() => 'rgba(0, 200, 0, 0.1)');
+      .polygonSideColor(() => 'rgba(0, 200, 0, 0.1)')
+      .polygonStrokeColor(() => '#111');
 
     setTimeout(() => Globe.polygonAltitude(() => Math.random()), 4000);
 
