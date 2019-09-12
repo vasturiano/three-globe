@@ -2,9 +2,10 @@ import {
   AdditiveBlending,
   BackSide,
   Color,
+  LineBasicMaterial,
+  LineSegments,
   Mesh,
   MeshPhongMaterial,
-  Object3D,
   ShaderMaterial,
   SphereGeometry,
   TextureLoader
@@ -16,9 +17,10 @@ const THREE = window.THREE
     AdditiveBlending,
     BackSide,
     Color,
+    LineBasicMaterial,
+    LineSegments,
     Mesh,
     MeshPhongMaterial,
-    Object3D,
     ShaderMaterial,
     SphereGeometry,
     TextureLoader
