@@ -24,10 +24,11 @@ const THREE = window.THREE
     TextureLoader
   };
 
+import { GeoJsonGeometry } from 'three-geojson-geometry';
+
 import Kapsule from 'kapsule';
 import { geoGraticule10 } from 'd3-geo';
 
-import drawThreeGeo from '../utils/third-party/ThreeGeoJSON/threeGeoJSON';
 import { emptyObject } from '../utils/gc';
 import { GLOBE_RADIUS } from '../constants';
 
@@ -88,19 +89,10 @@ export default Kapsule({
     }
 
     // create graticules
-    let graticulesObj;
-    {
-      // add graticules
-      graticulesObj = new THREE.Object3D();
-      drawThreeGeo(
-        { geometry: geoGraticule10(), type: 'Feature' },
-        GLOBE_RADIUS,
-        'sphere',
-        { color: 'lightgrey', transparent: true, opacity: 0.1 },
-        graticulesObj
-      );
-      graticulesObj.rotation.x = Math.PI / 2; // Align poles with Y axis
-    }
+    const graticulesObj = new THREE.LineSegments(
+      new GeoJsonGeometry(geoGraticule10(), GLOBE_RADIUS, 2),
+      new THREE.LineBasicMaterial({ color: 'lightgrey', transparent: true, opacity: 0.1 })
+    );
 
     return {
       globeObj,

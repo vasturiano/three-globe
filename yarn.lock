@@ -1282,6 +1282,13 @@ three-conic-polygon-geometry@^1.1.2:
   dependencies:
     earcut "^2.1.5"
 
+three-geojson-geometry@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/three-geojson-geometry/-/three-geojson-geometry-1.0.0.tgz#055ac114f9ded78678e6e74946c8c3c295992814"
+  integrity sha512-pBk4czmCFxc3F+27iqEatSI/Z9lnWtdrh63/NNyswI0EcHp445Ohx2hiHah9bCp1Gb3nfFwJQgpd5NWsTxREew==
+  dependencies:
+    earcut "^2.1.5"
+
 tinycolor2@^1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/tinycolor2/-/tinycolor2-1.4.1.tgz#f4fad333447bc0b07d4dc8e9209d8f39a8ac77e8"

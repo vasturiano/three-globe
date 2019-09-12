@@ -48,6 +48,7 @@
     "index-array-by": "^1.2.6",
     "kapsule": "^1.10.1",
     "three-conic-polygon-geometry": "^1.1.2",
+    "three-geojson-geometry": "^1.0.0",
     "tinycolor2": "^1.4.1"
   },
   "peerDependencies": {
