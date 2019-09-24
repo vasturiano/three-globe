@@ -78,7 +78,6 @@ export default Kapsule({
     const circleGeometry = new CircleBufferGeometry(1, 16);
 
     threeDigest(state.labelsData, state.scene, {
-      exitObj: emptyObject,
       createObj: () => {
         const material = new MeshLambertMaterial();
 

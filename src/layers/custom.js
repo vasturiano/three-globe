@@ -43,8 +43,7 @@ export default Kapsule({
 
         return obj;
       },
-      updateObj: (obj, d) => customObjectUpdateAccessor(obj, d, GLOBE_RADIUS),
-      exitObj: emptyObject
+      updateObj: (obj, d) => customObjectUpdateAccessor(obj, d, GLOBE_RADIUS)
     });
   }
 });

@@ -22,4 +22,4 @@ const emptyObject = obj => {
   }
 };
 
-export { emptyObject };
+export { emptyObject, deallocate };

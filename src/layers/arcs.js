@@ -147,7 +147,6 @@ export default Kapsule({
     });
 
     threeDigest(state.arcsData, state.scene, {
-      exitObj:  emptyObject,
       createObj: arc => {
         const stroke = strokeAccessor(arc);
         const useTube = stroke !== null && stroke !== undefined;

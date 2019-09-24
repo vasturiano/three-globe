@@ -86,7 +86,6 @@ export default Kapsule({
     threeDigest(hexBins, scene, {
       createObj,
       updateObj,
-      exitObj: emptyObject,
       idAccessor: d => d.h3Idx
     });
 

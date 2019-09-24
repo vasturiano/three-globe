@@ -77,7 +77,7 @@ export default Kapsule({
 
     const scene = state.pointsMerge ? new THREE.Object3D() : state.scene; // use fake scene if merging points
 
-    threeDigest(state.pointsData, scene, { createObj, updateObj, exitObj: emptyObject });
+    threeDigest(state.pointsData, scene, { createObj, updateObj });
 
     if (state.pointsMerge) { // merge points into a single mesh
       const pointsGeometry = new THREE.Geometry();
