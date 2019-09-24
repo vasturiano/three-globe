@@ -38,10 +38,10 @@ import { GLOBE_RADIUS } from '../constants';
 
 export default Kapsule({
   props: {
-    globeImageUrl: { onChange(_, state) { state.globeNeedsUpdate = true }},
-    bumpImageUrl: { onChange(_, state) { state.globeNeedsUpdate = true }},
+    globeImageUrl: {},
+    bumpImageUrl: {},
     showAtmosphere: { default: true, onChange(showAtmosphere, state) { state.atmosphereObj.visible = !!showAtmosphere }, triggerUpdate: false },
-    showGraticules: { default: false, onChange(showGraticules, state) { state.graticulesObj.visible = !!showGraticules }, triggerUpdate: false},
+    showGraticules: { default: false, onChange(showGraticules, state) { state.graticulesObj.visible = !!showGraticules }, triggerUpdate: false }
   },
 
   stateInit: () => {
@@ -115,21 +115,32 @@ export default Kapsule({
     state.scene.add(state.graticulesObj); // add graticules
   },
 
-  update(state) {
+  update(state, changedProps) {
     const globeMaterial = state.globeObj.material;
 
-    // Black globe if no image
-    globeMaterial.color = new THREE.Color(0x000000);
+    if (changedProps.hasOwnProperty('globeImageUrl')) {
+      if (!state.globeImageUrl) {
+        // Black globe if no image
+        globeMaterial.color = new THREE.Color(0x000000);
+      } else {
+        new THREE.TextureLoader().load(state.globeImageUrl, texture => {
+          globeMaterial.map = texture;
+          globeMaterial.color = null;
+          globeMaterial.needsUpdate = true;
+        });
+      }
+    }
 
-    state.globeImageUrl && new THREE.TextureLoader().load(state.globeImageUrl, texture => {
-      globeMaterial.map = texture;
-      globeMaterial.color = null;
-      globeMaterial.needsUpdate = true;
-    });
-
-    state.bumpImageUrl && new THREE.TextureLoader().load(state.bumpImageUrl, texture => {
-      globeMaterial.bumpMap = texture;
-      globeMaterial.needsUpdate = true;
-    });
+    if (changedProps.hasOwnProperty('bumpImageUrl')) {
+      if (!state.bumpImageUrl) {
+        globeMaterial.bumpMap = null;
+        globeMaterial.needsUpdate = true;
+      } else {
+        state.bumpImageUrl && new THREE.TextureLoader().load(state.bumpImageUrl, texture => {
+          globeMaterial.bumpMap = texture;
+          globeMaterial.needsUpdate = true;
+        });
+      }
+    }
   }
 });
