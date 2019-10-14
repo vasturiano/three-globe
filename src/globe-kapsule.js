@@ -22,6 +22,7 @@ import PointsLayerKapsule from './layers/points';
 import ArcsLayerKapsule from './layers/arcs';
 import HexBinLayerKapsule from './layers/hexbin';
 import PolygonsLayerKapsule from './layers/polygons';
+import PathsLayerKapsule from './layers/paths';
 import LabelsLayerKapsule from './layers/labels';
 import CustomLayerKapsule from './layers/custom';
 
@@ -95,6 +96,24 @@ const linkedPolygonsLayerProps = Object.assign(...[
   'polygonsTransitionDuration'
 ].map(p => ({ [p]: bindPolygonsLayer.linkProp(p)})));
 
+const bindPathsLayer = linkKapsule('pathsLayer', PathsLayerKapsule);
+const linkedPathsLayerProps = Object.assign(...[
+  'pathsData',
+  'pathPoints',
+  'pathPointLat',
+  'pathPointLng',
+  'pathPointAlt',
+  'pathAngularResolution',
+  'pathColor',
+  'pathStroke',
+  'pathStrokeResolution',
+  'pathDashLength',
+  'pathDashGap',
+  'pathDashInitialGap',
+  'pathDashAnimateTime',
+  'pathTransitionDuration'
+].map(p => ({ [p]: bindPathsLayer.linkProp(p)})));
+
 const bindLabelsLayer = linkKapsule('labelsLayer', LabelsLayerKapsule);
 const linkedLabelsLayerProps = Object.assign(...[
   'labelsData',
@@ -129,6 +148,7 @@ export default Kapsule({
     ...linkedArcsLayerProps,
     ...linkedHexBinLayerProps,
     ...linkedPolygonsLayerProps,
+    ...linkedPathsLayerProps,
     ...linkedLabelsLayerProps,
     ...linkedCustomLayerProps
   },
@@ -145,6 +165,7 @@ export default Kapsule({
       arcsLayer: ArcsLayerKapsule(),
       hexBinLayer: HexBinLayerKapsule(),
       polygonsLayer: PolygonsLayerKapsule(),
+      pathsLayer: PathsLayerKapsule(),
       labelsLayer: LabelsLayerKapsule(),
       customLayer: CustomLayerKapsule(),
       animateIn: false
@@ -182,6 +203,11 @@ export default Kapsule({
     const polygonsG = new THREE.Group();
     state.scene.add(polygonsG);
     state.polygonsLayer(polygonsG);
+
+    // add paths layer group
+    const pathsG = new THREE.Group();
+    state.scene.add(pathsG);
+    state.pathsLayer(pathsG);
 
     // add labels layer group
     const labelsG = new THREE.Group();
