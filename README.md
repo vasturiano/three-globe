@@ -128,7 +128,7 @@ new ThreeGlobe({ configOptions })
 | <b>pathDashGap</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Path object accessor function, attribute or a numeric constant for the length of the gap between dash segments, in terms of relative line length. | 0 |
 | <b>pathDashInitialGap</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Path object accessor function, attribute or a numeric constant for the length of the initial gap before the first dash segment, in terms of relative line length. | 0 |
 | <b>pathDashAnimateTime</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Path object accessor function, attribute or a numeric constant for the time duration (in `ms`) to animate the motion of dash positions from the start to the end point for a full line length. A value of `0` disables the animation. | 0 |
-| <b>pathTransitionDuration</b>([<i>num</i>]) | Getter/setter for duration (ms) of the transition to animate path changes. A value of `0` will move the paths immediately to their final position. | 1000 |
+| <b>pathTransitionDuration</b>([<i>num</i>]) | Getter/setter for duration (ms) of the transition to animate path changes. A value of `0` will move the paths immediately to their final position. New paths are animated from the start to the end points. | 1000 |
 
 ### Hex Bin Layer
 

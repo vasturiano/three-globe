@@ -40,6 +40,7 @@
     "@tweenjs/tween.js": "^18.3.1",
     "accessor-fn": "^1.2.2",
     "d3-geo": "^1.11.6",
+    "d3-interpolate": "^1.3.2",
     "d3-scale": "^3.1.0",
     "data-joint": "^1.2.1",
     "earcut": "^2.2.1",

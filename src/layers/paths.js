@@ -9,9 +9,9 @@ import {
   Vector3
 } from 'three';
 
-import { Line2 } from 'three/examples/jsm/lines/Line2';
-import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry';
-import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial';
+//import { Line2 } from 'three/examples/jsm/lines/Line2';
+//import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry';
+//import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial';
 
 const THREE = window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
@@ -36,6 +36,7 @@ import threeDigest from '../utils/digest';
 import { emptyObject } from '../utils/gc';
 import { color2ShaderArr } from '../utils/color-utils';
 import { polar2Cartesian } from '../utils/coordTranslate';
+import { interpolateVectors } from '../utils/interpolate';
 
 //
 
@@ -188,26 +189,29 @@ export default Kapsule({
         obj.geometry.addAttribute('vertexColor', vertexColorArray);
         obj.geometry.addAttribute('vertexRelDistance', vertexRelDistanceArray);
 
+        // animate from start to finish by default
+        const pointsInterpolator = interpolateVectors((path.__currentTargetD && path.__currentTargetD.points) || [points[0]], points);
+
         const applyUpdate = td => {
-          const { stroke } = path.__currentTargetD = td;
+          const { stroke, interpolK } = path.__currentTargetD = td;
+
+          const kPoints = path.__currentTargetD.points = pointsInterpolator(interpolK);
 
           if (useTube) {
             obj.geometry && obj.geometry.dispose();
-            obj.geometry = new THREE.TubeBufferGeometry(points, points.length, stroke / 2, state.pathStrokeResolution);
+            obj.geometry = new THREE.TubeBufferGeometry(kPoints, kPoints.length, stroke / 2, state.pathStrokeResolution);
             obj.geometry.addAttribute('vertexColor', vertexColorArray);
             obj.geometry.addAttribute('vertexRelDistance', vertexRelDistanceArray);
           } else {
-            obj.geometry.setFromPoints(points);
+            obj.geometry.setFromPoints(kPoints);
           }
         };
 
-        const targetD = {
-          stroke
-        };
+        const targetD = { stroke, interpolK: 1 };
 
-        const currentTargetD = path.__currentTargetD || Object.assign({}, targetD);
+        const currentTargetD = Object.assign({}, path.__currentTargetD || targetD, { interpolK: 0 });
 
-        //if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD[k])) {
+        if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD[k])) {
           if (!state.pathTransitionDuration || state.pathTransitionDuration < 0) {
             // set final position
             applyUpdate(targetD);
@@ -219,7 +223,7 @@ export default Kapsule({
               .onUpdate(applyUpdate)
               .start();
           }
-        //}
+        }
       }
     });
 
