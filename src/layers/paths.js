@@ -39,6 +39,7 @@ import { emptyObject } from '../utils/gc';
 import { color2ShaderArr, colorStr2Hex, colorAlpha } from '../utils/color-utils';
 import { polar2Cartesian } from '../utils/coordTranslate';
 import { interpolateVectors } from '../utils/interpolate';
+import { GLOBE_RADIUS } from '../constants';
 
 //
 
@@ -165,13 +166,13 @@ export default Kapsule({
         const stroke = strokeAccessor(path);
         const useFatLine = stroke !== null && stroke !== undefined;
 
-        // set dash animation step
-        const dashAnimateTime = dashAnimateTimeAccessor(path);
-        obj.__dashAnimateStep = dashAnimateTime > 0 ? 1000 / dashAnimateTime : 0; // per second
-
         const points = calcPath(pointsAccessor(path), pointLatAccessor, pointLngAccessor, pointAltAccessor, state.pathResolution);
 
         if (!useFatLine) {
+          // set dash animation step
+          const dashAnimateTime = dashAnimateTimeAccessor(path);
+          obj.__dashAnimateStep = dashAnimateTime > 0 ? 1000 / dashAnimateTime : 0; // per second
+
           // set dash uniforms
           Object.assign(obj.material.uniforms, {
             dashSize: { value: dashLengthAccessor(path)},
@@ -195,31 +196,56 @@ export default Kapsule({
           obj.geometry.addAttribute('vertexColor', vertexColorArray);
           obj.geometry.addAttribute('vertexRelDistance', vertexRelDistanceArray);
         } else { // fat lines
-          const colors = colorAccessor(path);
+          { // set dash styling
+            obj.__dashAnimateStep = 0; // can't animate dashes on fat lines (no initial gap)
 
-          if (colors instanceof Array) {
-            // calculate vertex colors (to create gradient)
-            const vertexColorArray = calcColorVertexArray(
-              colorAccessor(path), // single or array of colors
-              points.length - 1, // numSegments
-              1, // num vertices per segment
-              false
-            );
+            const dashLength = dashLengthAccessor(path);
+            const dashGap = dashGapAccessor(path);
 
-            obj.geometry.setColors(vertexColorArray.array);
+            obj.material.dashed = dashGap > 0;
 
-            obj.material.vertexColors = THREE.VertexColors;
-          } else {
-            // single color
-            const color = colors;
-            const opacity = colorAlpha(color);
+            // temp hack to activate line dashes
+            obj.material.dashed
+              ? obj.material.defines.USE_DASH = ""
+              : delete obj.material.defines.USE_DASH;
 
-            obj.material.color = new THREE.Color(colorStr2Hex(color));
-            obj.material.transparent = opacity < 1;
-            obj.material.opacity = opacity;
+            if (obj.material.dashed) {
+              obj.material.dashScale = 1 / calcLineDistance(points); // dash sizes relative to full line length
 
-            obj.material.vertexColors = THREE.NoColors;
+              obj.material.dashSize = dashLength;
+              obj.material.gapSize = dashGap;
+            }
           }
+
+          { // set line colors
+            const colors = colorAccessor(path);
+
+            if (colors instanceof Array) {
+              // calculate vertex colors (to create gradient)
+              const vertexColorArray = calcColorVertexArray(
+                colorAccessor(path), // single or array of colors
+                points.length - 1, // numSegments
+                1, // num vertices per segment
+                false
+              );
+
+              obj.geometry.setColors(vertexColorArray.array);
+
+              obj.material.vertexColors = THREE.VertexColors;
+            } else {
+              // single color
+              const color = colors;
+              const opacity = colorAlpha(color);
+
+              obj.material.color = new THREE.Color(colorStr2Hex(color));
+              obj.material.transparent = opacity < 1;
+              obj.material.opacity = opacity;
+
+              obj.material.vertexColors = THREE.NoColors;
+            }
+          }
+
+          obj.material.needsUpdate = true;
         }
 
         // animate from start to finish by default
@@ -234,18 +260,8 @@ export default Kapsule({
             obj.geometry.setPositions([].concat(...kPoints.map(({ x, y, z }) => [x, y, z])));
             obj.material.linewidth = stroke;
 
-            //obj.material.dashed = false;
-
-            //obj.computeLineDistances();
-            //obj.scale.set( 1, 1, 1 );
-
-            //
-
-            //obj.geometry && obj.geometry.dispose();
-            //obj.geometry = new THREE.TubeBufferGeometry(kPoints, kPoints.length, stroke / 2, state.pathStrokeResolution);
-            //obj.geometry.addAttribute('vertexColor', vertexColorArray);
-            //obj.geometry.addAttribute('vertexRelDistance', vertexRelDistanceArray);
-            //obj.geometry.setFromPoints(kPoints);
+            // necessary for dashed lines
+            obj.material.dashed && obj.computeLineDistances();
           } else {
             obj.geometry.setFromPoints(kPoints);
           }
@@ -272,6 +288,17 @@ export default Kapsule({
     });
 
     //
+
+    function calcLineDistance(pnts) {
+      let totalDist = 0;
+      let prevPnt;
+      pnts.forEach(pnt => {
+        prevPnt && (totalDist += prevPnt.distanceTo(pnt));
+        prevPnt = pnt;
+      });
+
+      return totalDist;
+    }
 
     function calcPath(points, latAccessor, lngAccessor, altAccessor, angularResolution) {
       const getInterpolatedVals = (start, end, numPnts) => {
