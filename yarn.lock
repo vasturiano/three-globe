@@ -1276,6 +1276,11 @@ three-conic-polygon-geometry@^1.1.2:
   dependencies:
     earcut "^2.1.5"
 
+three-fatline@^0.2.3:
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/three-fatline/-/three-fatline-0.2.3.tgz#b9c925d7492e560efb5bb0752e1625aff7e464ac"
+  integrity sha512-D7F3m+UCEJrE4Wnvn//w316TTQF2g+ua9Xvj0gdPnqOFDx9jHqpU2AnylpJQTjXu3OY/I+PJZalyv49x4UIaIA==
+
 three-geojson-geometry@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/three-geojson-geometry/-/three-geojson-geometry-1.0.0.tgz#055ac114f9ded78678e6e74946c8c3c295992814"

@@ -1,30 +1,32 @@
 import {
   AdditiveBlending,
   BufferGeometry,
+  Color,
   Float32BufferAttribute,
   Line,
-  Mesh,
+  NoColors,
   ShaderMaterial,
-  TubeBufferGeometry,
-  Vector3
+  Vector2,
+  Vector3,
+  VertexColors
 } from 'three';
-
-//import { Line2 } from 'three/examples/jsm/lines/Line2';
-//import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry';
-//import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial';
 
 const THREE = window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
   : {
     AdditiveBlending,
     BufferGeometry,
+    Color,
     Float32BufferAttribute,
     Line,
-    Mesh,
+    NoColors,
     ShaderMaterial,
-    TubeBufferGeometry,
-    Vector3
+    Vector2,
+    Vector3,
+    VertexColors
   };
+
+import { Line2, LineGeometry, LineMaterial } from 'three-fatLine';
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
@@ -34,7 +36,7 @@ import { scaleLinear as d3ScaleLinear } from 'd3-scale';
 
 import threeDigest from '../utils/digest';
 import { emptyObject } from '../utils/gc';
-import { color2ShaderArr } from '../utils/color-utils';
+import { color2ShaderArr, colorStr2Hex, colorAlpha } from '../utils/color-utils';
 import { polar2Cartesian } from '../utils/coordTranslate';
 import { interpolateVectors } from '../utils/interpolate';
 
@@ -134,7 +136,7 @@ export default Kapsule({
     const dashInitialGapAccessor = accessorFn(state.pathDashInitialGap);
     const dashAnimateTimeAccessor = accessorFn(state.pathDashAnimateTime);
 
-    const sharedMaterial = new THREE.ShaderMaterial({
+    const sharedShaderMaterial = new THREE.ShaderMaterial({
       ...gradientShaders,
       transparent: true,
       blending: THREE.AdditiveBlending
@@ -143,13 +145,18 @@ export default Kapsule({
     threeDigest(state.pathsData, state.scene, {
       createObj: path => {
         const stroke = strokeAccessor(path);
-        const useTube = stroke !== null && stroke !== undefined;
+        const useFatLine = stroke !== null && stroke !== undefined;
 
-        const obj = useTube
-          ? new THREE.Mesh()
-          : new THREE.Line(new THREE.BufferGeometry());
-
-        obj.material = sharedMaterial.clone(); // Separate material instance per object to have dedicated uniforms (but shared shaders)
+        const obj = useFatLine
+          ? new Line2(
+              new LineGeometry(),
+              new LineMaterial({
+                resolution: new THREE.Vector2(window.innerWidth, window.innerHeight)
+              })
+          ) : new THREE.Line(
+            new THREE.BufferGeometry(),
+            sharedShaderMaterial.clone() // Separate material instance per object to have dedicated uniforms (but shared shaders)
+          );
 
         obj.__globeObjType = 'path'; // Add object type
 
@@ -157,14 +164,7 @@ export default Kapsule({
       },
       updateObj: (obj, path) => {
         const stroke = strokeAccessor(path);
-        const useTube = stroke !== null && stroke !== undefined;
-
-        // set dash uniforms
-        Object.assign(obj.material.uniforms, {
-          dashSize: { value: dashLengthAccessor(path)},
-          gapSize: { value: dashGapAccessor(path)},
-          dashOffset: { value: dashInitialGapAccessor(path)}
-        });
+        const useFatLine = stroke !== null && stroke !== undefined;
 
         // set dash animation step
         const dashAnimateTime = dashAnimateTimeAccessor(path);
@@ -172,22 +172,56 @@ export default Kapsule({
 
         const points = calcPath(pointsAccessor(path), pointLatAccessor, pointLngAccessor, pointAltAccessor, state.pathAngularResolution);
 
-        // calculate vertex colors (to create gradient)
-        const vertexColorArray = calcColorVertexArray(
-          colorAccessor(path), // single or array of colors
-          points.length, // numSegments
-          useTube ? state.pathStrokeResolution + 1 : 1 // num vertices per segment
-        );
+        if (!useFatLine) {
+          // set dash uniforms
+          Object.assign(obj.material.uniforms, {
+            dashSize: { value: dashLengthAccessor(path)},
+            gapSize: { value: dashGapAccessor(path)},
+            dashOffset: { value: dashInitialGapAccessor(path)}
+          });
 
-        // calculate vertex relative distances (for dashed lines)
-        const vertexRelDistanceArray = calcVertexRelDistances(
-          points.length, // numSegments
-          useTube ? state.pathStrokeResolution + 1 : 1, // num vertices per segment
-          true // run from end to start, to animate in the correct direction
-        );
+          // calculate vertex colors (to create gradient)
+          const vertexColorArray = calcColorVertexArray(
+            colorAccessor(path), // single or array of colors
+            points.length // numSegments
+          );
 
-        obj.geometry.addAttribute('vertexColor', vertexColorArray);
-        obj.geometry.addAttribute('vertexRelDistance', vertexRelDistanceArray);
+          // calculate vertex relative distances (for dashed lines)
+          const vertexRelDistanceArray = calcVertexRelDistances(
+            points.length, // numSegments
+            1, // num vertices per segment
+            true // run from end to start, to animate in the correct direction
+          );
+
+          obj.geometry.addAttribute('vertexColor', vertexColorArray);
+          obj.geometry.addAttribute('vertexRelDistance', vertexRelDistanceArray);
+        } else { // fat lines
+          const colors = colorAccessor(path);
+
+          if (colors instanceof Array) {
+            // calculate vertex colors (to create gradient)
+            const vertexColorArray = calcColorVertexArray(
+              colorAccessor(path), // single or array of colors
+              points.length - 1, // numSegments
+              1, // num vertices per segment
+              false
+            );
+
+            obj.geometry.setColors(vertexColorArray.array);
+
+            obj.material.vertexColors = THREE.VertexColors;
+          } else {
+            // single color
+            const color = colors;
+            const opacity = colorAlpha(color);
+
+            obj.material.color = new THREE.Color(colorStr2Hex(color));
+            obj.material.transparent = opacity < 1;
+            obj.material.opacity = opacity;
+
+            obj.material.vertexColors = THREE.NoColors;
+          }
+        }
 
         // animate from start to finish by default
         const pointsInterpolator = interpolateVectors((path.__currentTargetD && path.__currentTargetD.points) || [points[0]], points);
@@ -197,11 +231,22 @@ export default Kapsule({
 
           const kPoints = path.__currentTargetD.points = pointsInterpolator(interpolK);
 
-          if (useTube) {
-            obj.geometry && obj.geometry.dispose();
-            obj.geometry = new THREE.TubeBufferGeometry(kPoints, kPoints.length, stroke / 2, state.pathStrokeResolution);
-            obj.geometry.addAttribute('vertexColor', vertexColorArray);
-            obj.geometry.addAttribute('vertexRelDistance', vertexRelDistanceArray);
+          if (useFatLine) {
+            obj.geometry.setPositions([].concat(...kPoints.map(({ x, y, z }) => [x, y, z])));
+            obj.material.linewidth = stroke;
+
+            //obj.material.dashed = false;
+
+            //obj.computeLineDistances();
+            //obj.scale.set( 1, 1, 1 );
+
+            //
+
+            //obj.geometry && obj.geometry.dispose();
+            //obj.geometry = new THREE.TubeBufferGeometry(kPoints, kPoints.length, stroke / 2, state.pathStrokeResolution);
+            //obj.geometry.addAttribute('vertexColor', vertexColorArray);
+            //obj.geometry.addAttribute('vertexRelDistance', vertexRelDistanceArray);
+            //obj.geometry.setFromPoints(kPoints);
           } else {
             obj.geometry.setFromPoints(kPoints);
           }
@@ -278,7 +323,7 @@ export default Kapsule({
       ).map(getVec);
     }
 
-    function calcColorVertexArray(colors, numSegments, numVerticesPerSegment = 1) {
+    function calcColorVertexArray(colors, numSegments, numVerticesPerSegment = 1, includeAlpha = true) {
       const numVerticesGroup = numSegments + 1; // one between every two segments and two at the ends
 
       let getVertexColor;
@@ -288,19 +333,20 @@ export default Kapsule({
           .domain(colors.map((_, idx) => idx / (colors.length - 1))) // same number of stops as colors
           .range(colors);
 
-        getVertexColor = t => color2ShaderArr(colorScale(t));
+        getVertexColor = t => color2ShaderArr(colorScale(t), includeAlpha);
       } else {
         // single color, use constant
-        const vertexColor = color2ShaderArr(colors);
+        const vertexColor = color2ShaderArr(colors, includeAlpha);
         getVertexColor = () => vertexColor;
       }
 
-      const vertexColorArray = new THREE.Float32BufferAttribute(numVerticesGroup * 4 * numVerticesPerSegment, 4);
+      const numArgs = includeAlpha ? 4 : 3;
+      const vertexColorArray = new THREE.Float32BufferAttribute(numVerticesGroup * numArgs * numVerticesPerSegment, numArgs);
 
       for (let v = 0, l = numVerticesGroup; v < l; v++) {
         const vertexColor = getVertexColor(v / (l - 1));
         for (let s = 0; s < numVerticesPerSegment; s++) {
-          vertexColorArray.set(vertexColor, (v * numVerticesPerSegment + s) * 4);
+          vertexColorArray.set(vertexColor, (v * numVerticesPerSegment + s) * numArgs);
         }
       }
 
