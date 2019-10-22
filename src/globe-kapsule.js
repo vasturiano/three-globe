@@ -1,5 +1,6 @@
 import {
   Group,
+  Vector2,
   Vector3
 } from 'three';
 
@@ -7,6 +8,7 @@ const THREE = window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
   : {
     Group,
+    Vector2,
     Vector3
   };
 
@@ -142,6 +144,13 @@ const linkedCustomLayerProps = Object.assign(...[
 
 export default Kapsule({
   props: {
+    rendererSize: {
+      default: new THREE.Vector2(window.innerWidth, window.innerHeight),
+      onChange(rendererSize, state) {
+        state.pathsLayer.rendererSize(rendererSize);
+      },
+      triggerUpdate: false
+    },
     ...linkedGlobeLayerProps,
     ...linkedPointsLayerProps,
     ...linkedArcsLayerProps,

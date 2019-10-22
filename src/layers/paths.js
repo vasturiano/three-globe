@@ -6,7 +6,6 @@ import {
   Line,
   NoColors,
   ShaderMaterial,
-  Vector2,
   Vector3,
   VertexColors
 } from 'three';
@@ -21,7 +20,6 @@ const THREE = window.THREE
     Line,
     NoColors,
     ShaderMaterial,
-    Vector2,
     Vector3,
     VertexColors
   };
@@ -100,7 +98,8 @@ export default Kapsule({
     pathDashGap: { default: 0 },
     pathDashInitialGap: { default: 0 },
     pathDashAnimateTime: { default: 0 }, // ms
-    pathTransitionDuration: { default: 1000, triggerUpdate: false } // ms
+    pathTransitionDuration: { default: 1000, triggerUpdate: false }, // ms
+    rendererSize: {} // necessary to set correct fatline proportions
   },
 
   init(threeObj, state) {
@@ -148,12 +147,8 @@ export default Kapsule({
         const useFatLine = stroke !== null && stroke !== undefined;
 
         const obj = useFatLine
-          ? new Line2(
-              new LineGeometry(),
-              new LineMaterial({
-                resolution: new THREE.Vector2(window.innerWidth, window.innerHeight)
-              })
-          ) : new THREE.Line(
+          ? new Line2(new LineGeometry(), new LineMaterial())
+          : new THREE.Line(
             new THREE.BufferGeometry(),
             sharedShaderMaterial.clone() // Separate material instance per object to have dedicated uniforms (but shared shaders)
           );
@@ -196,6 +191,8 @@ export default Kapsule({
           obj.geometry.addAttribute('vertexColor', vertexColorArray);
           obj.geometry.addAttribute('vertexRelDistance', vertexRelDistanceArray);
         } else { // fat lines
+          obj.material.resolution = state.rendererSize;
+
           { // set dash styling
             obj.__dashAnimateStep = 0; // can't animate dashes on fat lines (no initial gap)
 
