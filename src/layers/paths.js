@@ -261,6 +261,7 @@ export default Kapsule({
             obj.material.dashed && obj.computeLineDistances();
           } else {
             obj.geometry.setFromPoints(kPoints);
+            obj.geometry.computeBoundingSphere();
           }
         };
 
