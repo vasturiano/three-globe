@@ -1,0 +1,80 @@
+<head>
+  <style> body { margin: 0; } </style>
+
+  <script src="//unpkg.com/three"></script>
+  <script src="//unpkg.com/three-trackballcontrols-web/dist/three-trackballcontrols.min.js"></script>
+  <script src="//unpkg.com/three-globe"></script>
+  <!--<script src="../../dist/three-globe.js"></script>-->
+</head>
+
+<body>
+  <div id="globeViz"></div>
+
+  <script>
+    // Gen random paths
+    const N_PATHS = 10;
+    const MAX_POINTS_PER_LINE = 10000;
+    const MAX_STEP_DEG = 1;
+    const MAX_STEP_ALT = 0.015;
+    const gData = [...Array(N_PATHS).keys()].map(() => {
+      let lat = (Math.random() - 0.5) * 90;
+      let lng = (Math.random() - 0.5) * 360;
+      let alt = 0;
+
+      return [[lat, lng, alt], ...[...Array(Math.round(Math.random() * MAX_POINTS_PER_LINE)).keys()].map(() => {
+        lat += (Math.random() * 2 - 1) * MAX_STEP_DEG;
+        lng += (Math.random() * 2 - 1) * MAX_STEP_DEG;
+        alt += (Math.random() * 2 - 1) * MAX_STEP_ALT;
+        alt = Math.max(0, alt);
+
+        return [lat, lng, alt];
+      })];
+    });
+
+    const Globe = new ThreeGlobe({ animateIn: false })
+      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
+      .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
+      .pathsData(gData)
+      .pathColor(() => ['rgba(0,0,255,0.4)', 'rgba(255,0,0,0.4)'])
+      .pathDashLength(0.01)
+      .pathDashGap(0.004)
+      .pathDashAnimateTime(100000);
+
+    setTimeout(() => {
+      Globe
+        .pathPointAlt(pnt => pnt[2]) // set altitude accessor
+        .pathTransitionDuration(4000)
+    }, 6000);
+
+    // Setup renderer
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById('globeViz').appendChild(renderer.domElement);
+
+    // Setup scene
+    const scene = new THREE.Scene();
+    scene.add(Globe);
+    scene.add(new THREE.AmbientLight(0xbbbbbb));
+    scene.add(new THREE.DirectionalLight(0xffffff, 0.6));
+
+    // Setup camera
+    const camera = new THREE.PerspectiveCamera();
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    camera.position.z = 500;
+
+    // Add camera controls
+    const tbControls = new TrackballControls(camera, renderer.domElement);
+    tbControls.minDistance = 101;
+    tbControls.rotateSpeed = 5;
+    tbControls.zoomSpeed = 0.8;
+
+    // Kick-off renderer
+    (function animate() { // IIFE
+      // Frame cycle
+      tbControls.update();
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    })();
+  </script>
+</body>
