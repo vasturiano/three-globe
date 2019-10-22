@@ -46,27 +46,27 @@
     "earcut": "^2.2.1",
     "frame-ticker": "^1.0.3",
     "h3-js": "^3.6.1",
-    "index-array-by": "^1.2.6",
+    "index-array-by": "^1.2.7",
     "kapsule": "^1.12.1",
     "three-conic-polygon-geometry": "^1.1.2",
-    "three-fatline": "^0.2.3",
-    "three-geojson-geometry": "^1.0.0",
+    "three-fatline": "^0.2.4",
+    "three-geojson-geometry": "^1.0.2",
     "tinycolor2": "^1.4.1"
   },
   "peerDependencies": {
     "three": "*"
   },
   "devDependencies": {
-    "@babel/core": "^7.6.2",
+    "@babel/core": "^7.6.4",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/plugin-proposal-object-rest-spread": "^7.6.2",
-    "@babel/preset-env": "^7.6.2",
+    "@babel/preset-env": "^7.6.3",
     "rimraf": "^3.0.0",
-    "rollup": "^1.21.4",
+    "rollup": "^1.25.1",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "terser": "^4.3.1"
+    "terser": "^4.3.9"
   }
 }
