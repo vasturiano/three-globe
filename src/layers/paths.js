@@ -92,10 +92,9 @@ export default Kapsule({
     pathPointLat: { default: arr => arr[0] },
     pathPointLng: { default: arr => arr[1] },
     pathPointAlt: { default: 1e-3 },
-    pathAngularResolution: { default: 2 },
+    pathResolution: { default: 2 }, // in deg
     pathColor: { default: () => '#ffffaa' },
     pathStroke: {}, // in deg
-    pathStrokeResolution: { default: 6, triggerUpdate: false }, // how many slice segments in the tube's circumference
     pathDashLength: { default: 1 }, // in units of line length
     pathDashGap: { default: 0 },
     pathDashInitialGap: { default: 0 },
@@ -170,7 +169,7 @@ export default Kapsule({
         const dashAnimateTime = dashAnimateTimeAccessor(path);
         obj.__dashAnimateStep = dashAnimateTime > 0 ? 1000 / dashAnimateTime : 0; // per second
 
-        const points = calcPath(pointsAccessor(path), pointLatAccessor, pointLngAccessor, pointAltAccessor, state.pathAngularResolution);
+        const points = calcPath(pointsAccessor(path), pointLatAccessor, pointLngAccessor, pointAltAccessor, state.pathResolution);
 
         if (!useFatLine) {
           // set dash uniforms
