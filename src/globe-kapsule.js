@@ -24,6 +24,7 @@ import PointsLayerKapsule from './layers/points';
 import ArcsLayerKapsule from './layers/arcs';
 import HexBinLayerKapsule from './layers/hexbin';
 import PolygonsLayerKapsule from './layers/polygons';
+import HexedPolygonsLayerKapsule from './layers/hexedPolygons';
 import PathsLayerKapsule from './layers/paths';
 import LabelsLayerKapsule from './layers/labels';
 import CustomLayerKapsule from './layers/custom';
@@ -86,6 +87,17 @@ const linkedHexBinLayerProps = Object.assign(...[
   'hexBinMerge',
   'hexTransitionDuration'
 ].map(p => ({ [p]: bindHexBinLayer.linkProp(p)})));
+
+const bindHexedPolygonsLayer = linkKapsule('hexedPolygonsLayer', HexedPolygonsLayerKapsule);
+const linkedHexedPolygonsLayerProps = Object.assign(...[
+  'hexPolygonsData',
+  'hexPolygonGeoJsonGeometry',
+  'hexPolygonColor',
+  'hexPolygonAltitude',
+  'hexPolygonResolution',
+  'hexPolygonMargin',
+  'hexPolygonsTransitionDuration'
+].map(p => ({ [p]: bindHexedPolygonsLayer.linkProp(p)})));
 
 const bindPolygonsLayer = linkKapsule('polygonsLayer', PolygonsLayerKapsule);
 const linkedPolygonsLayerProps = Object.assign(...[
@@ -156,6 +168,7 @@ export default Kapsule({
     ...linkedArcsLayerProps,
     ...linkedHexBinLayerProps,
     ...linkedPolygonsLayerProps,
+    ...linkedHexedPolygonsLayerProps,
     ...linkedPathsLayerProps,
     ...linkedLabelsLayerProps,
     ...linkedCustomLayerProps
@@ -173,6 +186,7 @@ export default Kapsule({
       arcsLayer: ArcsLayerKapsule(),
       hexBinLayer: HexBinLayerKapsule(),
       polygonsLayer: PolygonsLayerKapsule(),
+      hexedPolygonsLayer: HexedPolygonsLayerKapsule(),
       pathsLayer: PathsLayerKapsule(),
       labelsLayer: LabelsLayerKapsule(),
       customLayer: CustomLayerKapsule(),
@@ -211,6 +225,11 @@ export default Kapsule({
     const polygonsG = new THREE.Group();
     state.scene.add(polygonsG);
     state.polygonsLayer(polygonsG);
+
+    // add hexed polygons layer group
+    const hexedPolygonsG = new THREE.Group();
+    state.scene.add(hexedPolygonsG);
+    state.hexedPolygonsLayer(hexedPolygonsG);
 
     // add paths layer group
     const pathsG = new THREE.Group();
