@@ -1,23 +1,17 @@
 import {
-  Color,
-  FaceColors,
-  Geometry,
+  DoubleSide,
+  Group,
   Mesh,
-  MeshBasicMaterial,
-  MeshLambertMaterial,
-  Object3D
+  MeshLambertMaterial
 } from 'three';
 
 const THREE = window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
   : {
-    Color,
-    FaceColors,
-    Geometry,
+    DoubleSide,
+    Group,
     Mesh,
-    MeshBasicMaterial,
-    MeshLambertMaterial,
-    Object3D
+    MeshLambertMaterial
   };
 
 import { ConicPolygonGeometry, ConicPolygonBufferGeometry } from 'three-conic-polygon-geometry';
