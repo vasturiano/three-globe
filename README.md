@@ -17,6 +17,7 @@ Check out the examples:
 * [Country Polygons](https://vasturiano.github.io/three-globe/example/country-polygons/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/country-polygons/index.html))
 * [Path lines](https://vasturiano.github.io/three-globe/example/paths/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/paths/index.html))
 * [Hexagonal Binning](https://vasturiano.github.io/three-globe/example/hexbin/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/hexbin/index.html))
+* [Hexed Country Polygons](https://vasturiano.github.io/three-globe/example/hexed-polygons/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/hexed-polygons/index.html))
 * [Labels](https://vasturiano.github.io/three-globe/example/labels/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/labels/index.html))
 * [Custom Layer](https://vasturiano.github.io/three-globe/example/custom/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/custom/index.html))
 
