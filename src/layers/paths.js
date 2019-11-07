@@ -188,8 +188,8 @@ export default Kapsule({
             true // run from end to start, to animate in the correct direction
           );
 
-          obj.geometry.addAttribute('vertexColor', vertexColorArray);
-          obj.geometry.addAttribute('vertexRelDistance', vertexRelDistanceArray);
+          obj.geometry.setAttribute('vertexColor', vertexColorArray);
+          obj.geometry.setAttribute('vertexRelDistance', vertexRelDistanceArray);
         } else { // fat lines
           obj.material.resolution = state.rendererSize;
 
