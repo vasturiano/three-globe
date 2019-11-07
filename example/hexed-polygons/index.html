@@ -15,7 +15,7 @@
   {
     const Globe = new ThreeGlobe()
       .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
-      .hexPolygonsData(countries.features.slice(0, 2000))
+      .hexPolygonsData(countries.features)
       .hexPolygonResolution(() => 3)
       .hexPolygonMargin(0.3)
       .hexPolygonColor(() => `#${Math.round(Math.random() * Math.pow(2, 24)).toString(16).padStart(6, '0')}`);
