@@ -800,9 +800,9 @@ core-js-compat@^3.1.1:
     semver "^6.3.0"
 
 "d3-array@1 - 2", "d3-array@1.2.0 - 2":
-  version "2.3.3"
-  resolved "https://registry.yarnpkg.com/d3-array/-/d3-array-2.3.3.tgz#e90c39fbaedccedf59fc30473092f99a0e14efa2"
-  integrity sha512-syv3wp0U5aB6toP2zb2OdBkhTy1MWDsCAaYk6OXJZv+G4u7bSWEmYgxLoFyc88RQUhZYGCebW9a9UD1gFi5+MQ==
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/d3-array/-/d3-array-2.4.0.tgz#87f8b9ad11088769c82b5ea846bcb1cc9393f242"
+  integrity sha512-KQ41bAF2BMakf/HdKT865ALd4cgND6VcIztVQZUTt0+BH3RWy6ZYnHghVXf6NFjt2ritLr8H1T8LreAAlfiNcw==
 
 d3-color@1:
   version "1.4.0"
@@ -1203,10 +1203,10 @@ rollup-pluginutils@^2.5.0, rollup-pluginutils@^2.8.1:
   dependencies:
     estree-walker "^0.6.1"
 
-rollup@^1.26.3:
-  version "1.26.3"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-1.26.3.tgz#3e71b8120a4ccc745a856e926cab0efbe0eead90"
-  integrity sha512-8MhY/M8gnv3Q/pQQSWYWzbeJ5J1C5anCNY5BK1kV8Yzw9RFS0FF4lbLt+uyPO3wLKWXSXrhAL5pWL85TZAh+Sw==
+rollup@^1.26.4:
+  version "1.26.4"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-1.26.4.tgz#9c9ec8a30b5ddec124060556ac7147cc22a24ac5"
+  integrity sha512-faL58wTzZM+AH9mUSoncJEjUqvj5KSa4GpNkfn7mxdeBci5GOyT4i1K5+5+6vTfV68QGREh2xi4rW/l+0UFUAw==
   dependencies:
     "@types/estree" "*"
     "@types/node" "*"
@@ -1271,22 +1271,22 @@ terser@^4.3.9:
     source-map "~0.6.1"
     source-map-support "~0.5.12"
 
-three-conic-polygon-geometry@^1.1.3:
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/three-conic-polygon-geometry/-/three-conic-polygon-geometry-1.1.3.tgz#08141417fd50dedc8d3d99391410697721566e6a"
-  integrity sha512-ucBwCIc5JvY+h2ttYLBgUB07kd4HnVTWWisQA80q384d2l0MfHIygDKsoja7Q7nv0zv4D9e8HZEUU8cqUku8bA==
+three-conic-polygon-geometry@^1.1.4:
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/three-conic-polygon-geometry/-/three-conic-polygon-geometry-1.1.4.tgz#c15f9ee586162c85fca1497d51a8c86024cfef91"
+  integrity sha512-sAqkT2LbTHUa28aNl2TGxizQFuVuJx5s40taxO9WLwjcnBmT7AUu36VTaSXt3hRqhi5kG+QB26wslxRXeeSOIg==
   dependencies:
     earcut "^2.2.1"
 
-three-fatline@^0.2.5:
-  version "0.2.5"
-  resolved "https://registry.yarnpkg.com/three-fatline/-/three-fatline-0.2.5.tgz#5c0c7f9451d4adcb48da8eaa21e49fc82725ae1d"
-  integrity sha512-/gRWAK3wqCNJuq3ZYaQFROg22UvZrTjJ+YLSXq1PDI9oRSza26O8x9GrOv/D2vNWo7gucGVhMHage0RNZrxMAQ==
+three-fatline@^0.2.6:
+  version "0.2.6"
+  resolved "https://registry.yarnpkg.com/three-fatline/-/three-fatline-0.2.6.tgz#3021dd6a9c82aaafde69b54709f8befbdcc4e573"
+  integrity sha512-sK07JEwGXbibH4c2ApPZQk4BT+VcNERtB4XnZumUCS8e+Tv7GN4a++Ouincu/bvBWoIY4lnk//YhbOQVIRT2nA==
 
-three-geojson-geometry@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/three-geojson-geometry/-/three-geojson-geometry-1.0.3.tgz#34bd8715d995e02bc2a70a7701fb665c952ca988"
-  integrity sha512-Jm+dnbVuWiGziGhFoqj2n8/6mO49GEnD4R7l9Z+8FFUkthxt5iECIFwcMJ8AIAYin6ogf8phcp/OgpWiBL9PpA==
+three-geojson-geometry@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/three-geojson-geometry/-/three-geojson-geometry-1.0.4.tgz#96640f8dc906e9b27092540346d500bcf5fe1f5f"
+  integrity sha512-jjr0+eQ786Nj8QMyW7FA2lfCOGYb9u1c8pL/jexwhhibqZX9MQyNiX6PweAcs0PwsNIuYjrwyNSFMx64oC3rHQ==
   dependencies:
     earcut "^2.2.1"
 
