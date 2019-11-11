@@ -24,7 +24,7 @@ const THREE = window.THREE
     VertexColors
   };
 
-import { Line2, LineGeometry, LineMaterial } from 'three-fatLine';
+import { Line2, LineGeometry, LineMaterial } from 'three-fatline';
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
