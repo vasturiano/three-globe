@@ -37,7 +37,6 @@ import { emptyObject } from '../utils/gc';
 import { color2ShaderArr, colorStr2Hex, colorAlpha } from '../utils/color-utils';
 import { polar2Cartesian } from '../utils/coordTranslate';
 import { interpolateVectors } from '../utils/interpolate';
-import { GLOBE_RADIUS } from '../constants';
 
 //
 
