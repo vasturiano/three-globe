@@ -50,6 +50,7 @@ export default Kapsule({
     const globeObj = new THREE.Mesh(globeGeometry, new THREE.MeshPhongMaterial({ color: 0x000000, transparent: true }));
     globeObj.rotation.y = -Math.PI / 2; // face prime meridian along Z axis
     globeObj.__globeObjType = 'globe'; // Add object type
+    globeObj.name = 'three-globe';
 
     // create atmosphere
     let atmosphereObj;
@@ -109,24 +110,29 @@ export default Kapsule({
 
     // Main three object to manipulate
     state.scene = threeObj;
-
-    state.scene.add(state.globeObj); // add globe
-    state.scene.add(state.atmosphereObj); // add atmosphere
-    state.scene.add(state.graticulesObj); // add graticules
   },
 
   update(state, changedProps) {
     const globeMaterial = state.globeObj.material;
+    const addGlobe = () => {
+      if (!state.scene.getObjectByName('three-globe')) {
+        state.scene.add(state.globeObj); // add globe
+        state.scene.add(state.atmosphereObj); // add atmosphere
+        state.scene.add(state.graticulesObj); // add graticules
+      }
+    }
 
     if (changedProps.hasOwnProperty('globeImageUrl')) {
       if (!state.globeImageUrl) {
         // Black globe if no image
         globeMaterial.color = new THREE.Color(0x000000);
+        addGlobe();
       } else {
         new THREE.TextureLoader().load(state.globeImageUrl, texture => {
           globeMaterial.map = texture;
           globeMaterial.color = null;
           globeMaterial.needsUpdate = true;
+          addGlobe();
         });
       }
     }
