@@ -9,8 +9,11 @@ import {
 } from 'three';
 
 const THREE = window.THREE
-  ? window.THREE // Prefer consumption from global THREE, if exists
-  : {
+  ? {
+    // Prefer consumption from global THREE, if exists
+    ...window.THREE,
+    SphereGeometry // keep SphereGeometry from module for instance matching with three-glow-mesh
+  } : {
     Color,
     LineBasicMaterial,
     LineSegments,
