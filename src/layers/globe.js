@@ -1,12 +1,9 @@
 import {
-  AdditiveBlending,
-  BackSide,
   Color,
   LineBasicMaterial,
   LineSegments,
   Mesh,
   MeshPhongMaterial,
-  ShaderMaterial,
   SphereGeometry,
   TextureLoader
 } from 'three';
@@ -14,19 +11,17 @@ import {
 const THREE = window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
   : {
-    AdditiveBlending,
-    BackSide,
     Color,
     LineBasicMaterial,
     LineSegments,
     Mesh,
     MeshPhongMaterial,
-    ShaderMaterial,
     SphereGeometry,
     TextureLoader
   };
 
 import { GeoJsonGeometry } from 'three-geojson-geometry';
+import { createGlowMesh } from 'three-glow-mesh';
 
 import Kapsule from 'kapsule';
 import { geoGraticule10 } from 'd3-geo';
@@ -52,43 +47,14 @@ export default Kapsule({
     globeObj.__globeObjType = 'globe'; // Add object type
 
     // create atmosphere
-    let atmosphereObj;
-    {
-      const shaders = {
-        uniforms: {
-          coeficient: { value: 0.8 },
-          power: { value: 12 }
-        },
-        vertexShader: `
-          varying vec3 vNormal;
-          void main() {
-            vNormal = normalize(normalMatrix * normal);
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          }
-        `,
-        fragmentShader: `
-          uniform float	coeficient;
-          uniform float	power;
-
-          varying vec3 vNormal;
-          void main() {
-            float intensity = pow(coeficient - dot(vNormal, vec3(0, 0, 1.0)), power);
-            gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0) * intensity;
-          }
-        `
-      };
-      const material = new THREE.ShaderMaterial({
-        ...shaders,
-        side: THREE.BackSide,
-        blending: THREE.AdditiveBlending,
-        transparent: true,
-        depthWrite: false
-      });
-
-      atmosphereObj = new THREE.Mesh(globeGeometry, material);
-      atmosphereObj.scale.set(1.1, 1.1, 1.1);
-      atmosphereObj.__globeObjType = 'atmosphere'; // Add object type
-    }
+    const atmosphereObj = createGlowMesh(globeObj.geometry, {
+      backside: true,
+      color: 'lightskyblue',
+      size: GLOBE_RADIUS * 0.15,
+      power: 3.5, // dispersion
+      coefficient: 0.1
+    });
+    atmosphereObj.__globeObjType = 'atmosphere'; // Add object type
 
     // create graticules
     const graticulesObj = new THREE.LineSegments(

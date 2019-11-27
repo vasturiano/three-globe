@@ -51,6 +51,7 @@
     "three-conic-polygon-geometry": "^1.1.4",
     "three-fatline": "^0.2.6",
     "three-geojson-geometry": "^1.0.4",
+    "three-glow-mesh": "^0.1.1",
     "tinycolor2": "^1.4.1"
   },
   "peerDependencies": {
