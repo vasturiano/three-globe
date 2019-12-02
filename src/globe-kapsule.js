@@ -252,20 +252,18 @@ export default Kapsule({
       state.scene.visible = false; // hide before animation
     }
 
-    // run tween updates
-    (function onFrame() {
-      requestAnimationFrame(onFrame);
-      TWEEN.update();
-    })(); // IIFE
-  },
+    state.globeLayer.onGlobeReady(() => {
+      state.scene.visible = true;
 
-  update(state) {
-    if (state.animateIn) {
+      if (!state.animateIn) {
+        return;
+      }
+
+      // Animate build-in just once
+      state.animateIn = false;
+      state.scene.scale.set(1e-6, 1e-6, 1e-6)
+
       setTimeout(() => {
-        // Animate build-in just once
-        state.animateIn = false;
-        state.scene.visible = true;
-
         new TWEEN.Tween({k: 1e-6})
           .to({k: 1}, 600)
           .easing(TWEEN.Easing.Quadratic.Out)
@@ -278,7 +276,13 @@ export default Kapsule({
           .easing(TWEEN.Easing.Quintic.Out)
           .onUpdate(({ rot }) => state.scene.setRotationFromAxisAngle(rotAxis, rot))
           .start();
-      }, 600); // delay animation slightly to load globe texture
-    }
+      }, 600)
+    });
+
+    // run tween updates
+    (function onFrame() {
+      requestAnimationFrame(onFrame);
+      TWEEN.update();
+    })(); // IIFE
   }
 });
