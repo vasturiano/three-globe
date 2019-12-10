@@ -42,7 +42,7 @@ export default Kapsule({
     bumpImageUrl: {},
     showAtmosphere: { default: true, onChange(showAtmosphere, state) { state.atmosphereObj.visible = !!showAtmosphere }, triggerUpdate: false },
     showGraticules: { default: false, onChange(showGraticules, state) { state.graticulesObj.visible = !!showGraticules }, triggerUpdate: false },
-    onGlobeReady: {}
+    onReady: { default: () => {}, triggerUpdate: false }
   },
 
   stateInit: () => {
@@ -114,6 +114,8 @@ export default Kapsule({
     state.scene.add(state.globeObj); // add globe
     state.scene.add(state.atmosphereObj); // add atmosphere
     state.scene.add(state.graticulesObj); // add graticules
+
+    state.ready = false;
   },
 
   update(state, changedProps) {
@@ -123,13 +125,14 @@ export default Kapsule({
       if (!state.globeImageUrl) {
         // Black globe if no image
         globeMaterial.color = new THREE.Color(0x000000);
-        state.onGlobeReady()
       } else {
         new THREE.TextureLoader().load(state.globeImageUrl, texture => {
           globeMaterial.map = texture;
           globeMaterial.color = null;
           globeMaterial.needsUpdate = true;
-          state.onGlobeReady()
+
+          // ready when first globe image finishes loading (asynchronously to allow 1 frame to load texture)
+          !state.ready && (state.ready = true) && setTimeout(state.onReady);
         });
       }
     }
@@ -144,6 +147,12 @@ export default Kapsule({
           globeMaterial.needsUpdate = true;
         });
       }
+    }
+
+    if (!state.ready && !state.globeImageUrl) {
+      // ready immediately if there's no globe image
+      state.ready = true;
+      state.onReady();
     }
   }
 });
