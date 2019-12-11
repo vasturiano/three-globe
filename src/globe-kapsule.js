@@ -189,17 +189,17 @@ export default Kapsule({
       hexedPolygonsLayer: HexedPolygonsLayerKapsule(),
       pathsLayer: PathsLayerKapsule(),
       labelsLayer: LabelsLayerKapsule(),
-      customLayer: CustomLayerKapsule(),
-      animateIn: false
+      customLayer: CustomLayerKapsule()
     }
   },
 
-  init(threeObj, state, { animateIn = true }) {
+  init(threeObj, state, { animateIn = true, waitForGlobeReady = true }) {
     // Clear the scene
     emptyObject(threeObj);
 
     // Main three object to manipulate
     threeObj.add(state.scene = new THREE.Group());
+    state.scene.visible = false; // hide scene before globe initialization
 
     // add globe layer group
     const globeG = new THREE.Group();
@@ -246,11 +246,31 @@ export default Kapsule({
     state.scene.add(customG);
     state.customLayer(customG);
 
-    // animate build in, one time only
-    state.animateIn = animateIn;
-    if (animateIn) {
-      state.scene.visible = false; // hide before animation
-    }
+    const initGlobe = () => {
+      if (animateIn) {
+        // Animate build-in just once
+        state.scene.scale.set(1e-6, 1e-6, 1e-6);
+
+        new TWEEN.Tween({k: 1e-6})
+          .to({k: 1}, 600)
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .onUpdate(({k}) => state.scene.scale.set(k, k, k))
+          .start();
+
+        const rotAxis = new THREE.Vector3(0, 1, 0);
+        new TWEEN.Tween({rot: Math.PI * 2})
+          .to({rot: 0}, 1200)
+          .easing(TWEEN.Easing.Quintic.Out)
+          .onUpdate(({rot}) => state.scene.setRotationFromAxisAngle(rotAxis, rot))
+          .start();
+      }
+
+      state.scene.visible = true;
+    };
+
+    waitForGlobeReady
+      ? state.globeLayer.onReady(initGlobe)
+      : initGlobe();
 
     // run tween updates
     (function onFrame() {
@@ -259,26 +279,5 @@ export default Kapsule({
     })(); // IIFE
   },
 
-  update(state) {
-    if (state.animateIn) {
-      setTimeout(() => {
-        // Animate build-in just once
-        state.animateIn = false;
-        state.scene.visible = true;
-
-        new TWEEN.Tween({k: 1e-6})
-          .to({k: 1}, 600)
-          .easing(TWEEN.Easing.Quadratic.Out)
-          .onUpdate(({ k }) => state.scene.scale.set(k, k, k))
-          .start();
-
-        const rotAxis = new THREE.Vector3(0, 1, 0);
-        new TWEEN.Tween({rot: Math.PI * 2})
-          .to({rot: 0}, 1200)
-          .easing(TWEEN.Easing.Quintic.Out)
-          .onUpdate(({ rot }) => state.scene.setRotationFromAxisAngle(rotAxis, rot))
-          .start();
-      }, 600); // delay animation slightly to load globe texture
-    }
-  }
+  update(state) {}
 });

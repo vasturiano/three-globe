@@ -55,6 +55,7 @@ new ThreeGlobe({ configOptions })
 
 | Config options | Description | Default |
 | --- | --- | :--: |
+| <b>waitForGlobeReady</b>: <i>boolean</i> | Whether to wait until the globe wrapping image has been fully loaded before rendering the globe or any of the data layers. | `true` |
 | <b>animateIn</b>: <i>boolean</i> | Whether to animate the globe initialization, by scaling and rotating the globe into its inital position. | `true` |
 
 ### Globe Layer
