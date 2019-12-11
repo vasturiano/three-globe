@@ -37,7 +37,7 @@
     "prepare": "npm run build && npm run minify && npm run build-module"
   },
   "dependencies": {
-    "@tweenjs/tween.js": "^18.4.2",
+    "@tweenjs/tween.js": "^18.5.0",
     "accessor-fn": "^1.2.2",
     "d3-geo": "^1.11.9",
     "d3-interpolate": "^1.4.0",
@@ -45,7 +45,7 @@
     "data-joint": "^1.2.1",
     "earcut": "^2.2.1",
     "frame-ticker": "^1.0.3",
-    "h3-js": "^3.6.2",
+    "h3-js": "^3.6.3",
     "index-array-by": "^1.2.7",
     "kapsule": "^1.12.1",
     "three-conic-polygon-geometry": "^1.1.4",
@@ -58,16 +58,16 @@
     "three": ">=0.110.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.7.4",
+    "@babel/core": "^7.7.5",
     "@babel/plugin-proposal-class-properties": "^7.7.4",
     "@babel/plugin-proposal-object-rest-spread": "^7.7.4",
-    "@babel/preset-env": "^7.7.4",
+    "@babel/preset-env": "^7.7.6",
     "rimraf": "^3.0.0",
-    "rollup": "^1.27.5",
+    "rollup": "^1.27.10",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "terser": "^4.4.0"
+    "terser": "^4.4.2"
   }
 }
