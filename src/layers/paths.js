@@ -40,6 +40,9 @@ import { interpolateVectors } from '../utils/interpolate';
 
 //
 
+// support both modes for backwards threejs compatibility
+const setAttributeFn = new THREE.BufferGeometry().setAttribute ? 'setAttribute' : 'addAttribute';
+
 const gradientShaders = {
   uniforms: {
     // dash param defaults, all relative to full length
@@ -187,8 +190,8 @@ export default Kapsule({
             true // run from end to start, to animate in the correct direction
           );
 
-          obj.geometry.setAttribute('vertexColor', vertexColorArray);
-          obj.geometry.setAttribute('vertexRelDistance', vertexRelDistanceArray);
+          obj.geometry[setAttributeFn]('vertexColor', vertexColorArray);
+          obj.geometry[setAttributeFn]('vertexRelDistance', vertexRelDistanceArray);
         } else { // fat lines
           obj.material.resolution = state.rendererSize;
 

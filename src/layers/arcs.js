@@ -42,6 +42,9 @@ import { polar2Cartesian } from '../utils/coordTranslate';
 
 //
 
+// support both modes for backwards threejs compatibility
+const setAttributeFn = new THREE.BufferGeometry().setAttribute ? 'setAttribute' : 'addAttribute';
+
 const gradientShaders = {
   uniforms: {
     // dash param defaults, all relative to full length
@@ -190,8 +193,8 @@ export default Kapsule({
           true // run from end to start, to animate in the correct direction
         );
 
-        obj.geometry.setAttribute('vertexColor', vertexColorArray);
-        obj.geometry.setAttribute('vertexRelDistance', vertexRelDistanceArray);
+        obj.geometry[setAttributeFn]('vertexColor', vertexColorArray);
+        obj.geometry[setAttributeFn]('vertexRelDistance', vertexRelDistanceArray);
 
         const applyUpdate = td => {
           const { stroke, ...curveD } = arc.__currentTargetD = td;
@@ -201,8 +204,8 @@ export default Kapsule({
           if (useTube) {
             obj.geometry && obj.geometry.dispose();
             obj.geometry = new THREE.TubeBufferGeometry(curve, state.arcCurveResolution, stroke / 2, state.arcCircularResolution);
-            obj.geometry.setAttribute('vertexColor', vertexColorArray);
-            obj.geometry.setAttribute('vertexRelDistance', vertexRelDistanceArray);
+            obj.geometry[setAttributeFn]('vertexColor', vertexColorArray);
+            obj.geometry[setAttributeFn]('vertexRelDistance', vertexRelDistanceArray);
           } else {
             obj.geometry.setFromPoints(curve.getPoints(state.arcCurveResolution));
           }

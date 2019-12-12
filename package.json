@@ -48,14 +48,14 @@
     "h3-js": "^3.6.3",
     "index-array-by": "^1.2.7",
     "kapsule": "^1.12.1",
-    "three-conic-polygon-geometry": "^1.1.4",
-    "three-fatline": "^0.2.6",
-    "three-geojson-geometry": "^1.0.4",
+    "three-conic-polygon-geometry": "^1.1.5",
+    "three-fatline": "^0.2.7",
+    "three-geojson-geometry": "^1.0.5",
     "three-glow-mesh": "^0.1.1",
     "tinycolor2": "^1.4.1"
   },
   "peerDependencies": {
-    "three": ">=0.110.0"
+    "three": ">=0.72.0"
   },
   "devDependencies": {
     "@babel/core": "^7.7.5",
