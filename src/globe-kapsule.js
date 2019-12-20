@@ -31,6 +31,18 @@ import CustomLayerKapsule from './layers/custom';
 
 //
 
+const layers = [
+  'globeLayer',
+  'pointsLayer',
+  'arcsLayer',
+  'hexBinLayer',
+  'polygonsLayer',
+  'hexedPolygonsLayer',
+  'pathsLayer',
+  'labelsLayer',
+  'customLayer'
+];
+
 // Expose config from layers
 const bindGlobeLayer = linkKapsule('globeLayer', GlobeLayerKapsule);
 const linkedGlobeLayerProps = Object.assign(...[
@@ -201,50 +213,12 @@ export default Kapsule({
     threeObj.add(state.scene = new THREE.Group());
     state.scene.visible = false; // hide scene before globe initialization
 
-    // add globe layer group
-    const globeG = new THREE.Group();
-    state.scene.add(globeG);
-    state.globeLayer(globeG);
-
-    // add points layer group
-    const pointsG = new THREE.Group();
-    state.scene.add(pointsG);
-    state.pointsLayer(pointsG);
-
-    // add arcs layer group
-    const arcsG = new THREE.Group();
-    state.scene.add(arcsG);
-    state.arcsLayer(arcsG);
-
-    // add hexbin layer group
-    const hexBinG = new THREE.Group();
-    state.scene.add(hexBinG);
-    state.hexBinLayer(hexBinG);
-
-    // add polygons layer group
-    const polygonsG = new THREE.Group();
-    state.scene.add(polygonsG);
-    state.polygonsLayer(polygonsG);
-
-    // add hexed polygons layer group
-    const hexedPolygonsG = new THREE.Group();
-    state.scene.add(hexedPolygonsG);
-    state.hexedPolygonsLayer(hexedPolygonsG);
-
-    // add paths layer group
-    const pathsG = new THREE.Group();
-    state.scene.add(pathsG);
-    state.pathsLayer(pathsG);
-
-    // add labels layer group
-    const labelsG = new THREE.Group();
-    state.scene.add(labelsG);
-    state.labelsLayer(labelsG);
-
-    // add custom layer group
-    const customG = new THREE.Group();
-    state.scene.add(customG);
-    state.customLayer(customG);
+    // Add all layers groups
+    layers.forEach(layer => {
+      const g = new THREE.Group();
+      state.scene.add(g);
+      state[layer](g);
+    });
 
     const initGlobe = () => {
       if (animateIn) {
