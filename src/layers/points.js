@@ -8,7 +8,8 @@ import {
   Mesh,
   MeshBasicMaterial,
   MeshLambertMaterial,
-  Object3D
+  Object3D,
+  Vector3
 } from 'three';
 
 const THREE = window.THREE
@@ -23,7 +24,8 @@ const THREE = window.THREE
     Mesh,
     MeshBasicMaterial,
     MeshLambertMaterial,
-    Object3D
+    Object3D,
+    Vector3
   };
 
 import Kapsule from 'kapsule';
@@ -60,6 +62,10 @@ export default Kapsule({
   },
 
   update(state) {
+    const globeCenter = state.pointsMerge
+      ? new THREE.Vector3(0, 0, 0)
+      : state.scene.localToWorld(new THREE.Vector3(0, 0, 0)); // translate from local to world coords
+
     // Data accessors
     const latAccessor = accessorFn(state.pointLat);
     const lngAccessor = accessorFn(state.pointLng);
@@ -123,7 +129,7 @@ export default Kapsule({
         Object.assign(obj.position, polar2Cartesian(lat, lng));
 
         // orientate outwards
-        obj.lookAt(0, 0, 0);
+        obj.lookAt(globeCenter);
 
         // scale radius and altitude
         obj.scale.x = obj.scale.y = Math.min(30, r) * pxPerDeg;

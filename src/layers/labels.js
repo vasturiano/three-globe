@@ -4,7 +4,8 @@ import {
   Group,
   Mesh,
   MeshLambertMaterial,
-  TextBufferGeometry
+  TextBufferGeometry,
+  Vector3
 } from 'three';
 
 const THREE = window.THREE
@@ -15,7 +16,8 @@ const THREE = window.THREE
   Group,
   Mesh,
   MeshLambertMaterial,
-  TextBufferGeometry
+  TextBufferGeometry,
+  Vector3
 };
 
 import Kapsule from 'kapsule';
@@ -59,6 +61,8 @@ export default Kapsule({
   },
 
   update(state) {
+    const globeCenter = state.scene.localToWorld(new THREE.Vector3(0, 0, 0)); // translate from local to world coords
+
     // Data accessors
     const latAccessor = accessorFn(state.labelLat);
     const lngAccessor = accessorFn(state.labelLng);
@@ -142,7 +146,7 @@ export default Kapsule({
           Object.assign(obj.position, polar2Cartesian(lat, lng, alt));
 
           // rotate
-          obj.lookAt(0, 0, 0);
+          obj.lookAt(globeCenter);
           obj.rotateY(Math.PI); // face outwards
 
           // rotate clockwise relative to lat parallel
