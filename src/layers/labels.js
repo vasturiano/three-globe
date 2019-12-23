@@ -61,8 +61,6 @@ export default Kapsule({
   },
 
   update(state) {
-    const globeCenter = state.scene.localToWorld(new THREE.Vector3(0, 0, 0)); // translate from local to world coords
-
     // Data accessors
     const latAccessor = accessorFn(state.labelLat);
     const lngAccessor = accessorFn(state.labelLng);
@@ -146,7 +144,7 @@ export default Kapsule({
           Object.assign(obj.position, polar2Cartesian(lat, lng, alt));
 
           // rotate
-          obj.lookAt(globeCenter);
+          obj.lookAt(state.scene.localToWorld(new THREE.Vector3(0, 0, 0))); // face globe (local) center
           obj.rotateY(Math.PI); // face outwards
 
           // rotate clockwise relative to lat parallel

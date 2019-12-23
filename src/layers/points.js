@@ -62,10 +62,6 @@ export default Kapsule({
   },
 
   update(state) {
-    const globeCenter = state.pointsMerge
-      ? new THREE.Vector3(0, 0, 0)
-      : state.scene.localToWorld(new THREE.Vector3(0, 0, 0)); // translate from local to world coords
-
     // Data accessors
     const latAccessor = accessorFn(state.pointLat);
     const lngAccessor = accessorFn(state.pointLng);
@@ -129,6 +125,9 @@ export default Kapsule({
         Object.assign(obj.position, polar2Cartesian(lat, lng));
 
         // orientate outwards
+        const globeCenter = state.pointsMerge
+          ? new THREE.Vector3(0, 0, 0)
+          : state.scene.localToWorld(new THREE.Vector3(0, 0, 0)); // translate from local to world coords
         obj.lookAt(globeCenter);
 
         // scale radius and altitude
