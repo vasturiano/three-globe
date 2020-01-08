@@ -14,18 +14,16 @@ const THREE = window.THREE
     MeshLambertMaterial
   };
 
-import { ConicPolygonGeometry, ConicPolygonBufferGeometry } from 'three-conic-polygon-geometry';
+import { ConicPolygonGeometry } from 'three-conic-polygon-geometry';
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
-import indexBy from 'index-array-by';
 import { polyfill, h3ToGeo, h3ToGeoBoundary } from 'h3-js';
 import TWEEN from '@tweenjs/tween.js';
 
-import { colorStr2Hex, colorAlpha } from '../utils/color-utils';
+import { colorAlpha } from '../utils/color-utils';
 import { emptyObject } from '../utils/gc';
 import threeDigest from '../utils/digest';
-import { polar2Cartesian } from '../utils/coordTranslate';
 import { GLOBE_RADIUS } from '../constants';
 
 //
