@@ -211,7 +211,7 @@ export class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
 
   // Utility
   getCoords(lat: number, lng: number, altitude?: number): { x: number, y: number, z: number };
-  toGeoCoords(coords: { x: number, y: number, z: number }): { lat: number, lng: number, altitude?: number };
+  toGeoCoords(coords: { x: number, y: number, z: number }): { lat: number, lng: number, altitude: number };
 
   // Render options
   rendererSize(): Vector2;
