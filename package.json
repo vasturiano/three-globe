@@ -5,6 +5,7 @@
   "unpkg": "dist/three-globe.min.js",
   "main": "dist/three-globe.common.js",
   "module": "dist/three-globe.module.js",
+  "types": "src/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/vasturiano/three-globe.git"
@@ -27,7 +28,8 @@
   },
   "files": [
     "dist/**/*",
-    "example/**/*"
+    "example/**/*",
+    "src/**/*"
   ],
   "scripts": {
     "build": "rimraf dist && rollup -c",
@@ -62,6 +64,7 @@
     "@babel/plugin-proposal-class-properties": "^7.7.4",
     "@babel/plugin-proposal-object-rest-spread": "^7.7.4",
     "@babel/preset-env": "^7.7.6",
+    "@types/three": ">=0.72.0",
     "rimraf": "^3.0.0",
     "rollup": "^1.27.10",
     "rollup-plugin-babel": "^4.3.3",

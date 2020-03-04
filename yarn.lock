@@ -617,6 +617,13 @@
   dependencies:
     "@types/node" "*"
 
+"@types/three@>=0.72.0":
+  version "0.103.2"
+  resolved "https://registry.yarnpkg.com/@types/three/-/three-0.103.2.tgz#f7d49130001c551941a0ded757def810579aafc4"
+  integrity sha512-zhtf0Qs5wLJpIn1+VWCpzSgpKayj/GSWZ6woiuz09FW59KEDeLpnBkYz6lbblVpRmGdlnG8nd0unaASshOvcXw==
+  dependencies:
+    three "*"
+
 accessor-fn@^1.2.2:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/accessor-fn/-/accessor-fn-1.2.2.tgz#dd52c271465388b29764ab79f2222dedd11e49b2"
@@ -1128,6 +1135,11 @@ three-geojson-geometry@^1.0.5:
 three-glow-mesh@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/three-glow-mesh/-/three-glow-mesh-0.1.1.tgz#0accf2ef0c53620beeb9bfeb455a7319b8d54a11"
+
+three@*:
+  version "0.114.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.114.0.tgz#754d08467a950ddeef06a0c645a1302b130e455a"
+  integrity sha512-3av45FxJeqYm7Rl02dfGBoqTaf2a934oUB4zMNrN8xjmASoSGeeykYoAr35+UntTdJDY/STw6CY3KuXFBWETig==
 
 tinycolor2@^1.4.1:
   version "1.4.1"
