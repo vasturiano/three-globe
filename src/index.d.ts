@@ -186,8 +186,8 @@ export class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   labelAltitude(altitudeAccessor: ObjAccessor<number>): ChainableInstance;
   labelSize(): ObjAccessor<number>;
   labelSize(sizeAccessor: ObjAccessor<number>): ChainableInstance;
-  labelTypeFace(): ObjAccessor<TypeFace>;
-  labelTypeFace(sizeAccessor: ObjAccessor<TypeFace>): ChainableInstance;
+  labelTypeFace(): TypeFace;
+  labelTypeFace(typeface: TypeFace): ChainableInstance;
   labelRotation(): ObjAccessor<number>;
   labelRotation(rotationAccessor: ObjAccessor<number>): ChainableInstance;
   labelResolution(): number;
