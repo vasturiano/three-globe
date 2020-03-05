@@ -1,7 +1,6 @@
 import { Object3D, Vector2 } from 'three';
 
-type AccessorBasic<In, Out> = string | ((obj: In) => Out);
-type Accessor<In, Out> = Out | AccessorBasic<In, Out>;
+type Accessor<In, Out> = Out | string | ((obj: In) => Out);
 type ObjAccessor<T> = Accessor<object, T>;
 
 type HexBinAccessor<T> = Accessor<{ points: object[], sumWeight: number, center: { lat: number, lng: number }}, T>;
