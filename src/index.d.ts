@@ -217,6 +217,6 @@ export class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   rendererSize(size: Vector2): ChainableInstance;
 }
 
-type ThreeGlobe = ThreeGlobeGeneric<ThreeGlobe>;
+declare class ThreeGlobe extends ThreeGlobeGeneric<ThreeGlobe> {}
 
 export default ThreeGlobe;
