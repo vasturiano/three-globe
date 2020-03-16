@@ -48,11 +48,11 @@
     "earcut": "^2.2.2",
     "frame-ticker": "^1.0.3",
     "h3-js": "^3.6.3",
-    "index-array-by": "^1.2.7",
-    "kapsule": "^1.12.1",
-    "three-conic-polygon-geometry": "^1.1.5",
+    "index-array-by": "^1.2.9",
+    "kapsule": "^1.12.2",
+    "three-conic-polygon-geometry": "^1.1.6",
     "three-fatline": "^0.2.7",
-    "three-geojson-geometry": "^1.0.5",
+    "three-geojson-geometry": "^1.0.6",
     "three-glow-mesh": "^0.1.1",
     "tinycolor2": "^1.4.1"
   },
@@ -60,17 +60,17 @@
     "three": ">=0.72.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.8.6",
+    "@babel/core": "^7.8.7",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/plugin-proposal-object-rest-spread": "^7.8.3",
-    "@babel/preset-env": "^7.8.6",
+    "@babel/preset-env": "^7.8.7",
+    "@rollup/plugin-commonjs": "^11.0.2",
+    "@rollup/plugin-json": "^4.0.2",
+    "@rollup/plugin-node-resolve": "^7.1.1",
     "@types/three": ">=0.72.0",
     "rimraf": "^3.0.2",
-    "rollup": "^1.32.0",
-    "rollup-plugin-babel": "^4.3.3",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-json": "^4.0.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup": "^2.0.6",
+    "rollup-plugin-babel": "^4.4.0",
     "terser": "^4.6.6"
   }
 }

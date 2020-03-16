@@ -1,5 +1,5 @@
 import babel from 'rollup-plugin-babel';
-import json from 'rollup-plugin-json';
+import json from '@rollup/plugin-json';
 import { name, dependencies, peerDependencies } from './package.json';
 
 export default {
