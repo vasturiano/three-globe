@@ -19,7 +19,7 @@ export interface ConfigOptions {
   animateIn?: boolean;
 }
 
-export class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
+export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   constructor(configOptions?: ConfigOptions);
 
   // Globe layer
