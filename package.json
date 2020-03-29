@@ -1,6 +1,6 @@
 {
   "name": "three-globe",
-  "version": "2.6.7",
+  "version": "2.6.8",
   "description": "Globe data visualization as a ThreeJS reusable 3D object",
   "unpkg": "dist/three-globe.min.js",
   "main": "dist/three-globe.common.js",
