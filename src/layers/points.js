@@ -40,6 +40,9 @@ import { GLOBE_RADIUS } from '../constants';
 
 //
 
+// support multiple method names for backwards threejs compatibility
+const applyMatrix4Fn = new THREE.BufferGeometry().applyMatrix4 ? 'applyMatrix4' : 'applyMatrix';
+
 export default Kapsule({
   props: {
     pointsData: { default: [] },
@@ -71,8 +74,8 @@ export default Kapsule({
 
     // shared geometry
     const pointGeometry = new THREE[state.pointsMerge ? 'CylinderGeometry' : 'CylinderBufferGeometry'](1, 1, 1, state.pointResolution);
-    pointGeometry.applyMatrix(new THREE.Matrix4().makeRotationX(Math.PI / 2));
-    pointGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, -0.5));
+    pointGeometry[applyMatrix4Fn](new THREE.Matrix4().makeRotationX(Math.PI / 2));
+    pointGeometry[applyMatrix4Fn](new THREE.Matrix4().makeTranslation(0, 0, -0.5));
 
     const pxPerDeg = 2 * Math.PI * GLOBE_RADIUS / 360;
     const pointMaterials = {}; // indexed by color
