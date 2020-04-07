@@ -38,6 +38,10 @@ export default Kapsule({
   props: {
     globeImageUrl: {},
     bumpImageUrl: {},
+    bumpScale: {},
+    specularImageUrl: {},
+    specularColor: {},
+    shininess: {},
     showAtmosphere: { default: true, onChange(showAtmosphere, state) { state.atmosphereObj.visible = !!showAtmosphere }, triggerUpdate: false },
     showGraticules: { default: false, onChange(showGraticules, state) { state.graticulesObj.visible = !!showGraticules }, triggerUpdate: false },
     onReady: { default: () => {}, triggerUpdate: false }
@@ -90,6 +94,7 @@ export default Kapsule({
   update(state, changedProps) {
     const globeMaterial = state.globeObj.material;
 
+    // map texture -> wrapping around globe
     if (changedProps.hasOwnProperty('globeImageUrl')) {
       if (!state.globeImageUrl) {
         // Black globe if no image
@@ -106,6 +111,8 @@ export default Kapsule({
       }
     }
 
+    // bumpMap texture
+    // additionally define the bumpScale, it can be any float. default is 1
     if (changedProps.hasOwnProperty('bumpImageUrl')) {
       if (!state.bumpImageUrl) {
         globeMaterial.bumpMap = null;
@@ -113,6 +120,37 @@ export default Kapsule({
       } else {
         state.bumpImageUrl && new THREE.TextureLoader().load(state.bumpImageUrl, texture => {
           globeMaterial.bumpMap = texture;
+          // bumpScale
+          if (changedProps.hasOwnProperty('bumpScale')) {
+            if (!state.bumpScale) {} else {
+              state.bumpScale && (globeMaterial.bumpScale = state.bumpScale);
+            }
+          };
+          globeMaterial.needsUpdate = true;
+        });
+      }
+    }
+
+    // specularMap needs a specular color (specularColor. default is "grey")
+    // additionally define the shininess of the specular highlights. default is 30
+    if (changedProps.hasOwnProperty('specularImageUrl')) {
+      if (!state.specularImageUrl) {} else {
+        state.specularImageUrl && new THREE.TextureLoader().load(state.specularImageUrl, texture => {
+          globeMaterial.specularMap = texture;
+          // specular color
+          if (changedProps.hasOwnProperty('specularColor')) {
+            if (!state.specularColor) {
+              globeMaterial.specular = new THREE.Color('grey');
+            } else {
+              state.specularColor && (globeMaterial.specular = new THREE.Color(state.specularColor));
+            }
+          };
+          // shininess
+          if (changedProps.hasOwnProperty('shininess')) {
+            if (!state.shininess) {} else {
+              state.shininess && (globeMaterial.shininess = state.shininess);
+            }
+          };
           globeMaterial.needsUpdate = true;
         });
       }

@@ -48,6 +48,10 @@ const bindGlobeLayer = linkKapsule('globeLayer', GlobeLayerKapsule);
 const linkedGlobeLayerProps = Object.assign(...[
   'globeImageUrl',
   'bumpImageUrl',
+  'bumpScale',
+  'specularImageUrl',
+  'specularColor',
+  'shininess',
   'showAtmosphere',
   'showGraticules'
 ].map(p => ({ [p]: bindGlobeLayer.linkProp(p)})));
