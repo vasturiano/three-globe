@@ -48,13 +48,13 @@ const bindGlobeLayer = linkKapsule('globeLayer', GlobeLayerKapsule);
 const linkedGlobeLayerProps = Object.assign(...[
   'globeImageUrl',
   'bumpImageUrl',
-  'bumpScale',
-  'specularImageUrl',
-  'specularColor',
-  'shininess',
   'showAtmosphere',
   'showGraticules'
 ].map(p => ({ [p]: bindGlobeLayer.linkProp(p)})));
+
+const linkedGlobeLayerMethods = Object.assign(...[
+  'globeMaterial'
+].map(m => ({ [m]: bindGlobeLayer.linkMethod(p)})))
 
 const bindPointsLayer = linkKapsule('pointsLayer', PointsLayerKapsule);
 const linkedPointsLayerProps = Object.assign(...[
@@ -192,7 +192,8 @@ export default Kapsule({
 
   methods: {
     getCoords: (state, ...args) => polar2Cartesian(...args),
-    toGeoCoords: (state, ...args) => cartesian2Polar(...args)
+    toGeoCoords: (state, ...args) => cartesian2Polar(...args),
+    ...linkedGlobeLayerMethods
   },
 
   stateInit: () => {
