@@ -54,7 +54,7 @@ const linkedGlobeLayerProps = Object.assign(...[
 
 const linkedGlobeLayerMethods = Object.assign(...[
   'globeMaterial'
-].map(m => ({ [m]: bindGlobeLayer.linkMethod(p)})))
+].map(p => ({ [p]: bindGlobeLayer.linkMethod(p)})))
 
 const bindPointsLayer = linkKapsule('pointsLayer', PointsLayerKapsule);
 const linkedPointsLayerProps = Object.assign(...[
