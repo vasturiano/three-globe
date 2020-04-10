@@ -42,6 +42,9 @@ export default Kapsule({
     showGraticules: { default: false, onChange(showGraticules, state) { state.graticulesObj.visible = !!showGraticules }, triggerUpdate: false },
     onReady: { default: () => {}, triggerUpdate: false }
   },
+  methods: {
+    globeMaterial: state => state.globeObj.material
+  },
 
   stateInit: () => {
     // create globe
