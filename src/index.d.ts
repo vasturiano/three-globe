@@ -31,8 +31,6 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   showAtmosphere(show: boolean): ChainableInstance;
   showGraticules(): boolean;
   showGraticules(show: boolean): ChainableInstance;
-
-  // Advanced Globe Layer Method
   globeMaterial(): MeshPhongMaterial;
 
   // Points layer
