@@ -14,14 +14,14 @@
 
     const Globe = new ThreeGlobe()
       .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
-      .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
+      .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png');
 
     // custom globe material
-    const globeMaterial = Globe.globeMaterial()
-    globeMaterial.bumpScale = 10
-    globeMaterial.specularMap = THREE.ImageUtils.loadTexture('//unpkg.com/three-globe/example/img/earth-water-specular.png')
-    globeMaterial.specular = new THREE.Color('grey')
-    globeMaterial.shininess = 15
+    const globeMaterial = Globe.globeMaterial();
+    globeMaterial.bumpScale = 10;
+    globeMaterial.specularMap = THREE.ImageUtils.loadTexture('//unpkg.com/three-globe/example/img/earth-water-specular.png');
+    globeMaterial.specular = new THREE.Color('grey');
+    globeMaterial.shininess = 15;
 
     // Setup renderer
     const renderer = new THREE.WebGLRenderer();
@@ -32,7 +32,7 @@
     const scene = new THREE.Scene();
     scene.add(Globe);
     scene.add(new THREE.AmbientLight(0xbbbbbb));
-    var light = new THREE.DirectionalLight(0xffffff, 0.6)
+    var light = new THREE.DirectionalLight(0xffffff, 0.6);
     // change light position to see the specularMap's effect
     light.position.set(10,10,10);
     scene.add(light);

@@ -27,14 +27,6 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   globeImageUrl(url: string): ChainableInstance;
   bumpImageUrl(): string | null;
   bumpImageUrl(url: string): ChainableInstance;
-  bumpScale(): number;
-  bumpScale(scale: number): ChainableInstance;
-  specularImageUrl(): string | null;
-  specularImageUrl(url: string): ChainableInstance;
-  specularColor(): string | number;
-  specularColor(color: string | number): ChainableInstance;
-  shininess(): number;
-  shininess(shininess: number): ChainableInstance;
   showAtmosphere(): boolean;
   showAtmosphere(show: boolean): ChainableInstance;
   showGraticules(): boolean;
