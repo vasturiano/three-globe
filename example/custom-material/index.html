@@ -3,8 +3,9 @@
 
   <script src="//unpkg.com/three"></script>
   <script src="//unpkg.com/three-trackballcontrols-web/dist/three-trackballcontrols.min.js"></script>
+
   <script src="//unpkg.com/three-globe"></script>
-  <!--<script src="../../dist/three-globe.js"></script>-->
+<!--  <script src="../../dist/three-globe.js"></script>-->
 </head>
 
 <body>
@@ -19,9 +20,14 @@
     // custom globe material
     const globeMaterial = Globe.globeMaterial();
     globeMaterial.bumpScale = 10;
-    globeMaterial.specularMap = THREE.ImageUtils.loadTexture('//unpkg.com/three-globe/example/img/earth-water-specular.png');
-    globeMaterial.specular = new THREE.Color('grey');
-    globeMaterial.shininess = 15;
+    new THREE.TextureLoader().load('//unpkg.com/three-globe/example/img/earth-water.png', texture => {
+      globeMaterial.specularMap = texture;
+      globeMaterial.specular = new THREE.Color('grey');
+      globeMaterial.shininess = 15;
+    });
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+    directionalLight.position.set(1, 1, 1); // change light position to see the specularMap's effect
 
     // Setup renderer
     const renderer = new THREE.WebGLRenderer();
@@ -32,10 +38,7 @@
     const scene = new THREE.Scene();
     scene.add(Globe);
     scene.add(new THREE.AmbientLight(0xbbbbbb));
-    var light = new THREE.DirectionalLight(0xffffff, 0.6);
-    // change light position to see the specularMap's effect
-    light.position.set(10,10,10);
-    scene.add(light);
+    scene.add(directionalLight);
 
     // Setup camera
     const camera = new THREE.PerspectiveCamera();
