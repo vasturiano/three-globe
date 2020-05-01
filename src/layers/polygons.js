@@ -4,7 +4,7 @@ import {
   Line,
   LineBasicMaterial,
   Mesh,
-  MeshLambertMaterial
+  MeshBasicMaterial
 } from 'three';
 
 const THREE = window.THREE
@@ -15,7 +15,7 @@ const THREE = window.THREE
   Line,
   LineBasicMaterial,
   Mesh,
-  MeshLambertMaterial
+  MeshBasicMaterial
 };
 
 import { ConicPolygonBufferGeometry } from 'three-conic-polygon-geometry';
@@ -99,8 +99,8 @@ export default Kapsule({
         obj.add(new THREE.Mesh(
           undefined,
           [
-            new THREE.MeshLambertMaterial({ side: THREE.DoubleSide, depthWrite: true }), // side material
-            new THREE.MeshLambertMaterial({ side: THREE.DoubleSide, depthWrite: true }) // cap material
+            new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, depthWrite: true }), // side material
+            new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, depthWrite: true }) // cap material
           ]
         ));
 
