@@ -36,6 +36,7 @@ export default Kapsule({
     hexPolygonAltitude: { default: 0.001 }, // in units of globe radius
     hexPolygonResolution: { default: 3 }, // 0-15. Level 0 partitions the earth in 122 (mostly) hexagonal cells. Each subsequent level sub-divides the previous in roughly 7 hexagons.
     hexPolygonMargin: { default: 0.2 }, // in fraction of hex diameter
+    hexPolygonCurvatureResolution: { default: 10 }, // in angular degrees
     hexPolygonsTransitionDuration: { default: 0, triggerUpdate: false } // ms
   },
 
@@ -54,6 +55,7 @@ export default Kapsule({
     const altitudeAccessor = accessorFn(state.hexPolygonAltitude);
     const resolutionAccessor = accessorFn(state.hexPolygonResolution);
     const marginAccessor = accessorFn(state.hexPolygonMargin);
+    const curvatureResolutionAccessor = accessorFn(state.hexPolygonCurvatureResolution);
 
     threeDigest(state.hexPolygonsData, state.scene, {
       createObj: d => {
@@ -68,6 +70,7 @@ export default Kapsule({
         const h3Res = resolutionAccessor(d);
         const alt = altitudeAccessor(d);
         const margin = Math.max(0, Math.min(1, +marginAccessor(d)));
+        const curvatureResolution = curvatureResolutionAccessor(d);
 
         const color = colorAccessor(d);
         const opacity = colorAlpha(color);
@@ -113,8 +116,13 @@ export default Kapsule({
             // update material
             obj.material = material;
 
+            const targetD = { alt, margin };
+
             const applyUpdate = td => {
               const { alt, margin } = obj.__currentTargetD = td;
+
+              const final = Math.abs(alt - targetD.alt) < 1e-9 && Math.abs(margin - targetD.margin) < 1e-9;
+              const curveRes = final ? curvatureResolution : 180; // use lower resolution for transitory states
 
               // compute new geojson with relative margin
               const relNum = (st, end, rat) => st - (st - end) * rat;
@@ -123,10 +131,8 @@ export default Kapsule({
                 ? obj.__hexGeoJson
                 : obj.__hexGeoJson.map(([elng, elat]) => [[elng, clng], [elat, clat]].map(([st, end]) => relNum(st, end, margin)));
 
-              obj.geometry = new ConicPolygonGeometry([geoJson], GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false);
+              obj.geometry = new ConicPolygonGeometry([geoJson], GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false, true, false, curveRes);
             };
-
-            const targetD = { alt, margin };
 
             const currentTargetD = obj.__currentTargetD || Object.assign({}, targetD, { alt: -1e-3 });
 

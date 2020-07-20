@@ -39,7 +39,8 @@ export default Kapsule({
     polygonSideColor: { default: () => '#ffffaa' },
     polygonCapColor: { default: () => '#ffffaa' },
     polygonStrokeColor: {},
-    polygonAltitude: { default: 0.1 }, // in units of globe radius
+    polygonAltitude: { default: 0.01 }, // in units of globe radius
+    polygonCapCurvatureResolution: { default: 10 }, // in angular degrees
     polygonsTransitionDuration: { default: 1000, triggerUpdate: false } // ms
   },
 
@@ -55,6 +56,7 @@ export default Kapsule({
     // Data accessors
     const geoJsonAccessor = accessorFn(state.polygonGeoJsonGeometry);
     const altitudeAccessor = accessorFn(state.polygonAltitude);
+    const capCurvatureResolutionAccessor = accessorFn(state.polygonCapCurvatureResolution);
     const capColorAccessor = accessorFn(state.polygonCapColor);
     const sideColorAccessor = accessorFn(state.polygonSideColor);
     const strokeColorAccessor = accessorFn(state.polygonStrokeColor);
@@ -66,7 +68,8 @@ export default Kapsule({
         capColor: capColorAccessor(polygon),
         sideColor: sideColorAccessor(polygon),
         strokeColor: strokeColorAccessor(polygon),
-        altitude: +altitudeAccessor(polygon)
+        altitude: +altitudeAccessor(polygon),
+        capCurvatureResolution: +capCurvatureResolutionAccessor(polygon)
       };
 
       const geoJson = geoJsonAccessor(polygon);
@@ -114,7 +117,7 @@ export default Kapsule({
 
         return obj;
       },
-      updateObj: (obj, { coords, capColor, sideColor, strokeColor, altitude }) => {
+      updateObj: (obj, { coords, capColor, sideColor, strokeColor, altitude, capCurvatureResolution }) => {
         const [conicObj, strokeObj] = obj.children;
 
         // hide stroke if no color set
@@ -145,14 +148,18 @@ export default Kapsule({
           coordinates: coords
         };
 
+        const targetD = { alt: altitude };
+
         const applyUpdate = td => {
           const { alt } = obj.__currentTargetD = td;
 
-          conicObj.geometry = new ConicPolygonBufferGeometry(coords, GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false);
-          addStroke && (strokeObj.geometry = new GeoJsonGeometry(geoJsonGeometry, GLOBE_RADIUS  * (1 + alt + 1e-4))); // stroke slightly above the conic mesh
+          const final = Math.abs(alt - targetD.alt) < 1e-9;
+          const res = final ? capCurvatureResolution : 360; // use lower resolution for transitory states
+
+          conicObj.geometry = new ConicPolygonBufferGeometry(coords, GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false, true, true, res);
+          addStroke && (strokeObj.geometry = new GeoJsonGeometry(geoJsonGeometry, GLOBE_RADIUS  * (1 + alt + 1e-4), res)); // stroke slightly above the conic mesh
         };
 
-        const targetD = { alt: altitude };
         const currentTargetD = obj.__currentTargetD || { alt: -1e-3 };
 
         if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD[k])) {

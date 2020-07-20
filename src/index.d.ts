@@ -100,6 +100,8 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   polygonStrokeColor(colorAccessor: ObjAccessor<string | boolean | null>): ChainableInstance;
   polygonAltitude(): ObjAccessor<number>;
   polygonAltitude(altitudeAccessor: ObjAccessor<number>): ChainableInstance;
+  polygonCapCurvatureResolution(): ObjAccessor<number>;
+  polygonCapCurvatureResolution(capCurvatureResolutionAccessor: ObjAccessor<number>): ChainableInstance;
   polygonsTransitionDuration(): number;
   polygonsTransitionDuration(durationMs: number): ChainableInstance;
 
@@ -146,6 +148,8 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   hexMargin(margin: HexBinAccessor<number>): ChainableInstance;
   hexAltitude(): HexBinAccessor<number>;
   hexAltitude(altitude: HexBinAccessor<number>): ChainableInstance;
+  hexTopCurvatureResolution(): number;
+  hexTopCurvatureResolution(resolution: number): ChainableInstance;
   hexTopColor(): HexBinAccessor<string>;
   hexTopColor(colorAccessor: HexBinAccessor<string>): ChainableInstance;
   hexSideColor(): HexBinAccessor<string>;
@@ -168,6 +172,8 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   hexPolygonResolution(resolutionAccessor: ObjAccessor<number>): ChainableInstance;
   hexPolygonMargin(): ObjAccessor<number>;
   hexPolygonMargin(marginAccessor: ObjAccessor<number>): ChainableInstance;
+  hexPolygonCurvatureResolution(): ObjAccessor<number>;
+  hexPolygonCurvatureResolution(resolutionAccessor: ObjAccessor<number>): ChainableInstance;
   hexPolygonsTransitionDuration(): number;
   hexPolygonsTransitionDuration(durationMs: number): ChainableInstance;
 

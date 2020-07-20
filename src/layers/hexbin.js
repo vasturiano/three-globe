@@ -44,6 +44,7 @@ export default Kapsule({
     hexBinPointWeight: { default: 1 },
     hexBinResolution: { default: 4 }, // 0-15. Level 0 partitions the earth in 122 (mostly) hexagonal cells. Each subsequent level sub-divides the previous in roughly 7 hexagons.
     hexMargin: { default: 0.2 }, // in fraction of diameter
+    hexTopCurvatureResolution: { default: 10 }, // in angular degrees
     hexTopColor: { default: () => '#ffffaa' },
     hexSideColor: { default: () => '#ffffaa' },
     hexAltitude: { default: ({ sumWeight }) => sumWeight * 0.01 }, // in units of globe radius
@@ -143,8 +144,16 @@ export default Kapsule({
     function updateObj(obj, d) {
       const GeometryClass = state.hexBinMerge ? ConicPolygonGeometry : ConicPolygonGeometry;
 
+      const targetD = {
+        alt: +altitudeAccessor(d),
+        margin: Math.max(0, Math.min(1, +marginAccessor(d)))
+      };
+
       const applyUpdate = td => {
         const { alt, margin } = obj.__currentTargetD = td;
+
+        const final = Math.abs(alt - targetD.alt) < 1e-9 && Math.abs(margin - targetD.margin) < 1e-9;
+        const topRes = final ? state.hexTopCurvatureResolution : 180; // use lower resolution for transitory states
 
         // compute new geojson with relative margin
         const relNum = (st, end, rat) => st - (st - end) * rat;
@@ -153,12 +162,7 @@ export default Kapsule({
           ? obj.__hexGeoJson
           : obj.__hexGeoJson.map(([elng, elat]) => [[elng, clng], [elat, clat]].map(([st, end]) => relNum(st, end, margin)));
 
-        obj.geometry = new GeometryClass([geoJson], GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false);
-      };
-
-      const targetD = {
-        alt: +altitudeAccessor(d),
-        margin: Math.max(0, Math.min(1, +marginAccessor(d)))
+        obj.geometry = new GeometryClass([geoJson], GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false, true, true, topRes);
       };
 
       const currentTargetD = obj.__currentTargetD || Object.assign({}, targetD, { alt: -1e-3 });

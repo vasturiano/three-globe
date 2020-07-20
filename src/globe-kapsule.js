@@ -97,6 +97,7 @@ const linkedHexBinLayerProps = Object.assign(...[
   'hexBinPointWeight',
   'hexBinResolution',
   'hexMargin',
+  'hexTopCurvatureResolution',
   'hexTopColor',
   'hexSideColor',
   'hexAltitude',
@@ -112,6 +113,7 @@ const linkedHexedPolygonsLayerProps = Object.assign(...[
   'hexPolygonAltitude',
   'hexPolygonResolution',
   'hexPolygonMargin',
+  'hexPolygonCurvatureResolution',
   'hexPolygonsTransitionDuration'
 ].map(p => ({ [p]: bindHexedPolygonsLayer.linkProp(p)})));
 
@@ -123,6 +125,7 @@ const linkedPolygonsLayerProps = Object.assign(...[
   'polygonSideColor',
   'polygonStrokeColor',
   'polygonAltitude',
+  'polygonCapCurvatureResolution',
   'polygonsTransitionDuration'
 ].map(p => ({ [p]: bindPolygonsLayer.linkProp(p)})));
 
