@@ -44,7 +44,7 @@ export default Kapsule({
     hexBinPointWeight: { default: 1 },
     hexBinResolution: { default: 4 }, // 0-15. Level 0 partitions the earth in 122 (mostly) hexagonal cells. Each subsequent level sub-divides the previous in roughly 7 hexagons.
     hexMargin: { default: 0.2 }, // in fraction of diameter
-    hexTopCurvatureResolution: { default: 10 }, // in angular degrees
+    hexTopCurvatureResolution: { default: 5 }, // in angular degrees
     hexTopColor: { default: () => '#ffffaa' },
     hexSideColor: { default: () => '#ffffaa' },
     hexAltitude: { default: ({ sumWeight }) => sumWeight * 0.01 }, // in units of globe radius

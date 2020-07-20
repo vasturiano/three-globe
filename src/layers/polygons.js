@@ -40,7 +40,7 @@ export default Kapsule({
     polygonCapColor: { default: () => '#ffffaa' },
     polygonStrokeColor: {},
     polygonAltitude: { default: 0.01 }, // in units of globe radius
-    polygonCapCurvatureResolution: { default: 10 }, // in angular degrees
+    polygonCapCurvatureResolution: { default: 5 }, // in angular degrees
     polygonsTransitionDuration: { default: 1000, triggerUpdate: false } // ms
   },
 
@@ -154,7 +154,7 @@ export default Kapsule({
           const { alt } = obj.__currentTargetD = td;
 
           const final = Math.abs(alt - targetD.alt) < 1e-9;
-          const res = final ? capCurvatureResolution : 360; // use lower resolution for transitory states
+          const res = final ? capCurvatureResolution : 180; // use lower resolution for transitory states
 
           conicObj.geometry = new ConicPolygonBufferGeometry(coords, GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false, true, true, res);
           addStroke && (strokeObj.geometry = new GeoJsonGeometry(geoJsonGeometry, GLOBE_RADIUS  * (1 + alt + 1e-4), res)); // stroke slightly above the conic mesh
