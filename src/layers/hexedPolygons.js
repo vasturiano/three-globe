@@ -116,10 +116,10 @@ export default Kapsule({
             // update material
             obj.material = material;
 
-            const targetD = { alt, margin };
+            const targetD = { alt, margin, curvatureResolution };
 
             const applyUpdate = td => {
-              const { alt, margin } = obj.__currentTargetD = td;
+              const { alt, margin, curvatureResolution } = obj.__currentTargetD = td;
 
               const final = Math.abs(alt - targetD.alt) < 1e-9 && Math.abs(margin - targetD.margin) < 1e-9;
               const curveRes = final ? curvatureResolution : 180; // use lower resolution for transitory states

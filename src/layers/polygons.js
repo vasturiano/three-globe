@@ -148,10 +148,10 @@ export default Kapsule({
           coordinates: coords
         };
 
-        const targetD = { alt: altitude };
+        const targetD = { alt: altitude, capCurvatureResolution };
 
         const applyUpdate = td => {
-          const { alt } = obj.__currentTargetD = td;
+          const { alt, capCurvatureResolution } = obj.__currentTargetD = td;
 
           const final = Math.abs(alt - targetD.alt) < 1e-9;
           const res = final ? capCurvatureResolution : 180; // use lower resolution for transitory states
@@ -160,10 +160,10 @@ export default Kapsule({
           addStroke && (strokeObj.geometry = new GeoJsonGeometry(geoJsonGeometry, GLOBE_RADIUS  * (1 + alt + 1e-4), res)); // stroke slightly above the conic mesh
         };
 
-        const currentTargetD = obj.__currentTargetD || { alt: -1e-3 };
+        const currentTargetD = obj.__currentTargetD || Object.assign({}, targetD, { alt: -1e-3 });
 
         if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD[k])) {
-          if (!state.polygonsTransitionDuration || state.polygonsTransitionDuration < 0) {
+          if (!state.polygonsTransitionDuration || state.polygonsTransitionDuration < 0 || currentTargetD.alt === targetD.alt) {
             // set final position
             applyUpdate(targetD);
           } else {
