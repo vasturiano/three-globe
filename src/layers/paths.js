@@ -3,6 +3,7 @@ import {
   BufferGeometry,
   Color,
   Float32BufferAttribute,
+  Group,
   Line,
   NoColors,
   ShaderMaterial,
@@ -17,6 +18,7 @@ const THREE = window.THREE
     BufferGeometry,
     Color,
     Float32BufferAttribute,
+    Group,
     Line,
     NoColors,
     ShaderMaterial,
@@ -144,24 +146,31 @@ export default Kapsule({
     });
 
     threeDigest(state.pathsData, state.scene, {
-      createObj: path => {
-        const stroke = strokeAccessor(path);
-        const useFatLine = stroke !== null && stroke !== undefined;
-
-        const obj = useFatLine
-          ? new Line2(new LineGeometry(), new LineMaterial())
-          : new THREE.Line(
-            new THREE.BufferGeometry(),
-            sharedShaderMaterial.clone() // Separate material instance per object to have dedicated uniforms (but shared shaders)
-          );
+      createObj: () => {
+        const obj = new THREE.Group(); // populated in updateObj
 
         obj.__globeObjType = 'path'; // Add object type
-
         return obj;
       },
-      updateObj: (obj, path) => {
+      updateObj: (group, path) => {
         const stroke = strokeAccessor(path);
         const useFatLine = stroke !== null && stroke !== undefined;
+
+        if (!group.children.length || useFatLine === (group.children[0].type === 'Line')) {
+          // create or swap object types
+          emptyObject(group);
+
+          const obj = useFatLine
+            ? new Line2(new LineGeometry(), new LineMaterial())
+            : new THREE.Line(
+              new THREE.BufferGeometry(),
+              sharedShaderMaterial.clone() // Separate material instance per object to have dedicated uniforms (but shared shaders)
+            );
+
+          group.add(obj);
+        }
+
+        const obj = group.children[0];
 
         const points = calcPath(pointsAccessor(path), pointLatAccessor, pointLngAccessor, pointAltAccessor, state.pathResolution);
 

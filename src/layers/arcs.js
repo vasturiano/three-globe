@@ -4,6 +4,7 @@ import {
   CubicBezierCurve3,
   Curve,
   Float32BufferAttribute,
+  Group,
   Line,
   Mesh,
   QuadraticBezierCurve3,
@@ -20,6 +21,7 @@ const THREE = window.THREE
     CubicBezierCurve3,
     Curve,
     Float32BufferAttribute,
+    Group,
     Line,
     Mesh,
     QuadraticBezierCurve3,
@@ -150,23 +152,30 @@ export default Kapsule({
     });
 
     threeDigest(state.arcsData, state.scene, {
-      createObj: arc => {
-        const stroke = strokeAccessor(arc);
-        const useTube = stroke !== null && stroke !== undefined;
-
-        const obj = useTube
-          ? new THREE.Mesh()
-          : new THREE.Line(new THREE.BufferGeometry());
-
-        obj.material = sharedMaterial.clone(); // Separate material instance per object to have dedicated uniforms (but shared shaders)
+      createObj: () => {
+        const obj = new THREE.Group(); // populated in updateObj
 
         obj.__globeObjType = 'arc'; // Add object type
-
         return obj;
       },
-      updateObj: (obj, arc) => {
+      updateObj: (group, arc) => {
         const stroke = strokeAccessor(arc);
         const useTube = stroke !== null && stroke !== undefined;
+
+        if (!group.children.length || useTube !== (group.children[0].type === 'Mesh')) {
+          // create or swap object types
+          emptyObject(group);
+
+          const obj = useTube
+            ? new THREE.Mesh()
+            : new THREE.Line(new THREE.BufferGeometry());
+
+          obj.material = sharedMaterial.clone(); // Separate material instance per object to have dedicated uniforms (but shared shaders)
+
+          group.add(obj);
+        }
+
+        const obj = group.children[0];
 
         // set dash uniforms
         Object.assign(obj.material.uniforms, {
