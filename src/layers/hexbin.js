@@ -117,6 +117,7 @@ export default Kapsule({
       hexPoints.__globeObjType = 'hexBinPoints'; // Add object type
       hexPoints.__data = hexBins; // Attach obj data
 
+      emptyObject(state.scene);
       state.scene.add(hexPoints);
     }
 

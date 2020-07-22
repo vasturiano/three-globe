@@ -111,6 +111,7 @@ export default Kapsule({
       points.__globeObjType = 'points'; // Add object type
       points.__data = state.pointsData; // Attach obj data
 
+      emptyObject(state.scene);
       state.scene.add(points);
     }
 
