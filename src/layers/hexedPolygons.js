@@ -123,7 +123,7 @@ export default Kapsule({
               ? h.hexGeoJson
               : h.hexGeoJson.map(([elng, elat]) => [[elng, clng], [elat, clat]].map(([st, end]) => relNum(st, end, margin)));
 
-            const hexGeom = new ConicPolygonGeometry([geoJson], GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false, true, true, curvatureResolution);
+            const hexGeom = new ConicPolygonGeometry([geoJson], GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false, true, false, curvatureResolution);
 
             obj.geometry.merge(hexGeom);
           });
