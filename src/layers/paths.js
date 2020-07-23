@@ -116,9 +116,9 @@ export default Kapsule({
     // Kick-off dash animations
     new FrameTicker().onTick.add((_, timeDelta) => {
       state.pathsData
-        .filter(d => d.__threeObj && d.__threeObj.material && d.__threeObj.__dashAnimateStep)
+        .filter(d => d.__threeObj && d.__threeObj.children.length && d.__threeObj.children[0].material && d.__threeObj.children[0].__dashAnimateStep)
         .forEach(d => {
-          const obj = d.__threeObj;
+          const obj = d.__threeObj.children[0];
           const step = obj.__dashAnimateStep * timeDelta;
           const curTranslate = obj.material.uniforms.dashTranslate.value % 1e9; // reset after 1B loops
           obj.material.uniforms.dashTranslate.value = curTranslate + step;
