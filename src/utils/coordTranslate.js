@@ -17,8 +17,8 @@ function cartesian2Polar({ x, y, z }) {
   const theta = Math.atan2(z, x);
 
   return {
-    lat: 90 - phi * 180/ Math.PI,
-    lng: 90 - theta * 180/ Math.PI,
+    lat: 90 - phi * 180 / Math.PI,
+    lng: 90 - theta * 180 / Math.PI - (theta < -Math.PI / 2 ? 360 : 0), // keep within [-180, 180] boundaries
     altitude: r / GLOBE_RADIUS - 1
   }
 }
