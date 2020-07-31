@@ -1,6 +1,6 @@
 import resolve from '@rollup/plugin-node-resolve';
 import commonJs from '@rollup/plugin-commonjs';
-import babel from 'rollup-plugin-babel';
+import babel from '@rollup/plugin-babel';
 import json from '@rollup/plugin-json';
 import { terser } from "rollup-plugin-terser";
 import dts from 'rollup-plugin-dts';
@@ -34,7 +34,7 @@ export default [
       json({ compact: true }),
       resolve(),
       commonJs(),
-      babel({ exclude: 'node_modules/**' })
+      babel({ exclude: 'node_modules/**', babelHelpers: "bundled" })
     ]
   },
   { // commonJs and ES modules
@@ -52,7 +52,7 @@ export default [
     external: [...Object.keys(dependencies), ...Object.keys(peerDependencies)],
     plugins: [
       json({ compact: true }),
-      babel()
+      babel({ babelHelpers: "bundled" })
     ]
   },
   { // expose TS declarations
