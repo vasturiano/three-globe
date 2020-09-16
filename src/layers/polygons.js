@@ -4,7 +4,8 @@ import {
   Line,
   LineBasicMaterial,
   Mesh,
-  MeshBasicMaterial
+  MeshBasicMaterial,
+  Material
 } from 'three';
 
 const THREE = window.THREE
@@ -15,7 +16,8 @@ const THREE = window.THREE
   Line,
   LineBasicMaterial,
   Mesh,
-  MeshBasicMaterial
+  MeshBasicMaterial,
+  Material
 };
 
 import { ConicPolygonBufferGeometry } from 'three-conic-polygon-geometry';
@@ -127,20 +129,31 @@ export default Kapsule({
         // update materials
         [sideColor, capColor].forEach((color, materialIdx) => {
           // conic object
-          const material = conicObj.material[materialIdx];
-          const opacity = colorAlpha(color);
-          material.color.set(colorStr2Hex(color));
-          material.transparent = opacity < 1;
-          material.opacity = opacity;
+
+          if(color instanceof Material){
+            conicObj.material[materialIdx] = color;
+          } else {
+            const material = conicObj.material[materialIdx].clone();
+            conicObj.material[materialIdx] = material;
+            const opacity = colorAlpha(color);
+            material.color.set(colorStr2Hex(color));
+            material.transparent = opacity < 1;
+            material.opacity = opacity;
+          }
         });
 
         if (addStroke) {
           // stroke object
-          const material = strokeObj.material;
-          const opacity = colorAlpha(strokeColor);
-          material.color.set(colorStr2Hex(strokeColor));
-          material.transparent = opacity < 1;
-          material.opacity = opacity;
+          if(strokeColor instanceof Material){
+            strokeObj.material = strokeColor;
+          } else {
+            const material = strokeObj.material.clone();
+            strokeObj.material = material;
+            const opacity = colorAlpha(strokeColor);
+            material.color.set(colorStr2Hex(strokeColor));
+            material.transparent = opacity < 1;
+            material.opacity = opacity;
+          }
         }
 
         const geoJsonGeometry = {
