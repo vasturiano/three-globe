@@ -1,5 +1,6 @@
 import {
   Color,
+  DoubleSide,
   FaceColors,
   Geometry,
   Mesh,
@@ -12,6 +13,7 @@ const THREE = window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
   : {
     Color,
+    DoubleSide,
     FaceColors,
     Geometry,
     Mesh,
@@ -111,7 +113,8 @@ export default Kapsule({
       const hexPoints = new THREE.Mesh(hexPointsGeometry, new THREE.MeshBasicMaterial({
         color: 0xffffff,
         vertexColors: THREE.FaceColors,
-        morphTargets: false
+        morphTargets: false,
+        side: THREE.DoubleSide
       }));
 
       hexPoints.__globeObjType = 'hexBinPoints'; // Add object type
@@ -194,7 +197,8 @@ export default Kapsule({
             hexMaterials[color] = new THREE.MeshLambertMaterial({
               color: colorStr2Hex(color),
               transparent: opacity < 1,
-              opacity: opacity
+              opacity: opacity,
+              side: THREE.DoubleSide
             });
           }
         });

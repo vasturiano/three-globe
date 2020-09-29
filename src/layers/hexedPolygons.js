@@ -1,4 +1,5 @@
 import {
+  DoubleSide,
   Geometry,
   Mesh,
   MeshLambertMaterial
@@ -7,6 +8,7 @@ import {
 const THREE = window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
   : {
+    DoubleSide,
     Geometry,
     Mesh,
     MeshLambertMaterial
@@ -59,7 +61,7 @@ export default Kapsule({
       createObj: d => {
         const obj = new THREE.Mesh(
           undefined,
-          new THREE.MeshLambertMaterial()
+          new THREE.MeshLambertMaterial({ side: THREE.DoubleSide })
         );
 
         obj.__globeObjType = 'hexPolygon'; // Add object type
