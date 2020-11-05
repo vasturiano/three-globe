@@ -120,8 +120,16 @@ export default Kapsule({
         .forEach(d => {
           const obj = d.__threeObj.children[0];
           const step = obj.__dashAnimateStep * timeDelta;
-          const curTranslate = obj.material.uniforms.dashTranslate.value % 1e9; // reset after 1B loops
-          obj.material.uniforms.dashTranslate.value = curTranslate + step;
+
+          if (obj.type === 'Line') {
+            const curTranslate = obj.material.uniforms.dashTranslate.value % 1e9; // reset after 1B loops
+            obj.material.uniforms.dashTranslate.value = curTranslate + step;
+          } else if (obj.type === 'Line2') { // fatline
+            let offset = obj.material.dashOffset - step;
+            const dashLength = obj.material.dashSize + obj.material.gapSize;
+            while (offset <= -dashLength) offset += dashLength; // cycle within dash length
+            obj.material.dashOffset = offset;
+          }
         })
     });
   },
@@ -174,11 +182,11 @@ export default Kapsule({
 
         const points = calcPath(pointsAccessor(path), pointLatAccessor, pointLngAccessor, pointAltAccessor, state.pathResolution);
 
-        if (!useFatLine) {
-          // set dash animation step
-          const dashAnimateTime = dashAnimateTimeAccessor(path);
-          obj.__dashAnimateStep = dashAnimateTime > 0 ? 1000 / dashAnimateTime : 0; // per second
+        // set dash animation step
+        const dashAnimateTime = dashAnimateTimeAccessor(path);
+        obj.__dashAnimateStep = dashAnimateTime > 0 ? 1000 / dashAnimateTime : 0; // per second
 
+        if (!useFatLine) {
           // set dash uniforms
           Object.assign(obj.material.uniforms, {
             dashSize: { value: dashLengthAccessor(path)},
@@ -205,10 +213,9 @@ export default Kapsule({
           obj.material.resolution = state.rendererSize;
 
           { // set dash styling
-            obj.__dashAnimateStep = 0; // can't animate dashes on fat lines (no initial gap)
-
             const dashLength = dashLengthAccessor(path);
             const dashGap = dashGapAccessor(path);
+            const dashInitialGap = dashInitialGapAccessor(path);
 
             obj.material.dashed = dashGap > 0;
 
@@ -222,6 +229,7 @@ export default Kapsule({
 
               obj.material.dashSize = dashLength;
               obj.material.gapSize = dashGap;
+              obj.material.dashOffset = -dashInitialGap;
             }
           }
 
