@@ -25,7 +25,11 @@
     const Globe = new ThreeGlobe()
       .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
       .arcsData(arcsData)
-      .arcColor('color');
+      .arcColor('color')
+      .arcDashLength(0.4)
+      .arcDashGap(4)
+      .arcDashInitialGap(() => Math.random() * 5)
+      .arcDashAnimateTime(1000);
 
     // Setup renderer
     const renderer = new THREE.WebGLRenderer();
