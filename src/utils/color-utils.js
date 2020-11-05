@@ -9,4 +9,12 @@ const color2ShaderArr = (str, includeAlpha = true) => {
   return includeAlpha ? [...rgbArr, rgba.a] : rgbArr;
 };
 
-export { colorStr2Hex, colorAlpha, color2ShaderArr };
+function setMaterialOpacity(material, opacity, depthWrite) {
+  material.opacity = opacity;
+  material.transparent = opacity < 1;
+  material.depthWrite = depthWrite === undefined ? opacity >= 1 : depthWrite; // depthWrite=false recommended for transparent materials, to prevent transparency issues https://discourse.threejs.org/t/threejs-and-the-transparent-problem/11553/31
+
+  return material;
+}
+
+export { colorStr2Hex, colorAlpha, color2ShaderArr, setMaterialOpacity };
