@@ -171,8 +171,6 @@ const linkedCustomLayerProps = Object.assign(...[
   'customThreeObjectUpdate'
 ].map(p => ({ [p]: bindCustomLayer.linkProp(p)})));
 
-//
-// console.log(linkedGlobeLayerProps)
 export default Kapsule({
   props: {
     rendererSize: {
