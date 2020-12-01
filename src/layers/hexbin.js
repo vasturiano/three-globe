@@ -129,7 +129,7 @@ export default Kapsule({
     function createObj(d) {
       const obj = new THREE.Mesh();
       obj.__hexCenter = h3ToGeo(d.h3Idx);
-      obj.__hexGeoJson = h3ToGeoBoundary(d.h3Idx, true);
+      obj.__hexGeoJson = h3ToGeoBoundary(d.h3Idx, true).reverse(); // correct polygon winding
 
       // stitch longitudes at the anti-meridian
       const centerLng = obj.__hexCenter[1];

@@ -95,7 +95,8 @@ export default Kapsule({
 
         const hexBins = h3Idxs.map(h3Idx => {
           const hexCenter = h3ToGeo(h3Idx);
-          const hexGeoJson = h3ToGeoBoundary(h3Idx, true);
+          const hexGeoJson = h3ToGeoBoundary(h3Idx, true).reverse(); // correct polygon winding
+
 
           // stitch longitudes at the anti-meridian
           const centerLng = hexCenter[1];
