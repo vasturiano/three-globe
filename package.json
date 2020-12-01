@@ -49,7 +49,7 @@
     "kapsule": "^1.13.3",
     "three-conic-polygon-geometry": "1.4.0",
     "three-fatline": "^0.4.1",
-    "three-geojson-geometry": "^1.1.0",
+    "three-geojson-geometry": "^1.1.1",
     "three-glow-mesh": "^0.1.2",
     "tinycolor2": "^1.4.2"
   },

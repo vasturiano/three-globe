@@ -1674,11 +1674,12 @@ three-fatline@^0.4.1:
   resolved "https://registry.yarnpkg.com/three-fatline/-/three-fatline-0.4.1.tgz#8f9eb5a34348ba03cb3186797c27a39b49dd35e1"
   integrity sha512-SqqxEtTVc1bv2z28H5SSxXyVRbk7v9rrnKnKAKWX0L6z9Z9F94jGIVew94HPhZwJnFFgQFGuVF2nyqh4Q3U3AQ==
 
-three-geojson-geometry@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/three-geojson-geometry/-/three-geojson-geometry-1.1.0.tgz#27e906cdd3de2a3b0299d8657528df0b6dc5436b"
-  integrity sha512-x/2FIuF+AG9s411HmNtQZ5JhWl3ig+I+mtAmX4ecEEt+STk0bPt8NzFRUaeJldrn/99v1UGzE7NdTtelp7gxUQ==
+three-geojson-geometry@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/three-geojson-geometry/-/three-geojson-geometry-1.1.1.tgz#5ed37646db3bbe88c982b9289deae205e9c712db"
+  integrity sha512-/PLGu/PQBnxQYFKxE0uFv6MW6ENdhS3J4Md/DR9nYe7ZHVR+b8/o/qkUFik9rIw/BNYgoc8BHr6LjvUSsABSmQ==
   dependencies:
+    d3-geo "^2.0.1"
     earcut "^2.2.2"
 
 three-glow-mesh@^0.1.2:
