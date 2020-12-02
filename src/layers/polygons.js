@@ -153,8 +153,9 @@ export default Kapsule({
         const applyUpdate = td => {
           const { alt, capCurvatureResolution } = obj.__currentTargetD = td;
 
-          const final = Math.abs(alt - targetD.alt) < 1e-9;
-          const res = final ? capCurvatureResolution : 180; // use lower resolution for transitory states
+          // const final = Math.abs(alt - targetD.alt) < 1e-9;
+          // const res = final ? capCurvatureResolution : 180; // use lower resolution for transitory states
+          const res = capCurvatureResolution;
 
           conicObj.geometry = new ConicPolygonBufferGeometry(coords, GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false, true, true, res);
           addStroke && (strokeObj.geometry = new GeoJsonGeometry(geoJsonGeometry, GLOBE_RADIUS  * (1 + alt + 1e-4), res)); // stroke slightly above the conic mesh

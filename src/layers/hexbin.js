@@ -157,8 +157,9 @@ export default Kapsule({
       const applyUpdate = td => {
         const { alt, margin, hexTopCurvatureResolution } = obj.__currentTargetD = td;
 
-        const final = Math.abs(alt - targetD.alt) < 1e-9 && Math.abs(margin - targetD.margin) < 1e-9;
-        const topRes = final ? hexTopCurvatureResolution : 180; // use lower resolution for transitory states
+        // const final = Math.abs(alt - targetD.alt) < 1e-9 && Math.abs(margin - targetD.margin) < 1e-9;
+        // const topRes = final ? hexTopCurvatureResolution : 180; // use lower resolution for transitory states
+        const topRes = hexTopCurvatureResolution;
 
         // compute new geojson with relative margin
         const relNum = (st, end, rat) => st - (st - end) * rat;
