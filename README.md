@@ -170,15 +170,16 @@ new ThreeGlobe({ configOptions })
 
 | Method | Description | Default |
 | --- | --- | :--: |
-| <b>tilesData</b>([<i>array</i>]) | Getter/setter for the list of tiles to represent in the tiles map layer. Each tile is displayed as a segment on a spherical surface. The segments can be placed side-by-side for a tiled surface and each can be styled separately. | `[]` |
+| <b>tilesData</b>([<i>array</i>]) | Getter/setter for the list of tiles to represent in the tiles map layer. Each tile is displayed as a spherical surface segment. The segments can be placed side-by-side for a tiled surface and each can be styled separately. | `[]` |
 | <b>tileLat</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Tile object accessor function, attribute or a numeric constant for the segment's centroid latitude coordinate. | `lat` |
 | <b>tileLng</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Tile object accessor function, attribute or a numeric constant for the segment's centroid longitude coordinate. | `lng` |
 | <b>tileAltitude</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Tile object accessor function, attribute or a numeric constant for the segment's altitude in terms of globe radius units. | 0.01 |
 | <b>tileWidth</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Tile object accessor function, attribute or a numeric constant for the segment's longitudinal width, in angular degrees. | 1 |
 | <b>tileHeight</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Tile object accessor function, attribute or a numeric constant for the segment's latitudinal height, in angular degrees. | 1 |
+| <b>tileUseGlobeProjection</b>([<i>bool</i>, <i>str</i> or <i>fn</i>]) | Tile object accessor function or attribute for whether to use the globe's projection to shape the segment in its relative position (`true`), or break free from this projection and shape the segment as if it would be laying directly on the equatorial perimeter (`false`). | `true` |
 | <b>tileMaterial</b>([<i>str</i> or <i>fn</i>]) | Tile object accessor function or attribute for the [ThreeJS material](https://threejs.org/docs/#api/en/materials/Material) used to style the segment's surface. | `() => new MeshLambertMaterial({ color: '#ffbb88' })` |
 | <b>tileCurvatureResolution</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Tile object accessor function, attribute or a numeric constant for the resolution (in angular degrees) of the surface curvature. The finer the resolution, the more the tile geometry is fragmented into smaller faces to approximate the spheric surface, at the cost of performance. | 5 |
-| <b>tilesTransitionDuration</b>([<i>num</i>]) | Getter/setter for duration (ms) of the transition to animate tile changes involving geometry modifications. A value of `0` will move the tiles immediately to their final position. New tiles are animated by sizing them from the centroid outwards. | 1000 |
+| <b>tilesTransitionDuration</b>([<i>num</i>]) | Getter/setter for duration (ms) of the transition to animate tile changes involving geometry modifications. A value of `0` will move the tiles immediately to their final position. New tiles are animated by scaling them from the centroid outwards. | 1000 |
 
 ### Labels Layer
 
