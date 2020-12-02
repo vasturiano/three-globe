@@ -22,7 +22,7 @@ const THREE = window.THREE
     Object3D
   };
 
-import { ConicPolygonGeometry, ConicPolygonBufferGeometry } from 'three-conic-polygon-geometry';
+import { ConicPolygonGeometry } from 'three-conic-polygon-geometry';
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';

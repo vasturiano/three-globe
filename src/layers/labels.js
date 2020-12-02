@@ -42,7 +42,7 @@ export default Kapsule({
     labelAltitude: { default: 0 }, // in units of globe radius
     labelText: { default: 'text' },
     labelSize: { default: 0.5 }, // text height in deg
-    labelTypeFace: { default: defaultTypeFace, onChange(tf, state) { state.font = new Font(tf) }},
+    labelTypeFace: { default: defaultTypeFace, onChange(tf, state) { state.font = new THREE.Font(tf) }},
     labelColor: { default: () => 'lightgrey' },
     labelRotation: { default: 0 }, // clockwise degrees, relative to the latitute parallel plane
     labelResolution: { default: 3 }, // how many segments in the text's curves
@@ -77,16 +77,16 @@ export default Kapsule({
 
     const pxPerDeg = 2 * Math.PI * GLOBE_RADIUS / 360;
 
-    const circleGeometry = new CircleBufferGeometry(1, 16);
+    const circleGeometry = new THREE.CircleBufferGeometry(1, 16);
 
     threeDigest(state.labelsData, state.scene, {
       createObj: () => {
-        const material = new MeshLambertMaterial();
+        const material = new THREE.MeshLambertMaterial();
 
         const obj = new THREE.Group(); // container
 
-        obj.add(new Mesh(circleGeometry, material)); // dot
-        obj.add(new Mesh(undefined, material)); // text
+        obj.add(new THREE.Mesh(circleGeometry, material)); // dot
+        obj.add(new THREE.Mesh(undefined, material)); // text
 
         obj.__globeObjType = 'label'; // Add object type
 
@@ -113,7 +113,7 @@ export default Kapsule({
 
         // create text geometry
         const textHeight = +sizeAccessor(d) * pxPerDeg;
-        textObj.geometry = new TextBufferGeometry(textAccessor(d), {
+        textObj.geometry = new THREE.TextBufferGeometry(textAccessor(d), {
           font: state.font,
           size: textHeight,
           height: 0,

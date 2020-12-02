@@ -78,7 +78,7 @@ export default Kapsule({
           const rotLng = deg2Rad(lng);
           const rotLat = deg2Rad(-lat);
 
-          obj.geometry = new SphereBufferGeometry(
+          obj.geometry = new THREE.SphereBufferGeometry(
             GLOBE_RADIUS * (1 + alt),
             Math.ceil(width / curvatureResolution),
             Math.ceil(height / curvatureResolution),
