@@ -26,6 +26,7 @@ import HexBinLayerKapsule from './layers/hexbin';
 import PolygonsLayerKapsule from './layers/polygons';
 import HexedPolygonsLayerKapsule from './layers/hexedPolygons';
 import PathsLayerKapsule from './layers/paths';
+import TilesLayerKapsule from './layers/tiles';
 import LabelsLayerKapsule from './layers/labels';
 import CustomLayerKapsule from './layers/custom';
 
@@ -39,6 +40,7 @@ const layers = [
   'polygonsLayer',
   'hexedPolygonsLayer',
   'pathsLayer',
+  'tilesLayer',
   'labelsLayer',
   'customLayer'
 ];
@@ -146,6 +148,20 @@ const linkedPathsLayerProps = Object.assign(...[
   'pathTransitionDuration'
 ].map(p => ({ [p]: bindPathsLayer.linkProp(p)})));
 
+const bindTilesLayer = linkKapsule('tilesLayer', TilesLayerKapsule);
+const linkedTilesLayerProps = Object.assign(...[
+  'tilesData',
+  'tileLat',
+  'tileLng',
+  'tileAltitude',
+  'tileWidth',
+  'tileHeight',
+  'tileUseGlobeProjection',
+  'tileMaterial',
+  'tileCurvatureResolution',
+  'tilesTransitionDuration'
+].map(p => ({ [p]: bindTilesLayer.linkProp(p)})));
+
 const bindLabelsLayer = linkKapsule('labelsLayer', LabelsLayerKapsule);
 const linkedLabelsLayerProps = Object.assign(...[
   'labelsData',
@@ -189,6 +205,7 @@ export default Kapsule({
     ...linkedPolygonsLayerProps,
     ...linkedHexedPolygonsLayerProps,
     ...linkedPathsLayerProps,
+    ...linkedTilesLayerProps,
     ...linkedLabelsLayerProps,
     ...linkedCustomLayerProps
   },
@@ -208,6 +225,7 @@ export default Kapsule({
       polygonsLayer: PolygonsLayerKapsule(),
       hexedPolygonsLayer: HexedPolygonsLayerKapsule(),
       pathsLayer: PathsLayerKapsule(),
+      tilesLayer: TilesLayerKapsule(),
       labelsLayer: LabelsLayerKapsule(),
       customLayer: CustomLayerKapsule()
     }

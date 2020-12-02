@@ -1,4 +1,4 @@
-import { Object3D, Vector2, MeshPhongMaterial } from 'three';
+import { Object3D, Vector2, MeshPhongMaterial, Material } from 'three';
 
 type Accessor<In, Out> = Out | string | ((obj: In) => Out);
 type ObjAccessor<T> = Accessor<object, T>;
@@ -176,6 +176,28 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   hexPolygonCurvatureResolution(resolutionAccessor: ObjAccessor<number>): ChainableInstance;
   hexPolygonsTransitionDuration(): number;
   hexPolygonsTransitionDuration(durationMs: number): ChainableInstance;
+
+  // Tiles layer
+  tilesData(): object[];
+  tilesData(data: object[]): ChainableInstance;
+  tileLat(): ObjAccessor<number>;
+  tileLat(latitudeAccessor: ObjAccessor<number>): ChainableInstance;
+  tileLng(): ObjAccessor<number>;
+  tileLng(longitudeAccessor: ObjAccessor<number>): ChainableInstance;
+  tileAltitude(): ObjAccessor<number>;
+  tileAltitude(altitudeAccessor: ObjAccessor<number>): ChainableInstance;
+  tileWidth(): ObjAccessor<number>;
+  tileWidth(widthAccessor: ObjAccessor<number>): ChainableInstance;
+  tileHeight(): ObjAccessor<number>;
+  tileHeight(heightAccessor: ObjAccessor<number>): ChainableInstance;
+  tileUseGlobeProjection(): boolean;
+  tileUseGlobeProjection(useGlobeProjection: boolean): ChainableInstance;
+  tileMaterial(): ObjAccessor<Material>;
+  tileMaterial(materialAccessor: ObjAccessor<Material>): ChainableInstance;
+  tileCurvatureResolution(): ObjAccessor<number>;
+  tileCurvatureResolution(curvatureResolutionAccessor: ObjAccessor<number>): ChainableInstance;
+  tilesTransitionDuration(): number;
+  tilesTransitionDuration(durationMs: number): ChainableInstance;
 
   // Labels layer
   labelsData(): object[];
