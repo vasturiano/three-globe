@@ -334,6 +334,9 @@ export default Kapsule({
         let prevPnt = null;
         lineCoords.forEach(pnt => {
           if (prevPnt) {
+            // cross the anti-meridian if that's the closest distance between points
+            while (Math.abs(prevPnt[1] - pnt[1]) > 180) prevPnt[1] += 360 * (prevPnt[1] < pnt[1] ? 1 : -1);
+
             const dist = Math.sqrt(Math.pow(pnt[0] - prevPnt[0], 2) + Math.pow(pnt[1] - prevPnt[1], 2));
 
             if (dist > maxDegDistance) {
