@@ -47,14 +47,14 @@
     "h3-js": "^3.7.0",
     "index-array-by": "^1.3.0",
     "kapsule": "^1.13.3",
-    "three-conic-polygon-geometry": "1.4.0",
-    "three-fatline": "^0.4.1",
-    "three-geojson-geometry": "^1.1.1",
+    "three-conic-polygon-geometry": "1.4.2",
+    "three-fatline": "^0.4.2",
+    "three-geojson-geometry": "^1.1.2",
     "three-glow-mesh": "^0.1.2",
     "tinycolor2": "^1.4.2"
   },
   "peerDependencies": {
-    "three": ">=0.88.0"
+    "three": ">=0.88.0 <=0.124.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",
@@ -65,9 +65,9 @@
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^11.1.0",
-    "@types/three": ">=0.88.0",
+    "@types/three": ">=0.88.0 <=0.124.0",
     "rimraf": "^3.0.2",
-    "rollup": "^2.38.0",
+    "rollup": "^2.38.1",
     "rollup-plugin-dts": "^2.0.1",
     "rollup-plugin-terser": "^7.0.2",
     "typescript": "^4.1.3"
