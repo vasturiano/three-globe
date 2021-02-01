@@ -37,7 +37,9 @@ export default Kapsule({
     polygonsData: { default: [] },
     polygonGeoJsonGeometry: { default: 'geometry' },
     polygonSideColor: { default: () => '#ffffaa' },
+    polygonSideMaterial: {},
     polygonCapColor: { default: () => '#ffffaa' },
+    polygonCapMaterial: {},
     polygonStrokeColor: {},
     polygonAltitude: { default: 0.01 }, // in units of globe radius
     polygonCapCurvatureResolution: { default: 5 }, // in angular degrees
@@ -58,7 +60,9 @@ export default Kapsule({
     const altitudeAccessor = accessorFn(state.polygonAltitude);
     const capCurvatureResolutionAccessor = accessorFn(state.polygonCapCurvatureResolution);
     const capColorAccessor = accessorFn(state.polygonCapColor);
+    const capMaterialAccessor = accessorFn(state.polygonCapMaterial);
     const sideColorAccessor = accessorFn(state.polygonSideColor);
+    const sideMaterialAccessor = accessorFn(state.polygonSideMaterial);
     const strokeColorAccessor = accessorFn(state.polygonStrokeColor);
 
     const singlePolygons = [];
@@ -66,7 +70,9 @@ export default Kapsule({
       const objAttrs = {
         data: polygon,
         capColor: capColorAccessor(polygon),
+        capMaterial: capMaterialAccessor(polygon),
         sideColor: sideColorAccessor(polygon),
+        sideMaterial: sideMaterialAccessor(polygon),
         strokeColor: strokeColorAccessor(polygon),
         altitude: +altitudeAccessor(polygon),
         capCurvatureResolution: +capCurvatureResolutionAccessor(polygon)
@@ -98,12 +104,15 @@ export default Kapsule({
       createObj: () => {
         const obj = new THREE.Group();
 
+        obj.__defaultSideMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, depthWrite: true });
+        obj.__defaultCapMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, depthWrite: true });
+
         // conic geometry
         obj.add(new THREE.Mesh(
           undefined,
           [
-            new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, depthWrite: true }), // side material
-            new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, depthWrite: true }) // cap material
+            obj.__defaultSideMaterial, // side material
+            obj.__defaultCapMaterial // cap material
           ]
         ));
 
@@ -117,15 +126,21 @@ export default Kapsule({
 
         return obj;
       },
-      updateObj: (obj, { coords, capColor, sideColor, strokeColor, altitude, capCurvatureResolution }) => {
+      updateObj: (obj, { coords, capColor, capMaterial, sideColor, sideMaterial, strokeColor, altitude, capCurvatureResolution }) => {
         const [conicObj, strokeObj] = obj.children;
 
         // hide stroke if no color set
         const addStroke = !!strokeColor;
         strokeObj.visible = addStroke;
 
-        // update materials
-        [sideColor, capColor].forEach((color, materialIdx) => {
+        // replace side/cap materials if defined
+        conicObj.material[0] = sideMaterial || obj.__defaultSideMaterial;
+        conicObj.material[1] = capMaterial || obj.__defaultCapMaterial;
+
+        // update default material colors
+        [!sideMaterial && sideColor, !capMaterial && capColor].forEach((color, materialIdx) => {
+          if (!color) return; // skip custom materials
+
           // conic object
           const material = conicObj.material[materialIdx];
           const opacity = colorAlpha(color);
