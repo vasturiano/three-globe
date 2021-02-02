@@ -94,8 +94,12 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   polygonGeoJsonGeometry(geometryAccessor: ObjAccessor<GeoJsonGeometry>): ChainableInstance;
   polygonCapColor(): ObjAccessor<string>;
   polygonCapColor(colorAccessor: ObjAccessor<string>): ChainableInstance;
+  polygonCapMaterial(): ObjAccessor<Material>;
+  polygonCapMaterial(materialAccessor: ObjAccessor<Material>): ChainableInstance;
   polygonSideColor(): ObjAccessor<string>;
   polygonSideColor(colorAccessor: ObjAccessor<string>): ChainableInstance;
+  polygonSideMaterial(): ObjAccessor<Material>;
+  polygonSideMaterial(materialAccessor: ObjAccessor<Material>): ChainableInstance;
   polygonStrokeColor(): ObjAccessor<string | boolean | null>;
   polygonStrokeColor(colorAccessor: ObjAccessor<string | boolean | null>): ChainableInstance;
   polygonAltitude(): ObjAccessor<number>;
