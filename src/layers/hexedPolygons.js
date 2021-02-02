@@ -1,6 +1,6 @@
 import {
+  BufferGeometry,
   DoubleSide,
-  Geometry,
   Mesh,
   MeshLambertMaterial
 } from 'three';
@@ -8,13 +8,14 @@ import {
 const THREE = window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
   : {
+    BufferGeometry,
     DoubleSide,
-    Geometry,
     Mesh,
     MeshLambertMaterial
   };
 
-import { ConicPolygonGeometry } from 'three-conic-polygon-geometry';
+import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { ConicPolygonBufferGeometry } from 'three-conic-polygon-geometry';
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
@@ -116,20 +117,19 @@ export default Kapsule({
         const applyUpdate = td => {
           const { alt, margin, curvatureResolution } = obj.__currentTargetD = td;
 
-          obj.geometry = new THREE.Geometry();
+          obj.geometry = !hexBins.length
+            ? new THREE.BufferGeometry()
+            : BufferGeometryUtils.mergeBufferGeometries(hexBins.map(h => {
+                // compute new geojson with relative margin
+                const relNum = (st, end, rat) => st - (st - end) * rat;
+                const [clat, clng] = h.hexCenter;
+                const geoJson = margin === 0
+                  ? h.hexGeoJson
+                  : h.hexGeoJson.map(([elng, elat]) => [[elng, clng], [elat, clat]].map(([st, end]) => relNum(st, end, margin)));
 
-          hexBins.forEach(h => {
-            // compute new geojson with relative margin
-            const relNum = (st, end, rat) => st - (st - end) * rat;
-            const [clat, clng] = h.hexCenter;
-            const geoJson = margin === 0
-              ? h.hexGeoJson
-              : h.hexGeoJson.map(([elng, elat]) => [[elng, clng], [elat, clat]].map(([st, end]) => relNum(st, end, margin)));
-
-            const hexGeom = new ConicPolygonGeometry([geoJson], GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false, true, false, curvatureResolution);
-
-            obj.geometry.merge(hexGeom);
-          });
+                return new ConicPolygonBufferGeometry([geoJson], GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false, true, false, curvatureResolution);
+              })
+            );
         };
 
         const currentTargetD = obj.__currentTargetD || Object.assign({}, targetD, { alt: -1e-3 });
