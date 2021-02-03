@@ -1,4 +1,5 @@
 import {
+  BufferGeometry,
   DoubleSide,
   Group,
   Line,
@@ -10,6 +11,7 @@ import {
 const THREE = window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
   : {
+  BufferGeometry,
   DoubleSide,
   Group,
   Line,
@@ -118,7 +120,7 @@ export default Kapsule({
 
         // polygon stroke
         obj.add(new THREE.Line(
-          undefined,
+          new THREE.BufferGeometry(),
           new THREE.LineBasicMaterial()
         ));
 
