@@ -1,8 +1,8 @@
 import {
+  BufferAttribute,
+  BufferGeometry,
   Color,
   DoubleSide,
-  FaceColors,
-  Geometry,
   Mesh,
   MeshBasicMaterial,
   MeshLambertMaterial,
@@ -12,17 +12,18 @@ import {
 const THREE = window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
   : {
+    BufferAttribute,
+    BufferGeometry,
     Color,
     DoubleSide,
-    FaceColors,
-    Geometry,
     Mesh,
     MeshBasicMaterial,
     MeshLambertMaterial,
     Object3D
   };
 
-import { ConicPolygonGeometry } from 'three-conic-polygon-geometry';
+import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { ConicPolygonBufferGeometry } from 'three-conic-polygon-geometry';
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
@@ -93,26 +94,37 @@ export default Kapsule({
     });
 
     if (state.hexBinMerge) { // merge points into a single mesh
-      const hexPointsGeometry = new THREE.Geometry();
+      const hexPointsGeometry = !hexBins.length
+        ? new THREE.BufferGeometry()
+        : BufferGeometryUtils.mergeBufferGeometries(hexBins.map(d => {
+            const obj = d.__threeObj;
+            d.__threeObj = undefined; // unbind merged points
 
-      hexBins.forEach(d => {
-        const obj = d.__threeObj;
-        d.__threeObj = undefined; // unbind merged points
+            // use non-indexed geometry so that groups can be colored separately, otherwise different groups share vertices
+            const geom = obj.geometry.toNonIndexed();
 
-        // color faces
-        const topColor = new THREE.Color(topColorAccessor(d));
-        const sideColor = new THREE.Color(sideColorAccessor(d));
-        const topFaceIdx = obj.geometry.faces.length - 4;
-        obj.geometry.faces.forEach((face, idx) => face.color = idx >= topFaceIdx ? topColor : sideColor);
+            // color vertices
+            const topColor = new THREE.Color(topColorAccessor(d));
+            const sideColor = new THREE.Color(sideColorAccessor(d));
 
-        obj.updateMatrix();
+            const nVertices = geom.attributes.position.count;
+            const topFaceIdx = geom.groups[0].count; // starting vertex index of top group
+            const colors = new Float32Array(nVertices * 3);
+            for (let i=0, len=nVertices; i<len; i++) {
+              const idx = i * 3;
+              const c = i >= topFaceIdx ? topColor : sideColor;
+              colors[idx] = c.r;
+              colors[idx+1] = c.g;
+              colors[idx+2] = c.b;
+            }
+            geom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-        hexPointsGeometry.merge(obj.geometry, obj.matrix);
-      });
+            return geom;
+          }));
 
       const hexPoints = new THREE.Mesh(hexPointsGeometry, new THREE.MeshBasicMaterial({
         color: 0xffffff,
-        vertexColors: THREE.FaceColors,
+        vertexColors: true,
         morphTargets: false,
         side: THREE.DoubleSide
       }));
@@ -146,8 +158,6 @@ export default Kapsule({
     }
 
     function updateObj(obj, d) {
-      const GeometryClass = state.hexBinMerge ? ConicPolygonGeometry : ConicPolygonGeometry;
-
       const targetD = {
         alt: +altitudeAccessor(d),
         margin: Math.max(0, Math.min(1, +marginAccessor(d))),
@@ -168,7 +178,7 @@ export default Kapsule({
           ? obj.__hexGeoJson
           : obj.__hexGeoJson.map(([elng, elat]) => [[elng, clng], [elat, clat]].map(([st, end]) => relNum(st, end, margin)));
 
-        obj.geometry = new GeometryClass([geoJson], GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false, true, true, topRes);
+        obj.geometry = new ConicPolygonBufferGeometry([geoJson], GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false, true, true, topRes);
       };
 
       const currentTargetD = obj.__currentTargetD || Object.assign({}, targetD, { alt: -1e-3 });
