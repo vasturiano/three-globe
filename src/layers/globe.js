@@ -4,27 +4,24 @@ import {
   LineSegments,
   Mesh,
   MeshPhongMaterial,
-  SphereGeometry,
+  SphereBufferGeometry,
   TextureLoader
 } from 'three';
 
 const THREE = window.THREE
-  ? {
-    // Prefer consumption from global THREE, if exists
-    ...window.THREE,
-    SphereGeometry // keep SphereGeometry from module for instance matching with three-glow-mesh
-  } : {
+  ? window.THREE // Prefer consumption from global THREE, if exists
+  : {
     Color,
     LineBasicMaterial,
     LineSegments,
     Mesh,
     MeshPhongMaterial,
-    SphereGeometry,
+    SphereBufferGeometry,
     TextureLoader
   };
 
 import { GeoJsonGeometry } from 'three-geojson-geometry';
-import { createGlowMesh } from 'three-glow-mesh';
+import { createGlowMesh } from '../utils/three-glow-mesh';
 
 import Kapsule from 'kapsule';
 import { geoGraticule10 } from 'd3-geo';
@@ -48,7 +45,7 @@ export default Kapsule({
 
   stateInit: () => {
     // create globe
-    const globeGeometry = new THREE.SphereGeometry(GLOBE_RADIUS, 75, 75);
+    const globeGeometry = new THREE.SphereBufferGeometry(GLOBE_RADIUS, 75, 75);
     const globeObj = new THREE.Mesh(globeGeometry, new THREE.MeshPhongMaterial({ color: 0x000000, transparent: true }));
     globeObj.rotation.y = -Math.PI / 2; // face prime meridian along Z axis
     globeObj.__globeObjType = 'globe'; // Add object type
