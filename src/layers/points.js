@@ -1,10 +1,8 @@
 import {
+  BufferAttribute,
   BufferGeometry,
   Color,
-  CylinderGeometry,
   CylinderBufferGeometry,
-  FaceColors,
-  Geometry,
   Matrix4,
   Mesh,
   MeshBasicMaterial,
@@ -16,19 +14,19 @@ import {
 const THREE = window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
   : {
+    BufferAttribute,
     BufferGeometry,
     Color,
-    CylinderGeometry,
     CylinderBufferGeometry,
-    FaceColors,
-    Geometry,
     Matrix4,
     Mesh,
     MeshBasicMaterial,
     MeshLambertMaterial,
     Object3D,
     Vector3
-  };
+};
+
+import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
@@ -75,7 +73,7 @@ export default Kapsule({
     const colorAccessor = accessorFn(state.pointColor);
 
     // shared geometry
-    const pointGeometry = new THREE[state.pointsMerge ? 'CylinderGeometry' : 'CylinderBufferGeometry'](1, 1, 1, state.pointResolution);
+    const pointGeometry = new THREE.CylinderBufferGeometry(1, 1, 1, state.pointResolution);
     pointGeometry[applyMatrix4Fn](new THREE.Matrix4().makeRotationX(Math.PI / 2));
     pointGeometry[applyMatrix4Fn](new THREE.Matrix4().makeTranslation(0, 0, -0.5));
 
@@ -87,24 +85,36 @@ export default Kapsule({
     threeDigest(state.pointsData, scene, { createObj, updateObj });
 
     if (state.pointsMerge) { // merge points into a single mesh
-      const pointsGeometry = new THREE.Geometry();
+      const pointsGeometry = !state.pointsData.length
+        ? new THREE.BufferGeometry()
+        : BufferGeometryUtils.mergeBufferGeometries(state.pointsData.map(d => {
+            const obj = d.__threeObj;
+            d.__threeObj = undefined; // unbind merged points
 
-      state.pointsData.forEach(d => {
-        const obj = d.__threeObj;
-        d.__threeObj = undefined; // unbind merged points
+            const geom = obj.geometry.clone();
 
-        // color faces
-        const color = new THREE.Color(colorAccessor(d));
-        obj.geometry.faces.forEach(face => face.color = color);
+            // apply mesh world transform to vertices
+            obj.updateMatrix();
+            geom[applyMatrix4Fn](obj.matrix);
 
-        obj.updateMatrix();
+            // color vertices
+            const color = new THREE.Color(colorAccessor(d));
+            const nVertices = geom.attributes.position.count;
+            const colors = new Float32Array(nVertices * 3);
+            for (let i=0, len=nVertices; i<len; i++) {
+              const idx = i * 3;
+              colors[idx] = color.r;
+              colors[idx+1] = color.g;
+              colors[idx+2] = color.b;
+            }
+            geom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-        pointsGeometry.merge(obj.geometry, obj.matrix);
-      });
+            return geom;
+          }));
 
       const points = new THREE.Mesh(pointsGeometry, new THREE.MeshBasicMaterial({
         color: 0xffffff,
-        vertexColors: THREE.FaceColors,
+        vertexColors: true,
         morphTargets: false
       }));
 
