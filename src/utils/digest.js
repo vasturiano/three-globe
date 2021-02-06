@@ -10,6 +10,7 @@ function threeDigest(data, scene, options = {}) {
     obj => {
       scene.remove(obj);
       emptyObject(obj);
+      obj.hasOwnProperty('__data') && delete obj.__data.__currentTargetD;
     },
     {
       objBindAttr: '__threeObj',
