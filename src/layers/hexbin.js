@@ -34,10 +34,12 @@ import TWEEN from '@tweenjs/tween.js';
 import { colorStr2Hex, colorAlpha } from '../utils/color-utils';
 import { emptyObject } from '../utils/gc';
 import threeDigest from '../utils/digest';
-import { polar2Cartesian } from '../utils/coordTranslate';
 import { GLOBE_RADIUS } from '../constants';
 
 //
+
+// support multiple method names for backwards threejs compatibility
+const applyMatrix4Fn = new THREE.BufferGeometry().applyMatrix4 ? 'applyMatrix4' : 'applyMatrix';
 
 export default Kapsule({
   props: {
@@ -103,6 +105,10 @@ export default Kapsule({
             // use non-indexed geometry so that groups can be colored separately, otherwise different groups share vertices
             const geom = obj.geometry.toNonIndexed();
 
+            // apply mesh world transform to vertices
+            obj.updateMatrix();
+            geom[applyMatrix4Fn](obj.matrix);
+
             // color vertices
             const topColor = new THREE.Color(topColorAccessor(d));
             const sideColor = new THREE.Color(sideColorAccessor(d));
@@ -158,27 +164,31 @@ export default Kapsule({
     }
 
     function updateObj(obj, d) {
-      const targetD = {
-        alt: +altitudeAccessor(d),
-        margin: Math.max(0, Math.min(1, +marginAccessor(d))),
-        hexTopCurvatureResolution: state.hexTopCurvatureResolution
-      };
+      // compute new geojson with relative margin
+      const relNum = (st, end, rat) => st - (st - end) * rat;
+      const margin = Math.max(0, Math.min(1, +marginAccessor(d)));
+      const [clat, clng] = obj.__hexCenter;
+      const geoJson = margin === 0
+        ? obj.__hexGeoJson
+        : obj.__hexGeoJson.map(([elng, elat]) => [[elng, clng], [elat, clat]].map(([st, end]) => relNum(st, end, margin)));
+
+      const topCurvatureResolution = state.hexTopCurvatureResolution;
+
+      obj.geometry = new ConicPolygonBufferGeometry(
+        [geoJson],
+        0,
+        GLOBE_RADIUS,
+        false,
+        true,
+        true,
+        topCurvatureResolution
+      );
+
+      const targetD = { alt: +altitudeAccessor(d) };
 
       const applyUpdate = td => {
-        const { alt, margin, hexTopCurvatureResolution } = obj.__currentTargetD = td;
-
-        // const final = Math.abs(alt - targetD.alt) < 1e-9 && Math.abs(margin - targetD.margin) < 1e-9;
-        // const topRes = final ? hexTopCurvatureResolution : 180; // use lower resolution for transitory states
-        const topRes = hexTopCurvatureResolution;
-
-        // compute new geojson with relative margin
-        const relNum = (st, end, rat) => st - (st - end) * rat;
-        const [clat, clng] = obj.__hexCenter;
-        const geoJson = margin === 0
-          ? obj.__hexGeoJson
-          : obj.__hexGeoJson.map(([elng, elat]) => [[elng, clng], [elat, clat]].map(([st, end]) => relNum(st, end, margin)));
-
-        obj.geometry = new ConicPolygonBufferGeometry([geoJson], GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false, true, true, topRes);
+        const { alt } = obj.__currentTargetD = td;
+        obj.scale.x = obj.scale.y = obj.scale.z = 1 + alt; // scale according to altitude
       };
 
       const currentTargetD = obj.__currentTargetD || Object.assign({}, targetD, { alt: -1e-3 });
