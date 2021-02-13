@@ -27,6 +27,8 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   globeImageUrl(url: string): ChainableInstance;
   bumpImageUrl(): string | null;
   bumpImageUrl(url: string): ChainableInstance;
+  showGlobe(): boolean;
+  showGlobe(show: boolean): ChainableInstance;
   showAtmosphere(): boolean;
   showAtmosphere(show: boolean): ChainableInstance;
   showGraticules(): boolean;
