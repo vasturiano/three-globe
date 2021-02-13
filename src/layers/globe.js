@@ -35,6 +35,7 @@ export default Kapsule({
   props: {
     globeImageUrl: {},
     bumpImageUrl: {},
+    showGlobe: { default: true, onChange(showGlobe, state) { state.globeObj.visible = !!showGlobe }, triggerUpdate: false },
     showAtmosphere: { default: true, onChange(showAtmosphere, state) { state.atmosphereObj.visible = !!showAtmosphere }, triggerUpdate: false },
     showGraticules: { default: false, onChange(showGraticules, state) { state.graticulesObj.visible = !!showGraticules }, triggerUpdate: false },
     onReady: { default: () => {}, triggerUpdate: false }
