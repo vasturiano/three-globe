@@ -42,7 +42,8 @@ export default [
     output: [
       {
         format: 'cjs',
-        file: `dist/${name}.common.js`
+        file: `dist/${name}.common.js`,
+        exports: 'auto'
       },
       {
         format: 'es',
