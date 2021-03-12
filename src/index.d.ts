@@ -1,4 +1,4 @@
-import { Object3D, Vector2, MeshPhongMaterial, Material } from 'three';
+import { Object3D, Vector2, Material } from 'three';
 
 type Accessor<In, Out> = Out | string | ((obj: In) => Out);
 type ObjAccessor<T> = Accessor<object, T>;
@@ -33,7 +33,8 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   showAtmosphere(show: boolean): ChainableInstance;
   showGraticules(): boolean;
   showGraticules(show: boolean): ChainableInstance;
-  globeMaterial(): MeshPhongMaterial;
+  globeMaterial(): Material;
+  globeMaterial(globeMaterial): ChainableInstance;
 
   // Points layer
   pointsData(): object[];
