@@ -1,5 +1,4 @@
 import {
-  AdditiveBlending,
   BufferGeometry,
   CubicBezierCurve3,
   Curve,
@@ -7,6 +6,7 @@ import {
   Group,
   Line,
   Mesh,
+  NormalBlending,
   QuadraticBezierCurve3,
   ShaderMaterial,
   TubeBufferGeometry,
@@ -24,6 +24,7 @@ const THREE = window.THREE
     Group,
     Line,
     Mesh,
+    NormalBlending,
     QuadraticBezierCurve3,
     ShaderMaterial,
     TubeBufferGeometry,
@@ -148,7 +149,7 @@ export default Kapsule({
     const sharedMaterial = new THREE.ShaderMaterial({
       ...gradientShaders,
       transparent: true,
-      blending: THREE.AdditiveBlending
+      blending: THREE.NormalBlending
     });
 
     threeDigest(state.arcsData, state.scene, {

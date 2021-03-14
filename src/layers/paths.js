@@ -1,11 +1,11 @@
 import {
-  AdditiveBlending,
   BufferGeometry,
   Color,
   Float32BufferAttribute,
   Group,
   Line,
   NoColors,
+  NormalBlending,
   ShaderMaterial,
   Vector3,
   VertexColors
@@ -14,13 +14,13 @@ import {
 const THREE = window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
   : {
-    AdditiveBlending,
     BufferGeometry,
     Color,
     Float32BufferAttribute,
     Group,
     Line,
     NoColors,
+    NormalBlending,
     ShaderMaterial,
     Vector3,
     VertexColors
@@ -150,7 +150,7 @@ export default Kapsule({
     const sharedShaderMaterial = new THREE.ShaderMaterial({
       ...gradientShaders,
       transparent: true,
-      blending: THREE.AdditiveBlending
+      blending: THREE.NormalBlending
     });
 
     threeDigest(state.pathsData, state.scene, {
