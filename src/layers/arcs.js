@@ -16,7 +16,6 @@ import {
 const THREE = window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
   : {
-    AdditiveBlending,
     BufferGeometry,
     CubicBezierCurve3,
     Curve,
