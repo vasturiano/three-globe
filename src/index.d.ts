@@ -35,6 +35,7 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   showGraticules(show: boolean): ChainableInstance;
   globeMaterial(): Material;
   globeMaterial(globeMaterial): ChainableInstance;
+  onGlobeReady(callback: (() => void)): ChainableInstance;
 
   // Points layer
   pointsData(): object[];
@@ -249,8 +250,6 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   toGeoCoords(coords: { x: number, y: number, z: number }): { lat: number, lng: number, altitude: number };
 
   // Render options
-  onGlobeReady(): () => void;
-  onGlobeReady(readyCallback: (() => void)): ChainableInstance;
   rendererSize(): Vector2;
   rendererSize(size: Vector2): ChainableInstance;
 }
