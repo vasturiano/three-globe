@@ -223,7 +223,7 @@ new ThreeGlobe({ configOptions })
 | Method | Description | Default |
 | --- | --- | :--: |
 | <b>onGlobeReady</b>([<i>fn</i>]) | Getter/setter for callback function to invoke immediately after the globe has been initialized and visible on the scene. | - |
-| <b> rendererSize</b>(<i>Vector2</i>) | It's recommended to inject the current [renderer size](https://threejs.org/docs/#api/en/renderers/WebGLRenderer.getSize) to ensure the object proportions remain constant. This is specially necessary when using path FatLines. | Fallback to the full browser window size (`THREE.Vector2(window.innerWidth, window.innerHeight)`) |
+| <b>rendererSize</b>(<i>Vector2</i>) | It's recommended to inject the current [renderer size](https://threejs.org/docs/#api/en/renderers/WebGLRenderer.getSize) to ensure the object proportions remain constant. This is specially necessary when using path FatLines. | Fallback to the full browser window size (`THREE.Vector2(window.innerWidth, window.innerHeight)`) |
 
 ## Giving Back
 
