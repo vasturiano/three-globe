@@ -190,8 +190,11 @@ const linkedCustomLayerProps = Object.assign(...[
   'customThreeObjectUpdate'
 ].map(p => ({ [p]: bindCustomLayer.linkProp(p)})));
 
+//
+
 export default Kapsule({
   props: {
+    onGlobeReady: { triggerUpdate: false },
     rendererSize: {
       default: new THREE.Vector2(window.innerWidth, window.innerHeight),
       onChange(rendererSize, state) {
@@ -208,14 +211,7 @@ export default Kapsule({
     ...linkedPathsLayerProps,
     ...linkedTilesLayerProps,
     ...linkedLabelsLayerProps,
-    ...linkedCustomLayerProps,
-    onReady: {
-      default: ()=>{},
-      onChange: (onReadyCallback, state)=>{
-        state.onReadyCallback = onReadyCallback
-      },
-      triggerUpdate: false
-    }
+    ...linkedCustomLayerProps
   },
 
   methods: {
@@ -239,7 +235,7 @@ export default Kapsule({
     }
   },
 
-  init(threeObj, state, { animateIn = true, waitForGlobeReady = true}) {
+  init(threeObj, state, { animateIn = true, waitForGlobeReady = true }) {
     // Clear the scene
     emptyObject(threeObj);
 
@@ -274,20 +270,12 @@ export default Kapsule({
       }
 
       state.scene.visible = true;
+      state.onGlobeReady && state.onGlobeReady();
     };
 
-
-    if(waitForGlobeReady){
-
-      state.globeLayer.onReady(() =>{
-        initGlobe()
-        state.onReadyCallback()
-      })
-      
-    }else{
-      initGlobe();
-      state.onReadyCallback()
-    }
+    waitForGlobeReady
+      ? state.globeLayer.onReady(initGlobe)
+      : initGlobe();
 
     // run tween updates
     (function onFrame() {
