@@ -194,6 +194,7 @@ const linkedCustomLayerProps = Object.assign(...[
 
 export default Kapsule({
   props: {
+    onGlobeReady: { triggerUpdate: false },
     rendererSize: {
       default: new THREE.Vector2(window.innerWidth, window.innerHeight),
       onChange(rendererSize, state) {
@@ -269,6 +270,7 @@ export default Kapsule({
       }
 
       state.scene.visible = true;
+      state.onGlobeReady && state.onGlobeReady();
     };
 
     waitForGlobeReady
