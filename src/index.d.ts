@@ -29,10 +29,14 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   bumpImageUrl(url: string): ChainableInstance;
   showGlobe(): boolean;
   showGlobe(show: boolean): ChainableInstance;
-  showAtmosphere(): boolean;
-  showAtmosphere(show: boolean): ChainableInstance;
   showGraticules(): boolean;
   showGraticules(show: boolean): ChainableInstance;
+  showAtmosphere(): boolean;
+  showAtmosphere(show: boolean): ChainableInstance;
+  atmosphereColor(): string;
+  atmosphereColor(color: string): ChainableInstance;
+  atmosphereAltitude(): number;
+  atmosphereAltitude(alt: number): ChainableInstance;
   globeMaterial(): Material;
   globeMaterial(globeMaterial): ChainableInstance;
   onGlobeReady(callback: (() => void)): ChainableInstance;
