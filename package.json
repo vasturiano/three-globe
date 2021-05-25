@@ -69,6 +69,7 @@
     "rollup": "^2.47.0",
     "rollup-plugin-dts": "^3.0.1",
     "rollup-plugin-terser": "^7.0.2",
+    "three": "^0.128.0",
     "typescript": "^4.2.4"
   }
 }
