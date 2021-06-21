@@ -80,8 +80,8 @@ export default Kapsule({
 
           obj.geometry = new THREE.SphereBufferGeometry(
             GLOBE_RADIUS * (1 + alt),
-            Math.ceil(width / curvatureResolution),
-            Math.ceil(height / curvatureResolution),
+            Math.ceil(width / (curvatureResolution || -1)),
+            Math.ceil(height / (curvatureResolution || -1)),
             deg2Rad(90 - width / 2) + (useGlobeProjection ? rotLng : 0),
             deg2Rad(width),
             deg2Rad(90 - height / 2) + (useGlobeProjection ? rotLat : 0),
