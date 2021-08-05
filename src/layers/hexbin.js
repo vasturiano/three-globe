@@ -131,7 +131,6 @@ export default Kapsule({
       const hexPoints = new THREE.Mesh(hexPointsGeometry, new THREE.MeshBasicMaterial({
         color: 0xffffff,
         vertexColors: true,
-        morphTargets: false,
         side: THREE.DoubleSide
       }));
 

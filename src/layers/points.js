@@ -114,8 +114,7 @@ export default Kapsule({
 
       const points = new THREE.Mesh(pointsGeometry, new THREE.MeshBasicMaterial({
         color: 0xffffff,
-        vertexColors: true,
-        morphTargets: false
+        vertexColors: true
       }));
 
       points.__globeObjType = 'points'; // Add object type
