@@ -22,7 +22,8 @@ const THREE = window.THREE
     Object3D
   };
 
-import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import * as bfg from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+const BufferGeometryUtils = bfg.BufferGeometryUtils || bfg;
 import { ConicPolygonBufferGeometry } from 'three-conic-polygon-geometry';
 
 import Kapsule from 'kapsule';

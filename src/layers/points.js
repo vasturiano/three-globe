@@ -26,7 +26,8 @@ const THREE = window.THREE
     Vector3
 };
 
-import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import * as bfg from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+const BufferGeometryUtils = bfg.BufferGeometryUtils || bfg;
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
