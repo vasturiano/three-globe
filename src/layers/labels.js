@@ -1,23 +1,28 @@
 import {
   CircleBufferGeometry,
-  Font,
   Group,
   Mesh,
   MeshLambertMaterial,
-  TextBufferGeometry,
   Vector3
 } from 'three';
 
-const THREE = window.THREE
-  ? window.THREE // Prefer consumption from global THREE, if exists
-  : {
-  CircleBufferGeometry,
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
+import { Font } from 'three/examples/jsm/loaders/FontLoader.js';
+
+const THREE = {
+  ...(window.THREE
+    ? window.THREE // Prefer consumption from global THREE, if exists
+    : {
+      CircleBufferGeometry,
+      Group,
+      Mesh,
+      MeshLambertMaterial,
+      TextGeometry,
+      Vector3
+    }
+  ),
   Font,
-  Group,
-  Mesh,
-  MeshLambertMaterial,
-  TextBufferGeometry,
-  Vector3
+  TextGeometry
 };
 
 import Kapsule from 'kapsule';
@@ -113,7 +118,7 @@ export default Kapsule({
 
         // create text geometry
         const textHeight = +sizeAccessor(d) * pxPerDeg;
-        textObj.geometry = new THREE.TextBufferGeometry(textAccessor(d), {
+        textObj.geometry = new THREE.TextGeometry(textAccessor(d), {
           font: state.font,
           size: textHeight,
           height: 0,
