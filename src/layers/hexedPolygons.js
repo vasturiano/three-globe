@@ -89,10 +89,11 @@ export default Kapsule({
         const h3Idxs = [];
 
         if (geoJson.type === 'Polygon') {
-          h3Idxs.push(...polyfill(geoJson.coordinates, h3Res, true));
+          polyfill(geoJson.coordinates, h3Res, true).forEach(idx => h3Idxs.push(idx));
         } else if (geoJson.type === 'MultiPolygon') {
-          geoJson.coordinates
-            .forEach(coords => h3Idxs.push(...polyfill(coords, h3Res, true)));
+          geoJson.coordinates.forEach(coords =>
+            polyfill(coords, h3Res, true).forEach(idx => h3Idxs.push(idx))
+          );
         } else {
           console.warn(`Unsupported GeoJson geometry type: ${geoJson.type}. Skipping geometry...`);
         }
