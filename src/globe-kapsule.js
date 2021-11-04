@@ -67,6 +67,7 @@ const linkedPointsLayerProps = Object.assign(...[
   'pointLat',
   'pointLng',
   'pointColor',
+  'pointStrokeColor',
   'pointAltitude',
   'pointRadius',
   'pointResolution',

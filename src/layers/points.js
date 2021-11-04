@@ -3,6 +3,8 @@ import {
   BufferGeometry,
   Color,
   CylinderBufferGeometry,
+  Line,
+  LineBasicMaterial,
   Matrix4,
   Mesh,
   MeshBasicMaterial,
@@ -18,6 +20,8 @@ const THREE = window.THREE
     BufferGeometry,
     Color,
     CylinderBufferGeometry,
+    Line,
+    LineBasicMaterial,
     Matrix4,
     Mesh,
     MeshBasicMaterial,
@@ -51,6 +55,7 @@ export default Kapsule({
     pointLat: { default: 'lat' },
     pointLng: { default: 'lng' },
     pointColor: { default: () => '#ffffaa' },
+    pointStrokeColor: {},
     pointAltitude: { default: 0.1 }, // in units of globe radius
     pointRadius: { default: 0.25 }, // in deg
     pointResolution: { default: 12, triggerUpdate: false }, // how many slice segments in the cylinder's circumference
@@ -73,14 +78,18 @@ export default Kapsule({
     const altitudeAccessor = accessorFn(state.pointAltitude);
     const radiusAccessor = accessorFn(state.pointRadius);
     const colorAccessor = accessorFn(state.pointColor);
+    const strokeColorAccessor = accessorFn(state.pointStrokeColor);
 
     // shared geometry
     const pointGeometry = new THREE.CylinderBufferGeometry(1, 1, 1, state.pointResolution);
     pointGeometry[applyMatrix4Fn](new THREE.Matrix4().makeRotationX(Math.PI / 2));
     pointGeometry[applyMatrix4Fn](new THREE.Matrix4().makeTranslation(0, 0, -0.5));
 
+    const strokeGeometry = createCircleGeometry(1, state.pointResolution);
+
     const pxPerDeg = 2 * Math.PI * GLOBE_RADIUS / 360;
     const pointMaterials = {}; // indexed by color
+    const strokeMaterials = {}; // indexed by color
 
     const scene = state.pointsMerge ? new THREE.Object3D() : state.scene; // use fake scene if merging points
 
@@ -91,9 +100,10 @@ export default Kapsule({
         ? new THREE.BufferGeometry()
         : BufferGeometryUtils.mergeBufferGeometries(state.pointsData.map(d => {
             const obj = d.__threeObj;
+            const [cylObj] = obj.children; // use only cylinders in merge mode
             d.__threeObj = undefined; // unbind merged points
 
-            const geom = obj.geometry.clone();
+            const geom = cylObj.geometry.clone();
 
             // apply mesh world transform to vertices
             obj.updateMatrix();
@@ -129,7 +139,18 @@ export default Kapsule({
     //
 
     function createObj() {
-      const obj = new THREE.Mesh(pointGeometry);
+      const obj = new THREE.Group();
+
+      // cylinder geometry
+      obj.add(new THREE.Mesh(pointGeometry));
+
+      // point stroke
+      if (!state.pointsMerge) { // skip stroke creation for better perf in merge mode
+        const strokeObj = new THREE.Line(strokeGeometry);
+        strokeObj.position.z = -(1 + 1e-6); // stroke slightly above the cylinder mesh
+        obj.add(strokeObj);
+      }
+
       obj.__globeObjType = 'point'; // Add object type
       return obj;
     }
@@ -176,19 +197,55 @@ export default Kapsule({
       }
 
       if (!state.pointsMerge) {
+        const [cylObj, strokeObj] = obj.children;
+
         // Update materials on individual points
         const color = colorAccessor(d);
-        const opacity = colorAlpha(color);
-        if (!pointMaterials.hasOwnProperty(color)) {
-          pointMaterials[color] = new THREE.MeshLambertMaterial({
-            color: colorStr2Hex(color),
-            transparent: opacity < 1,
-            opacity: opacity
-          });
+        const opacity = color ? colorAlpha(color) : 0;
+        const showCyl = !!opacity;
+        cylObj.visible = showCyl;
+        if (showCyl) {
+          if (!pointMaterials.hasOwnProperty(color)) {
+            pointMaterials[color] = new THREE.MeshLambertMaterial({
+              color: colorStr2Hex(color),
+              transparent: opacity < 1,
+              opacity: opacity
+            });
+          }
+          cylObj.material = pointMaterials[color];
         }
 
-        obj.material = pointMaterials[color];
+        if (strokeObj) {
+          // hide stroke if no color set
+          const color = strokeColorAccessor(d);
+          const opacity = color ? colorAlpha(color) : 0;
+          const showStroke = !!opacity;
+          strokeObj.visible = showStroke;
+          if (showStroke) {
+            if (!strokeMaterials.hasOwnProperty(color)) {
+              strokeMaterials[color] = new THREE.LineBasicMaterial({
+                color: colorStr2Hex(color),
+                transparent: opacity < 1,
+                opacity: opacity
+              });
+            }
+            strokeObj.material = strokeMaterials[color];
+          }
+        }
       }
     }
   }
 });
+
+//
+
+function createCircleGeometry(radius = 1, segmentCount = 32) {
+  const points = [];
+  for(let i = 0; i <= segmentCount; i++) {
+    const theta = (i / segmentCount - 0.25) * Math.PI * 2;
+    points.push({ x: Math.cos(theta) * radius, y: Math.sin(theta) * radius, z: 0 });
+  }
+  const circleGeometry = new THREE.BufferGeometry();
+  circleGeometry.setFromPoints(points);
+  return circleGeometry;
+}
