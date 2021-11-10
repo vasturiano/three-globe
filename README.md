@@ -202,7 +202,7 @@ new ThreeGlobe({ configOptions })
 | <b>ringResolution</b>([<i>num</i>]) | Getter/setter for the geometric resolution of each circle, expressed in how many slice segments to divide the circumference. Higher values yield smoother circles. | 64 |
 | <b>ringMaxRadius</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Ring object accessor function, attribute or a numeric constant for the maximum outer radius of the circles, at which the rings stop propagating and are removed. Defined in angular degrees. | 2 |
 | <b>ringPropagationSpeed</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Ring object accessor function, attribute or a numeric constant for the propagation velocity of the rings, defined in degrees/second. Setting a negative value will invert the direction and cause the rings to propagate inwards from the `maxRadius`. | 1 |
-| <b>ringRepeatPeriod</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Ring object accessor function, attribute or a numeric constant for the interval of time (in ms) to wait between consecutive auto-generated concentric circles. | 700 |
+| <b>ringRepeatPeriod</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Ring object accessor function, attribute or a numeric constant for the interval of time (in ms) to wait between consecutive auto-generated concentric circles. A value less or equal than `0` will disable the repetition and emit a single ring. | 700 |
 
 ### Labels Layer
 

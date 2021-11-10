@@ -65,7 +65,8 @@ export default Kapsule({
           const obj = d.__threeObj;
           if ((obj.__nextRingTime || 0) <= time) {
             // time to add a new ring
-            obj.__nextRingTime = time + repeatPeriodAccessor(d) / 1000;
+            const periodSecs = repeatPeriodAccessor(d) / 1000;
+            obj.__nextRingTime = time + (periodSecs <= 0 ? Infinity : periodSecs);
 
             const circleObj = new THREE.Line(
               new CircleLineGeometry(1, state.ringResolution),
@@ -95,28 +96,35 @@ export default Kapsule({
             const maxRadius = maxRadiusAccessor(d); // in degrees
             const maxAngle = maxRadius * Math.PI / 180; // in radians
             const propagationSpeed = propagationSpeedAccessor(d);
-            const transitionTime = Math.abs(maxRadius / propagationSpeed) * 1000;
-            const isReverse = propagationSpeed < 0;
+            const isReverse = propagationSpeed <= 0;
 
-            new TWEEN.Tween({ t: 0 })
-              .to({ t: 1 }, transitionTime)
-              .onUpdate(({ t }) => {
-                const ang = (isReverse ? 1 - t : t) * maxAngle;
-                circleObj.scale.x = circleObj.scale.y = curveR * Math.sin(ang);
-                circleObj.position.z = curveR * (1 - Math.cos(ang));
+            const updateFn = ({ t }) => {
+              const ang = (isReverse ? 1 - t : t) * maxAngle;
+              circleObj.scale.x = circleObj.scale.y = curveR * Math.sin(ang);
+              circleObj.position.z = curveR * (1 - Math.cos(ang));
 
-                if (isMultiColor) {
-                  const color = colorInterpolator(t);
-                  circleObj.material.color = new THREE.Color(colorStr2Hex(color));
-                  circleObj.material.transparent && (circleObj.material.opacity = colorAlpha(color));
-                }
-              })
-              .onStart(() => obj.add(circleObj))
-              .onComplete(() => {
-                obj.remove(circleObj);
-                deallocate(circleObj);
-              })
-              .start();
+              if (isMultiColor) {
+                const color = colorInterpolator(t);
+                circleObj.material.color = new THREE.Color(colorStr2Hex(color));
+                circleObj.material.transparent && (circleObj.material.opacity = colorAlpha(color));
+              }
+            };
+
+            if (propagationSpeed === 0) {
+              updateFn({ t: 0 });
+              obj.add(circleObj);
+            } else {
+              const transitionTime = Math.abs(maxRadius / propagationSpeed) * 1000;
+              new TWEEN.Tween({ t: 0 })
+                .to({ t: 1 }, transitionTime)
+                .onUpdate(updateFn)
+                .onStart(() => obj.add(circleObj))
+                .onComplete(() => {
+                  obj.remove(circleObj);
+                  deallocate(circleObj);
+                })
+                .start();
+            }
           }
         })
     });
