@@ -243,6 +243,26 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   labelsTransitionDuration(): number;
   labelsTransitionDuration(durationMs: number): ChainableInstance;
 
+  // Rings Layer
+  ringsData(): object[];
+  ringsData(data: object[]): ChainableInstance;
+  ringLat(): ObjAccessor<number>;
+  ringLat(latitudeAccessor: ObjAccessor<number>): ChainableInstance;
+  ringLng(): ObjAccessor<number>;
+  ringLng(longitudeAccessor: ObjAccessor<number>): ChainableInstance;
+  ringAltitude(): ObjAccessor<number>;
+  ringAltitude(altitudeAccessor: ObjAccessor<number>): ChainableInstance;
+  ringColor(): ObjAccessor<string | string[] | ((t: number) => string)>;
+  ringColor(colorAccessor: ObjAccessor<string | string[] | ((t: number) => string)>): ChainableInstance;
+  ringResolution(): number;
+  ringResolution(resolution: number): ChainableInstance;
+  ringMaxRadius(): ObjAccessor<number>;
+  ringMaxRadius(radiusAccessor: ObjAccessor<number>): ChainableInstance;
+  ringPropagationSpeed(): ObjAccessor<number>;
+  ringPropagationSpeed(speedAccessor: ObjAccessor<number>): ChainableInstance;
+  ringRepeatPeriod(): ObjAccessor<number>;
+  ringRepeatPeriod(msAccessor: ObjAccessor<number>): ChainableInstance;
+
   // Custom layer
   customLayerData(): object[];
   customLayerData(data: object[]): ChainableInstance;

@@ -19,6 +19,7 @@ Check out the examples:
 * [Hexagonal Binning](https://vasturiano.github.io/three-globe/example/hexbin/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/hexbin/index.html))
 * [Hexed Country Polygons](https://vasturiano.github.io/three-globe/example/hexed-polygons/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/hexed-polygons/index.html))
 * [Tiles](https://vasturiano.github.io/three-globe/example/tiles/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/tiles/index.html))
+* [Ripple Rings](https://vasturiano.github.io/three-globe/example/ripples/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/ripples/index.html))
 * [Solar Terminator](https://vasturiano.github.io/three-globe/example/solar-terminator/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/solar-terminator/index.html))
 * [Labels](https://vasturiano.github.io/three-globe/example/labels/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/labels/index.html))
 * [Custom Globe Material](https://vasturiano.github.io/three-globe/example/custom-material/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/custom-material/index.html))
@@ -188,6 +189,20 @@ new ThreeGlobe({ configOptions })
 | <b>tileMaterial</b>([<i>material</i>, <i>str</i> or <i>fn</i>]) | Tile object accessor function, attribute or material object for the [ThreeJS material](https://threejs.org/docs/#api/en/materials/Material) used to style the segment's surface. | `() => new MeshLambertMaterial({ color: '#ffbb88' })` |
 | <b>tileCurvatureResolution</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Tile object accessor function, attribute or a numeric constant for the resolution (in angular degrees) of the surface curvature. The finer the resolution, the more the tile geometry is fragmented into smaller faces to approximate the spheric surface, at the cost of performance. | 5 |
 | <b>tilesTransitionDuration</b>([<i>num</i>]) | Getter/setter for duration (ms) of the transition to animate tile changes involving geometry modifications. A value of `0` will move the tiles immediately to their final position. New tiles are animated by scaling them from the centroid outwards. | 1000 |
+
+### Rings Layer
+
+| Method | Description | Default |
+| --- | --- | :--: |
+| <b>ringsData</b>([<i>array</i>]) | Getter/setter for the list of self-propagating ripple rings to represent in the rings map layer. Each data point is displayed as an animated set of concentric circles that propagate outwards from (or inwards to) a central point through the spherical surface. | `[]` |
+| <b>ringLat</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Ring object accessor function, attribute or a numeric constant for each circle's center latitude coordinate. | `lat` |
+| <b>ringLng</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Ring object accessor function, attribute or a numeric constant for each circle's center longitude coordinate. | `lng` |
+| <b>ringAltitude</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Ring object accessor function, attribute or a numeric constant for the circle's altitude in terms of globe radius units. | 0.0015 |
+| <b>ringColor</b>([<i>str</i>, <i>[str, ...]</i> or <i>fn</i>]) | Ring object accessor function or attribute for the stroke color of each ring. Also supports radial color gradients by passing an array of colors, or a color interpolator function. | `() => '#ffffaa'` |
+| <b>ringResolution</b>([<i>num</i>]) | Getter/setter for the geometric resolution of each circle, expressed in how many slice segments to divide the circumference. Higher values yield smoother circles. | 64 |
+| <b>ringMaxRadius</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Ring object accessor function, attribute or a numeric constant for the maximum outer radius of the circles, at which the rings stop propagating and are removed. Defined in angular degrees. | 2 |
+| <b>ringPropagationSpeed</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Ring object accessor function, attribute or a numeric constant for the propagation velocity of the rings, defined in degrees/second. Setting a negative value will invert the direction and cause the rings to propagate inwards from the `maxRadius`. | 1 |
+| <b>ringRepeatPeriod</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Ring object accessor function, attribute or a numeric constant for the interval of time (in ms) to wait between consecutive auto-generated concentric circles. | 700 |
 
 ### Labels Layer
 

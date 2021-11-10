@@ -28,6 +28,7 @@ import HexedPolygonsLayerKapsule from './layers/hexedPolygons';
 import PathsLayerKapsule from './layers/paths';
 import TilesLayerKapsule from './layers/tiles';
 import LabelsLayerKapsule from './layers/labels';
+import RingsLayerKapsule from './layers/rings';
 import CustomLayerKapsule from './layers/custom';
 
 //
@@ -42,6 +43,7 @@ const layers = [
   'pathsLayer',
   'tilesLayer',
   'labelsLayer',
+  'ringsLayer',
   'customLayer'
 ];
 
@@ -186,6 +188,19 @@ const linkedLabelsLayerProps = Object.assign(...[
   'labelsTransitionDuration'
 ].map(p => ({ [p]: bindLabelsLayer.linkProp(p)})));
 
+const bindRingsLayer = linkKapsule('ringsLayer', RingsLayerKapsule);
+const linkedRingsLayerProps = Object.assign(...[
+  'ringsData',
+  'ringLat',
+  'ringLng',
+  'ringAltitude',
+  'ringColor',
+  'ringResolution',
+  'ringMaxRadius',
+  'ringPropagationSpeed',
+  'ringRepeatPeriod'
+].map(p => ({ [p]: bindRingsLayer.linkProp(p)})));
+
 const bindCustomLayer = linkKapsule('customLayer', CustomLayerKapsule);
 const linkedCustomLayerProps = Object.assign(...[
   'customLayerData',
@@ -214,6 +229,7 @@ export default Kapsule({
     ...linkedPathsLayerProps,
     ...linkedTilesLayerProps,
     ...linkedLabelsLayerProps,
+    ...linkedRingsLayerProps,
     ...linkedCustomLayerProps
   },
 
@@ -234,6 +250,7 @@ export default Kapsule({
       pathsLayer: PathsLayerKapsule(),
       tilesLayer: TilesLayerKapsule(),
       labelsLayer: LabelsLayerKapsule(),
+      ringsLayer: RingsLayerKapsule(),
       customLayer: CustomLayerKapsule()
     }
   },

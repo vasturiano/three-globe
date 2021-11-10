@@ -44,6 +44,7 @@ import { colorStr2Hex, colorAlpha } from '../utils/color-utils';
 import { emptyObject } from '../utils/gc';
 import threeDigest from '../utils/digest';
 import { polar2Cartesian } from '../utils/coordTranslate';
+import CircleLineGeometry from '../utils/CircleLineGeometry';
 import { GLOBE_RADIUS } from '../constants';
 
 //
@@ -87,7 +88,7 @@ export default Kapsule({
     pointGeometry[applyMatrix4Fn](new THREE.Matrix4().makeRotationX(Math.PI / 2));
     pointGeometry[applyMatrix4Fn](new THREE.Matrix4().makeTranslation(0, 0, -0.5));
 
-    const strokeGeometry = createCircleGeometry(1, state.pointResolution);
+    const strokeGeometry = new CircleLineGeometry(1, state.pointResolution);
 
     const pxPerDeg = 2 * Math.PI * GLOBE_RADIUS / 360;
     const pointMaterials = {}; // indexed by color
@@ -238,16 +239,3 @@ export default Kapsule({
     }
   }
 });
-
-//
-
-function createCircleGeometry(radius = 1, segmentCount = 32) {
-  const points = [];
-  for(let i = 0; i <= segmentCount; i++) {
-    const theta = (i / segmentCount - 0.25) * Math.PI * 2;
-    points.push({ x: Math.cos(theta) * radius, y: Math.sin(theta) * radius, z: 0 });
-  }
-  const circleGeometry = new THREE.BufferGeometry();
-  circleGeometry.setFromPoints(points);
-  return circleGeometry;
-}
