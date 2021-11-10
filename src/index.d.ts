@@ -74,8 +74,8 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   arcStartLng(longitudeAccessor: ObjAccessor<number>): ChainableInstance;
   arcEndLng(): ObjAccessor<number>;
   arcEndLng(longitudeAccessor: ObjAccessor<number>): ChainableInstance;
-  arcColor(): ObjAccessor<string | string[]>;
-  arcColor(colorsAccessor: ObjAccessor<string | string[]>): ChainableInstance;
+  arcColor(): ObjAccessor<string | string[] | ((t: number) => string)>;
+  arcColor(colorsAccessor: ObjAccessor<string | string[] | ((t: number) => string)>): ChainableInstance;
   arcAltitude(): ObjAccessor<number | null>;
   arcAltitude(altitudeAccessor: ObjAccessor<number| null>): ChainableInstance;
   arcAltitudeAutoScale(): ObjAccessor<number>;
@@ -132,8 +132,8 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   pathPointAlt(altitudeAccessor: Accessor<any, number>): ChainableInstance;
   pathResolution(): number;
   pathResolution(resolution: number): ChainableInstance;
-  pathColor(): ObjAccessor<string | string[]>;
-  pathColor(colorsAccessor: ObjAccessor<string | string[]>): ChainableInstance;
+  pathColor(): ObjAccessor<string | string[] | ((t: number) => string)>;
+  pathColor(colorsAccessor: ObjAccessor<string | string[] | ((t: number) => string)>): ChainableInstance;
   pathStroke(): ObjAccessor<number | null>;
   pathStroke(widthAccessor: ObjAccessor<number | null>): ChainableInstance;
   pathDashLength(): ObjAccessor<number>;

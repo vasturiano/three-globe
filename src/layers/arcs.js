@@ -92,12 +92,12 @@ const gradientShaders = {
 
 export default Kapsule({
   props: {
-    arcsData: { default: []},
-    arcStartLat: { default: 'startLat'},
-    arcStartLng: { default: 'startLng'},
-    arcEndLat: { default: 'endLat'},
-    arcEndLng: { default: 'endLng'},
-    arcColor: { default: () => '#ffffaa'},
+    arcsData: { default: [] },
+    arcStartLat: { default: 'startLat' },
+    arcStartLng: { default: 'startLng' },
+    arcEndLat: { default: 'endLat' },
+    arcEndLng: { default: 'endLng' },
+    arcColor: { default: () => '#ffffaa' }, // single color, array of colors or color interpolation fn
     arcAltitude: {}, // in units of globe radius
     arcAltitudeAutoScale: { default: 0.5 }, // scale altitude proportional to great-arc distance between the two points
     arcStroke: {}, // in deg
@@ -190,7 +190,7 @@ export default Kapsule({
 
         // calculate vertex colors (to create gradient)
         const vertexColorArray = calcColorVertexArray(
-          colorAccessor(arc), // single or array of colors
+          colorAccessor(arc), // single, array of colors or interpolator
           state.arcCurveResolution, // numSegments
           useTube ? state.arcCircularResolution + 1 : 1 // num vertices per segment
         );
@@ -300,13 +300,14 @@ export default Kapsule({
       const numVerticesGroup = numSegments + 1; // one between every two segments and two at the ends
 
       let getVertexColor;
-      if (colors instanceof Array) {
-        // array of colors, interpolate at each step
-        const colorScale = d3ScaleLinear()
-          .domain(colors.map((_, idx) => idx / (colors.length - 1))) // same number of stops as colors
-          .range(colors);
+      if (colors instanceof Array || colors instanceof Function) {
+        const colorInterpolator = (colors instanceof Array)
+          ? d3ScaleLinear() // array of colors, interpolate at each step
+            .domain(colors.map((_, idx) => idx / (colors.length - 1))) // same number of stops as colors
+            .range(colors)
+          : colors; // already interpolator fn
 
-        getVertexColor = t => color2ShaderArr(colorScale(t));
+        getVertexColor = t => color2ShaderArr(colorInterpolator(t));
       } else {
         // single color, use constant
         const vertexColor = color2ShaderArr(colors);
