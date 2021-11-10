@@ -15,7 +15,7 @@ const deallocate = obj => {
 };
 
 const emptyObject = obj => {
-  while (obj.children.length) {
+  if (obj && obj.children) while (obj.children.length) {
     const childObj = obj.children[0];
     obj.remove(childObj);
     deallocate(childObj);
