@@ -50,8 +50,6 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   pointLng(longitudeAccessor: ObjAccessor<number>): ChainableInstance;
   pointColor(): ObjAccessor<string>;
   pointColor(colorAccessor: ObjAccessor<string>): ChainableInstance;
-  pointStrokeColor(): ObjAccessor<string>;
-  pointStrokeColor(colorAccessor: ObjAccessor<string>): ChainableInstance;
   pointAltitude(): ObjAccessor<number>;
   pointAltitude(altitudeAccessor: ObjAccessor<number>): ChainableInstance;
   pointRadius(): ObjAccessor<number>;
