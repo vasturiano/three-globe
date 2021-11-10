@@ -11,7 +11,7 @@ function threeDigest(data, scene, options = {}, { removeDelay = 0 } = {}) {
       const removeFn = () => {
         scene.remove(obj);
         emptyObject(obj);
-        obj.hasOwnProperty('__data') && delete obj.__data.__currentTargetD;
+        obj && obj.hasOwnProperty('__data') && delete obj.__data.__currentTargetD;
       };
       removeDelay ? setTimeout(removeFn, removeDelay) : removeFn();
     },
