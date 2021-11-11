@@ -1,8 +1,8 @@
 import {
   DoubleSide,
   Group,
-  Line,
   LineBasicMaterial,
+  LineSegments,
   Mesh,
   MeshBasicMaterial
 } from 'three';
@@ -12,8 +12,8 @@ const THREE = window.THREE
   : {
   DoubleSide,
   Group,
-  Line,
   LineBasicMaterial,
+  LineSegments,
   Mesh,
   MeshBasicMaterial
 };
@@ -117,7 +117,7 @@ export default Kapsule({
         ));
 
         // polygon stroke
-        obj.add(new THREE.Line(
+        obj.add(new THREE.LineSegments(
           undefined,
           new THREE.LineBasicMaterial()
         ));
