@@ -11,6 +11,8 @@ ThreeJS Globe Visualization
 
 Largely inspired by [WebGL Globe](https://experiments.withgoogle.com/chrome/globe), this is a [ThreeJS](https://threejs.org/) WebGL class to represent data visualization layers on a globe, using a spherical projection.
 
+See also the [standalone version](https://github.com/vasturiano/globe.gl).
+
 Check out the examples:
 * [Basic](https://vasturiano.github.io/three-globe/example/basic/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/basic/index.html))
 * [Arc Links](https://vasturiano.github.io/three-globe/example/links/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/links/index.html))
@@ -24,8 +26,6 @@ Check out the examples:
 * [Labels](https://vasturiano.github.io/three-globe/example/labels/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/labels/index.html))
 * [Custom Globe Material](https://vasturiano.github.io/three-globe/example/custom-material/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/custom-material/index.html))
 * [Custom Layer](https://vasturiano.github.io/three-globe/example/custom/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/custom/index.html))
-
-See also the [standalone version](https://github.com/vasturiano/globe.gl).
 
 ## Quick start
 
