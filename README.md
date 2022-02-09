@@ -3,7 +3,7 @@ ThreeJS Globe Visualization
 
 [![NPM package][npm-img]][npm-url]
 [![Build Size][build-size-img]][build-size-url]
-[![Dependencies][dependencies-img]][dependencies-url]
+[![NPM Downloads][npm-downloads-img]][npm-downloads-url]
 
 <p align="center">
   <a href="//vasturiano.github.io/three-globe/example/basic/"><img width="80%" src="https://vasturiano.github.io/three-globe/example/preview.png"></a>
@@ -29,22 +29,22 @@ See also the [standalone version](https://github.com/vasturiano/globe.gl).
 
 ## Quick start
 
-```
+```js
 import ThreeGlobe from 'three-globe';
 ```
 or
-```
+```js
 const ThreeGlobe = require('three-globe');
 ```
 or even
-```
+```html
 <script src="//unpkg.com/three-globe"></script>
 ```
 then
-```
+```js
 const myGlobe = new ThreeGlobe()
-    .globeImageUrl(<imageUrl>)
-    .pointsData(<myData>);
+  .globeImageUrl(myImageUrl)
+  .pointsData(myData);
 
 const myScene = new THREE.Scene();
 myScene.add(myGlobe);
@@ -53,7 +53,7 @@ myScene.add(myGlobe);
 ## API reference
 
 ### Initialisation
-```
+```js
 new ThreeGlobe({ configOptions })
 ```
 
@@ -246,9 +246,9 @@ new ThreeGlobe({ configOptions })
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=L398E7PKP47E8&currency_code=USD&source=url) If this project has helped you and you'd like to contribute back, you can always [buy me a ☕](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=L398E7PKP47E8&currency_code=USD&source=url)!
 
-[npm-img]: https://img.shields.io/npm/v/three-globe.svg
+[npm-img]: https://img.shields.io/npm/v/three-globe
 [npm-url]: https://npmjs.org/package/three-globe
-[build-size-img]: https://img.shields.io/bundlephobia/minzip/three-globe.svg
+[build-size-img]: https://img.shields.io/bundlephobia/minzip/three-globe
 [build-size-url]: https://bundlephobia.com/result?p=three-globe
-[dependencies-img]: https://img.shields.io/david/vasturiano/three-globe.svg
-[dependencies-url]: https://david-dm.org/vasturiano/three-globe
+[npm-downloads-img]: https://img.shields.io/npm/dt/three-globe
+[npm-downloads-url]: https://www.npmtrends.com/three-globe
