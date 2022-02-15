@@ -38,7 +38,7 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   atmosphereAltitude(): number;
   atmosphereAltitude(alt: number): ChainableInstance;
   globeMaterial(): Material;
-  globeMaterial(globeMaterial: any): ChainableInstance;
+  globeMaterial(globeMaterial: Material): ChainableInstance;
   onGlobeReady(callback: (() => void)): ChainableInstance;
 
   // Points layer
