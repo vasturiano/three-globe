@@ -29,6 +29,7 @@ import PathsLayerKapsule from './layers/paths';
 import TilesLayerKapsule from './layers/tiles';
 import LabelsLayerKapsule from './layers/labels';
 import RingsLayerKapsule from './layers/rings';
+import ObjectsLayerKapsule from './layers/objects';
 import CustomLayerKapsule from './layers/custom';
 
 //
@@ -44,6 +45,7 @@ const layers = [
   'tilesLayer',
   'labelsLayer',
   'ringsLayer',
+  'objectsLayer',
   'customLayer'
 ];
 
@@ -200,6 +202,15 @@ const linkedRingsLayerProps = Object.assign(...[
   'ringRepeatPeriod'
 ].map(p => ({ [p]: bindRingsLayer.linkProp(p)})));
 
+const bindObjectsLayer = linkKapsule('objectsLayer', ObjectsLayerKapsule);
+const linkedObjectsLayerProps = Object.assign(...[
+  'objectsData',
+  'objectLat',
+  'objectLng',
+  'objectAltitude',
+  'objectThreeObject'
+].map(p => ({ [p]: bindObjectsLayer.linkProp(p)})));
+
 const bindCustomLayer = linkKapsule('customLayer', CustomLayerKapsule);
 const linkedCustomLayerProps = Object.assign(...[
   'customLayerData',
@@ -229,6 +240,7 @@ export default Kapsule({
     ...linkedTilesLayerProps,
     ...linkedLabelsLayerProps,
     ...linkedRingsLayerProps,
+    ...linkedObjectsLayerProps,
     ...linkedCustomLayerProps
   },
 
@@ -250,6 +262,7 @@ export default Kapsule({
       tilesLayer: TilesLayerKapsule(),
       labelsLayer: LabelsLayerKapsule(),
       ringsLayer: RingsLayerKapsule(),
+      objectsLayer: ObjectsLayerKapsule(),
       customLayer: CustomLayerKapsule()
     }
   },
