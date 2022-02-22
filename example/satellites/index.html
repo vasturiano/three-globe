@@ -28,22 +28,21 @@
   <div id="time-log"></div>
 
   <script>
-    const EARTH_RADIUS_PX = 100; // Globe constant
     const EARTH_RADIUS_KM = 6371; // km
-    const SAT_SIZE = 100; // km
+    const SAT_SIZE = 85; // km
     const TIME_STEP = 4 * 1000; // per frame
 
     const timeLogger = document.getElementById('time-log');
-
-    const satGeometry = new THREE.SphereGeometry(SAT_SIZE * EARTH_RADIUS_PX / EARTH_RADIUS_KM / 2, 16, 16);
-    const satMaterial = new THREE.MeshLambertMaterial({ color: 'palegreen', transparent: true, opacity: 0.7 });
 
     const Globe = new ThreeGlobe()
       .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
       .objectLat('lat')
       .objectLng('lng')
-      .objectAltitude('alt')
-      .objectThreeObject(() => new THREE.Mesh(satGeometry, satMaterial));
+      .objectAltitude('alt');
+
+    const satGeometry = new THREE.OctahedronGeometry(SAT_SIZE * Globe.getGlobeRadius() / EARTH_RADIUS_KM / 2, 0);
+    const satMaterial = new THREE.MeshLambertMaterial({ color: 'palegreen', transparent: true, opacity: 0.7 });
+    Globe.objectThreeObject(() => new THREE.Mesh(satGeometry, satMaterial));
 
     fetch('./space-track-leo.txt').then(r => r.text()).then(rawData => {
       const tleData = rawData.split('\n0').map(tle => tle.split('\n'));
@@ -93,7 +92,7 @@
     const camera = new THREE.PerspectiveCamera();
     camera.aspect = window.innerWidth/window.innerHeight;
     camera.updateProjectionMatrix();
-    camera.position.z = 500;
+    camera.position.z = 400;
 
     // Add camera controls
     const tbControls = new THREE.TrackballControls(camera, renderer.domElement);
