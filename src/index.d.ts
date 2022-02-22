@@ -270,16 +270,16 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   objectLng(longitudeAccessor: ObjAccessor<number>): ChainableInstance;
   objectAltitude(): ObjAccessor<number>;
   objectAltitude(altitudeAccessor: ObjAccessor<number>): ChainableInstance;
-  objectThreeObject(): Object3D | string | ((d: object, globeRadius: number) => Object3D);
-  objectThreeObject(object3DAccessor: Object3D | string | ((d: object, globeRadius: number) => Object3D)): ChainableInstance;
+  objectThreeObject(): Object3D | string | ((d: object) => Object3D);
+  objectThreeObject(object3DAccessor: Object3D | string | ((d: object) => Object3D)): ChainableInstance;
 
   // Custom layer
   customLayerData(): object[];
   customLayerData(data: object[]): ChainableInstance;
-  customThreeObject(): Object3D | string | ((d: object, globeRadius: number) => Object3D);
-  customThreeObject(object3DAccessor: Object3D | string | ((d: object, globeRadius: number) => Object3D)): ChainableInstance;
-  customThreeObjectUpdate(): string | ((obj: Object3D, objData: object, globeRadius: number) => void);
-  customThreeObjectUpdate(object3dAccessor: string | ((obj: Object3D, objData: object, globeRadius: number) => void)): ChainableInstance;
+  customThreeObject(): Object3D | string | ((d: object) => Object3D);
+  customThreeObject(object3DAccessor: Object3D | string | ((d: object) => Object3D)): ChainableInstance;
+  customThreeObjectUpdate(): string | ((obj: Object3D, objData: object) => void);
+  customThreeObjectUpdate(object3dAccessor: string | ((obj: Object3D, objData: object) => void)): ChainableInstance;
 
   // Utility
   getGlobeRadius(): number;
