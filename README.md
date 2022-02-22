@@ -231,7 +231,7 @@ new ThreeGlobe({ configOptions })
 | <b>objectLat</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Object accessor function, attribute or a numeric constant for the latitude coordinate of the object's position. | `lat` |
 | <b>objectLng</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Object accessor function, attribute or a numeric constant for the longitude coordinate of the object's position. | `lng` |
 | <b>objectAltitude</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Object accessor function, attribute or a numeric constant for the altitude coordinate of the object's position, in terms of globe radius units. | 0.01 |
-| <b>objectThreeObject</b>([<i>Object3d</i>, <i>str</i> or <i>fn</i>]) | Object accessor function or attribute for defining a custom 3d object to render as part of the objects map layer. Should return an instance of [ThreeJS Object3d](https://threejs.org/docs/index.html#api/core/Object3D). The callback method's signature includes the object's data as well as the globe radius: `objectThreeObject((objData, globeRadius) => { ... })`. | A yellow sphere |
+| <b>objectThreeObject</b>([<i>Object3d</i>, <i>str</i> or <i>fn</i>]) | Object accessor function or attribute for defining a custom 3d object to render as part of the objects map layer. Should return an instance of [ThreeJS Object3d](https://threejs.org/docs/index.html#api/core/Object3D). | A yellow sphere |
 
 ### Custom Layer
 
@@ -245,6 +245,7 @@ new ThreeGlobe({ configOptions })
 
 | Method | Description |
 | --- | --- |
+| <b>getGlobeRadius</b>() | Returns the cartesian distance of a globe radius in absolute spatial units. ||
 | <b>getCoords</b>(<i>lat</i>, <i>lng</i> [,<i>altitude</i>]) | Utility method to translate spherical coordinates. Given a pair of latitude/longitude coordinates and optionally altitude (in terms of globe radius units), returns the equivalent `{x, y, z}` cartesian spatial coordinates. ||
 | <b>toGeoCoords</b>({ <i>x</i>, <i>y</i>, <i>z</i> }) | Utility method to translate cartesian coordinates to the geographic domain. Given a set of 3D cartesian coordinates `{x, y, z}`, returns the equivalent `{lat, lng, altitude}` spherical coordinates. Altitude is defined in terms of globe radius units. ||
 

@@ -18,7 +18,6 @@ import accessorFn from 'accessor-fn';
 import { emptyObject } from '../utils/gc';
 import threeDigest from '../utils/digest';
 import { polar2Cartesian } from '../utils/coordTranslate';
-import { GLOBE_RADIUS } from '../constants';
 
 //
 
@@ -30,7 +29,7 @@ export default Kapsule({
     objectAltitude: { default: 0.01 }, // in units of globe radius
     objectThreeObject: { default: new THREE.Mesh(
       // default object: yellow sphere
-      new THREE.SphereGeometry(1, 16, 16),
+      new THREE.SphereGeometry(1, 16, 8),
       new THREE.MeshLambertMaterial({ color: '#ffffaa', transparent: true, opacity: 0.7 })
     )}
   },
@@ -52,7 +51,7 @@ export default Kapsule({
 
     threeDigest(state.objectsData, state.scene, {
       createObj: d => {
-        let obj = threeObjAccessor(d, GLOBE_RADIUS);
+        let obj = threeObjAccessor(d);
 
         if (state.objectThreeObject === obj) {
           // clone object if it's a shared object among all points

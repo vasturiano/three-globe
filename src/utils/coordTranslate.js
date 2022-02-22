@@ -1,5 +1,9 @@
 import { GLOBE_RADIUS } from './../constants';
 
+function getGlobeRadius() {
+  return GLOBE_RADIUS;
+}
+
 function polar2Cartesian(lat, lng, relAltitude = 0) {
   const phi = (90 - lat) * Math.PI / 180;
   const theta = (90 - lng) * Math.PI / 180;
@@ -23,4 +27,4 @@ function cartesian2Polar({ x, y, z }) {
   }
 }
 
-export { polar2Cartesian, cartesian2Polar };
+export { getGlobeRadius, polar2Cartesian, cartesian2Polar };

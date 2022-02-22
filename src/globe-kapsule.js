@@ -17,7 +17,7 @@ import TWEEN from '@tweenjs/tween.js';
 
 import { emptyObject } from './utils/gc';
 import linkKapsule from './utils/kapsule-link.js';
-import { polar2Cartesian, cartesian2Polar } from './utils/coordTranslate';
+import { getGlobeRadius, polar2Cartesian, cartesian2Polar } from './utils/coordTranslate';
 
 import GlobeLayerKapsule from './layers/globe';
 import PointsLayerKapsule from './layers/points';
@@ -245,6 +245,7 @@ export default Kapsule({
   },
 
   methods: {
+    getGlobeRadius,
     getCoords: (state, ...args) => polar2Cartesian(...args),
     toGeoCoords: (state, ...args) => cartesian2Polar(...args),
     ...linkedGlobeLayerMethods

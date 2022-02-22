@@ -282,6 +282,7 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   customThreeObjectUpdate(object3dAccessor: string | ((obj: Object3D, objData: object, globeRadius: number) => void)): ChainableInstance;
 
   // Utility
+  getGlobeRadius(): number;
   getCoords(lat: number, lng: number, altitude?: number): { x: number, y: number, z: number };
   toGeoCoords(coords: { x: number, y: number, z: number }): { lat: number, lng: number, altitude: number };
 
