@@ -42,7 +42,7 @@ export default Kapsule({
     state.scene = threeObj;
   },
 
-  update(state) {
+  update(state, changedProps) {
     // Data accessors
     const latAccessor = accessorFn(state.objectLat);
     const lngAccessor = accessorFn(state.objectLng);
@@ -50,6 +50,8 @@ export default Kapsule({
     const threeObjAccessor = accessorFn(state.objectThreeObject);
 
     threeDigest(state.objectsData, state.scene, {
+      // objs need to be recreated if this prop has changed
+      purge: changedProps.hasOwnProperty('objectThreeObject'),
       createObj: d => {
         let obj = threeObjAccessor(d);
 

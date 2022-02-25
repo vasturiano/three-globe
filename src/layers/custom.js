@@ -22,13 +22,15 @@ export default Kapsule({
     state.scene = threeObj;
   },
 
-  update(state) {
+  update(state, changedProps) {
     if (!state.customThreeObjectUpdate) { emptyObject(state.scene); } // Clear the existing objects to create all new, if there's no update method (brute-force)
 
     const customObjectAccessor = accessorFn(state.customThreeObject);
     const customObjectUpdateAccessor = accessorFn(state.customThreeObjectUpdate);
 
     threeDigest(state.customLayerData, state.scene, {
+      // objs need to be recreated if this prop has changed
+      purge: changedProps.hasOwnProperty('customThreeObject'),
       createObj: d => {
         let obj = customObjectAccessor(d, GLOBE_RADIUS);
 
