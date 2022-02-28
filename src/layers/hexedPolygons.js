@@ -121,6 +121,7 @@ export default Kapsule({
         const applyUpdate = td => {
           const { alt, margin, curvatureResolution } = obj.__currentTargetD = td;
 
+          obj.geometry && obj.geometry.dispose();
           obj.geometry = !hexBins.length
             ? new THREE.BufferGeometry()
             : BufferGeometryUtils.mergeBufferGeometries(hexBins.map(h => {
