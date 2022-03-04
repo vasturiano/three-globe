@@ -29,7 +29,7 @@ Check out the examples:
 * [Custom Globe Material](https://vasturiano.github.io/three-globe/example/custom-material/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/custom-material/index.html))
 * [Custom Layer](https://vasturiano.github.io/three-globe/example/custom/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/custom/index.html))
 
-Available Map Layers:
+### Available Map Layers
 * [Globe Layer](#globe-layer)
 * [Points Layer](#points-layer)
 * [Arcs Layer](#arcs-layer)
