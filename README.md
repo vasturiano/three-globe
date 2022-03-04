@@ -24,9 +24,24 @@ Check out the examples:
 * [Ripple Rings](https://vasturiano.github.io/three-globe/example/ripples/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/ripples/index.html))
 * [Solar Terminator](https://vasturiano.github.io/three-globe/example/solar-terminator/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/solar-terminator/index.html))
 * [Labels](https://vasturiano.github.io/three-globe/example/labels/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/labels/index.html))
+* [HTML Markers](https://vasturiano.github.io/three-globe/example/htmlMarkers/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/htmlMarkers/index.html))
 * [Satellites](https://vasturiano.github.io/three-globe/example/satellites/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/satellites/index.html))
 * [Custom Globe Material](https://vasturiano.github.io/three-globe/example/custom-material/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/custom-material/index.html))
 * [Custom Layer](https://vasturiano.github.io/three-globe/example/custom/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/custom/index.html))
+
+Available Map Layers:
+* [Globe Layer](#globe-layer)
+* [Points Layer](#points-layer)
+* [Arcs Layer](#arcs-layer)
+* [Polygons Layer](#polygons-layer)
+* [Paths Layer](#paths-layer)
+* [Hex Bin Layer](#hex-bin-layer)
+* [Hexed Polygons Layer](#hexed-polygons-layer)
+* [Tiles Layer](#tiles-layer)
+* [Rings Layer](#rings-layer)
+* [HTML Elements Layer](#html-elements-layer)
+* [3D Objects Layer](#3d-objects-layer)
+* [Custom Layer](#custom-layer)
 
 ## Quick start
 
@@ -223,7 +238,18 @@ new ThreeGlobe({ configOptions })
 | <b>labelDotOrientation</b>([<i>str</i> or <i>fn</i>]) | Label object accessor function or attribute for the orientation of the label if the dot marker is present. Possible values are `right`, `top` and `bottom`. | `() => 'bottom'` |
 | <b>labelsTransitionDuration</b>([<i>num</i>]) | Getter/setter for duration (ms) of the transition to animate label changes involving position modifications (`lat`, `lng`, `altitude`, `rotation`). A value of `0` will move the labels immediately to their final position. New labels are animated by scaling their size. | 1000 |
 
-### Objects Layer
+### HTML Elements Layer
+
+| Method | Description | Default |
+| --- | --- | :--: |
+| <b>htmlElementsData</b>([<i>array</i>]) | Getter/setter for the list of objects to represent in the HTML elements map layer. Each HTML element is rendered using [ThreeJS CSS2DRenderer](https://threejs.org/docs/#examples/en/renderers/CSS2DRenderer). | `[]` |
+| <b>htmlLat</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | HTML element accessor function, attribute or a numeric constant for the latitude coordinate of the element's central position. | `lat` |
+| <b>htmlLng</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | HTML element accessor function, attribute or a numeric constant for the longitude coordinate of the element's central position. | `lng` |
+| <b>htmlAltitude</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | HTML element accessor function, attribute or a numeric constant for the altitude coordinate of the element's position, in terms of globe radius units. | 0 |
+| <b>htmlElement</b>([<i>str</i> or <i>fn</i>]) | Accessor function or attribute to retrieve the DOM element to use. Should return an instance of [HTMLElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement). | `null` |
+| <b>htmlTransitionDuration</b>([<i>num</i>]) | Getter/setter for duration (ms) of the transition to animate HTML elements position changes. A value of `0` will move the elements immediately to their final position. | 1000 |
+
+### 3D Objects Layer
 
 | Method | Description | Default |
 | --- | --- | :--: |

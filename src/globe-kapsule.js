@@ -29,6 +29,7 @@ import PathsLayerKapsule from './layers/paths';
 import TilesLayerKapsule from './layers/tiles';
 import LabelsLayerKapsule from './layers/labels';
 import RingsLayerKapsule from './layers/rings';
+import HtmlElementsLayerKapsule from './layers/htmlElements';
 import ObjectsLayerKapsule from './layers/objects';
 import CustomLayerKapsule from './layers/custom';
 
@@ -45,6 +46,7 @@ const layers = [
   'tilesLayer',
   'labelsLayer',
   'ringsLayer',
+  'htmlElementsLayer',
   'objectsLayer',
   'customLayer'
 ];
@@ -202,6 +204,16 @@ const linkedRingsLayerProps = Object.assign(...[
   'ringRepeatPeriod'
 ].map(p => ({ [p]: bindRingsLayer.linkProp(p)})));
 
+const bindHtmlElementsLayer = linkKapsule('htmlElementsLayer', HtmlElementsLayerKapsule);
+const linkedHtmlElementsLayerProps = Object.assign(...[
+  'htmlElementsData',
+  'htmlLat',
+  'htmlLng',
+  'htmlAltitude',
+  'htmlElement',
+  'htmlTransitionDuration'
+].map(p => ({ [p]: bindHtmlElementsLayer.linkProp(p)})));
+
 const bindObjectsLayer = linkKapsule('objectsLayer', ObjectsLayerKapsule);
 const linkedObjectsLayerProps = Object.assign(...[
   'objectsData',
@@ -240,6 +252,7 @@ export default Kapsule({
     ...linkedTilesLayerProps,
     ...linkedLabelsLayerProps,
     ...linkedRingsLayerProps,
+    ...linkedHtmlElementsLayerProps,
     ...linkedObjectsLayerProps,
     ...linkedCustomLayerProps
   },
@@ -248,11 +261,40 @@ export default Kapsule({
     getGlobeRadius,
     getCoords: (state, ...args) => polar2Cartesian(...args),
     toGeoCoords: (state, ...args) => cartesian2Polar(...args),
+    setPointOfView: (state, globalPov, globePos) => {
+      let isBehindGlobe = undefined;
+      if (globalPov) {
+        const globeRadius = getGlobeRadius();
+        const pov = globePos ? globalPov.clone().sub(globePos) : globalPov; // convert to local vector
+
+        let povDist, povEdgeDist, povEdgeAngle, maxSurfacePosAngle;
+        isBehindGlobe = pos => {
+          povDist === undefined && (povDist = pov.length());
+
+          // check if it's behind plane of globe's visible area
+          // maxSurfacePosAngle === undefined && (maxSurfacePosAngle = Math.acos(globeRadius / povDist));
+          // return pov.angleTo(pos) > maxSurfacePosAngle;
+
+          // more sophisticated method that checks also pos altitude
+          povEdgeDist === undefined && (povEdgeDist = Math.sqrt(povDist**2 - globeRadius**2));
+          povEdgeAngle === undefined && (povEdgeAngle = Math.acos(povEdgeDist / povDist));
+          const povPosDist = pov.distanceTo(pos);
+          if (povPosDist < povEdgeDist) return false; // pos is closer than visible edge of globe
+
+          const posDist = pos.length();
+          const povPosAngle = Math.acos((povDist**2 + povPosDist**2 - posDist**2) / (2 * povDist * povPosDist)); // triangle solver
+          return povPosAngle < povEdgeAngle; // pos is within globe's visible area cone
+        };
+      }
+
+      // pass behind globe checker for layers that need it
+      state.layersThatNeedBehindGlobeChecker.forEach(l => l.isBehindGlobe(isBehindGlobe));
+    },
     ...linkedGlobeLayerMethods
   },
 
   stateInit: () => {
-    return {
+    const layers = {
       globeLayer: GlobeLayerKapsule(),
       pointsLayer: PointsLayerKapsule(),
       arcsLayer: ArcsLayerKapsule(),
@@ -263,9 +305,15 @@ export default Kapsule({
       tilesLayer: TilesLayerKapsule(),
       labelsLayer: LabelsLayerKapsule(),
       ringsLayer: RingsLayerKapsule(),
+      htmlElementsLayer: HtmlElementsLayerKapsule(),
       objectsLayer: ObjectsLayerKapsule(),
       customLayer: CustomLayerKapsule()
-    }
+    };
+
+    return {
+      ...layers,
+      layersThatNeedBehindGlobeChecker: Object.values(layers).filter(l => l.hasOwnProperty('isBehindGlobe'))
+    };
   },
 
   init(threeObj, state, { animateIn = true, waitForGlobeReady = true }) {

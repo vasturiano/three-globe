@@ -1,4 +1,4 @@
-import { Object3D, Vector2, Material } from 'three';
+import { Object3D, Vector2, Vector3, Material } from 'three';
 
 type Accessor<In, Out> = Out | string | ((obj: In) => Out);
 type ObjAccessor<T> = Accessor<object, T>;
@@ -261,6 +261,20 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   ringRepeatPeriod(): ObjAccessor<number>;
   ringRepeatPeriod(msAccessor: ObjAccessor<number>): ChainableInstance;
 
+  // HTML Elements layer
+  htmlElementsData(): object[];
+  htmlElementsData(data: object[]): ChainableInstance;
+  htmlLat(): ObjAccessor<number>;
+  htmlLat(latitudeAccessor: ObjAccessor<number>): ChainableInstance;
+  htmlLng(): ObjAccessor<number>;
+  htmlLng(longitudeAccessor: ObjAccessor<number>): ChainableInstance;
+  htmlAltitude(): ObjAccessor<number>;
+  htmlAltitude(altitudeAccessor: ObjAccessor<number>): ChainableInstance;
+  htmlElement(): HTMLElement | string | ((d: object) => HTMLElement);
+  htmlElement(htmlElementAccessor: HTMLElement | string | ((d: object) => HTMLElement)): ChainableInstance;
+  htmlTransitionDuration(): number;
+  htmlTransitionDuration(durationMs: number): ChainableInstance;
+
   // Objects layer
   objectsData(): object[];
   objectsData(data: object[]): ChainableInstance;
@@ -285,6 +299,7 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   getGlobeRadius(): number;
   getCoords(lat: number, lng: number, altitude?: number): { x: number, y: number, z: number };
   toGeoCoords(coords: { x: number, y: number, z: number }): { lat: number, lng: number, altitude: number };
+  setPointOfView(pov: Vector3, globePos?: Vector3): void;
 
   // Render options
   rendererSize(): Vector2;
