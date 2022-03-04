@@ -29,20 +29,6 @@ See also the [standalone version](https://github.com/vasturiano/globe.gl).
 * [Custom Globe Material](https://vasturiano.github.io/three-globe/example/custom-material/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/custom-material/index.html))
 * [Custom Layer](https://vasturiano.github.io/three-globe/example/custom/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/custom/index.html))
 
-#### Available Map Layers:
-* [Globe Layer](#globe-layer)
-* [Points Layer](#points-layer)
-* [Arcs Layer](#arcs-layer)
-* [Polygons Layer](#polygons-layer)
-* [Paths Layer](#paths-layer)
-* [Hex Bin Layer](#hex-bin-layer)
-* [Hexed Polygons Layer](#hexed-polygons-layer)
-* [Tiles Layer](#tiles-layer)
-* [Rings Layer](#rings-layer)
-* [HTML Elements Layer](#html-elements-layer)
-* [3D Objects Layer](#3d-objects-layer)
-* [Custom Layer](#custom-layer)
-
 ## Quick start
 
 ```js
@@ -67,6 +53,22 @@ myScene.add(myGlobe);
 ```
 
 ## API reference
+
+* [Initialisation](#initialisation)
+* [Globe Layer](#globe-layer)
+* [Points Layer](#points-layer)
+* [Arcs Layer](#arcs-layer)
+* [Polygons Layer](#polygons-layer)
+* [Paths Layer](#paths-layer)
+* [Hex Bin Layer](#hex-bin-layer)
+* [Hexed Polygons Layer](#hexed-polygons-layer)
+* [Tiles Layer](#tiles-layer)
+* [Rings Layer](#rings-layer)
+* [HTML Elements Layer](#html-elements-layer)
+* [3D Objects Layer](#3d-objects-layer)
+* [Custom Layer](#custom-layer)
+* [Utility](#utility)
+* [Render Options](#render-options)
 
 ### Initialisation
 ```js
