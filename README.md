@@ -64,6 +64,7 @@ myScene.add(myGlobe);
 * [Hexed Polygons Layer](#hexed-polygons-layer)
 * [Tiles Layer](#tiles-layer)
 * [Rings Layer](#rings-layer)
+* [Labels Layer](#labels-layer)
 * [HTML Elements Layer](#html-elements-layer)
 * [3D Objects Layer](#3d-objects-layer)
 * [Custom Layer](#custom-layer)
