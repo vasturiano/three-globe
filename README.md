@@ -24,7 +24,7 @@ See also the [standalone version](https://github.com/vasturiano/globe.gl).
 * [Ripple Rings](https://vasturiano.github.io/three-globe/example/ripples/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/ripples/index.html))
 * [Solar Terminator](https://vasturiano.github.io/three-globe/example/solar-terminator/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/solar-terminator/index.html))
 * [Labels](https://vasturiano.github.io/three-globe/example/labels/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/labels/index.html))
-* [HTML Markers](https://vasturiano.github.io/three-globe/example/htmlMarkers/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/htmlMarkers/index.html))
+* [HTML Markers](https://vasturiano.github.io/three-globe/example/html-markers/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/html-markers/index.html))
 * [Satellites](https://vasturiano.github.io/three-globe/example/satellites/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/satellites/index.html))
 * [Custom Globe Material](https://vasturiano.github.io/three-globe/example/custom-material/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/custom-material/index.html))
 * [Custom Layer](https://vasturiano.github.io/three-globe/example/custom/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/custom/index.html))
