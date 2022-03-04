@@ -13,7 +13,7 @@ Largely inspired by [WebGL Globe](https://experiments.withgoogle.com/chrome/glob
 
 See also the [standalone version](https://github.com/vasturiano/globe.gl).
 
-Check out the examples:
+#### Check out the examples:
 * [Basic](https://vasturiano.github.io/three-globe/example/basic/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/basic/index.html))
 * [Arc Links](https://vasturiano.github.io/three-globe/example/links/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/links/index.html))
 * [Country Polygons](https://vasturiano.github.io/three-globe/example/country-polygons/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/country-polygons/index.html))
@@ -29,7 +29,7 @@ Check out the examples:
 * [Custom Globe Material](https://vasturiano.github.io/three-globe/example/custom-material/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/custom-material/index.html))
 * [Custom Layer](https://vasturiano.github.io/three-globe/example/custom/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/custom/index.html))
 
-### Available Map Layers
+#### Available Map Layers:
 * [Globe Layer](#globe-layer)
 * [Points Layer](#points-layer)
 * [Arcs Layer](#arcs-layer)
