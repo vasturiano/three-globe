@@ -284,10 +284,12 @@ export default Kapsule({
 
       function calcSphereArc(startVec, endVec) {
         const angle = startVec.angleTo(endVec);
-        const getGreatCirclePoint = t => new THREE.Vector3().addVectors(
-          startVec.clone().multiplyScalar(Math.sin( (1 - t) * angle)),
-          endVec.clone().multiplyScalar(Math.sin(t  * angle))
-        ).divideScalar(Math.sin(angle));
+        const getGreatCirclePoint = angle === 0
+          ? () => startVec.clone() // points exactly overlap
+          : t => new THREE.Vector3().addVectors(
+            startVec.clone().multiplyScalar(Math.sin( (1 - t) * angle)),
+            endVec.clone().multiplyScalar(Math.sin(t  * angle))
+          ).divideScalar(Math.sin(angle));
 
         const sphereArc = new THREE.Curve();
         sphereArc.getPoint = getGreatCirclePoint;
