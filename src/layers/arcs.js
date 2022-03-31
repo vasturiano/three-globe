@@ -289,7 +289,7 @@ export default Kapsule({
           : t => new THREE.Vector3().addVectors(
             startVec.clone().multiplyScalar(Math.sin( (1 - t) * angle)),
             endVec.clone().multiplyScalar(Math.sin(t  * angle))
-          ).divideScalar(Math.sin(angle));
+          ).divideScalar(Math.sin(angle) || 1);
 
         const sphereArc = new THREE.Curve();
         sphereArc.getPoint = getGreatCirclePoint;
