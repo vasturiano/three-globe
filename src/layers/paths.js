@@ -4,11 +4,9 @@ import {
   Float32BufferAttribute,
   Group,
   Line,
-  NoColors,
   NormalBlending,
   ShaderMaterial,
-  Vector3,
-  VertexColors
+  Vector3
 } from 'three';
 
 const THREE = window.THREE
@@ -19,11 +17,9 @@ const THREE = window.THREE
     Float32BufferAttribute,
     Group,
     Line,
-    NoColors,
     NormalBlending,
     ShaderMaterial,
-    Vector3,
-    VertexColors
+    Vector3
   };
 
 import { Line2, LineGeometry, LineMaterial } from 'three-fatline';
@@ -247,7 +243,7 @@ export default Kapsule({
 
               obj.geometry.setColors(vertexColorArray.array);
 
-              obj.material.vertexColors = THREE.VertexColors;
+              obj.material.vertexColors = true;
             } else {
               // single color
               const color = colors;
@@ -257,7 +253,7 @@ export default Kapsule({
               obj.material.transparent = opacity < 1;
               obj.material.opacity = opacity;
 
-              obj.material.vertexColors = THREE.NoColors;
+              obj.material.vertexColors = false;
             }
           }
 
