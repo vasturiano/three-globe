@@ -33,7 +33,8 @@ const THREE = window.THREE
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
 import TWEEN from '@tweenjs/tween.js';
-import FrameTicker from 'frame-ticker';
+import _FrameTicker from 'frame-ticker';
+const FrameTicker = _FrameTicker.default || _FrameTicker;
 import { geoDistance, geoInterpolate } from 'd3-geo';
 import { scaleLinear as d3ScaleLinear } from 'd3-scale';
 
