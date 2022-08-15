@@ -358,11 +358,13 @@ export default Kapsule({
       ? state.globeLayer.onReady(initGlobe)
       : initGlobe();
 
-    // run tween updates
-    (function onFrame() {
+    const onFrame = function () {
       requestAnimationFrame(onFrame);
       TWEEN.update();
-    })(); // IIFE
+    }
+
+    // run tween updates
+    onFrame(); // IIFE
   },
 
   update(state) {}
