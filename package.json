@@ -6,6 +6,7 @@
   "main": "dist/three-globe.common.js",
   "module": "dist/three-globe.module.js",
   "types": "dist/three-globe.d.ts",
+  "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/vasturiano/three-globe.git"
