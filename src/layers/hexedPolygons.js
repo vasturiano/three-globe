@@ -86,60 +86,60 @@ export default Kapsule({
         obj.material.transparent = opacity < 1;
         obj.material.opacity = opacity;
 
-        const h3Idxs = [];
-
-        if (geoJson.type === 'Polygon') {
-          polyfill(geoJson.coordinates, h3Res, true).forEach(idx => h3Idxs.push(idx));
-        } else if (geoJson.type === 'MultiPolygon') {
-          geoJson.coordinates.forEach(coords =>
-            polyfill(coords, h3Res, true).forEach(idx => h3Idxs.push(idx))
-          );
-        } else {
-          console.warn(`Unsupported GeoJson geometry type: ${geoJson.type}. Skipping geometry...`);
-        }
-
-        const hexBins = h3Idxs.map(h3Idx => {
-          const hexCenter = h3ToGeo(h3Idx);
-          const hexGeoJson = h3ToGeoBoundary(h3Idx, true).reverse(); // correct polygon winding
-
-
-          // stitch longitudes at the anti-meridian
-          const centerLng = hexCenter[1];
-          hexGeoJson.forEach(d => {
-            const edgeLng = d[0];
-            if (Math.abs(centerLng - edgeLng) > 170) {
-              // normalize large lng distances
-              d[0] += (centerLng > edgeLng ? 360 : -360);
-            }
-          });
-
-          return { h3Idx, hexCenter, hexGeoJson };
-        });
-
         const targetD = { alt, margin, curvatureResolution };
-
-        const applyUpdate = td => {
-          const { alt, margin, curvatureResolution } = obj.__currentTargetD = td;
-
-          obj.geometry && obj.geometry.dispose();
-          obj.geometry = !hexBins.length
-            ? new THREE.BufferGeometry()
-            : BufferGeometryUtils.mergeBufferGeometries(hexBins.map(h => {
-                // compute new geojson with relative margin
-                const relNum = (st, end, rat) => st - (st - end) * rat;
-                const [clat, clng] = h.hexCenter;
-                const geoJson = margin === 0
-                  ? h.hexGeoJson
-                  : h.hexGeoJson.map(([elng, elat]) => [[elng, clng], [elat, clat]].map(([st, end]) => relNum(st, end, margin)));
-
-                return new ConicPolygonBufferGeometry([geoJson], GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false, true, false, curvatureResolution);
-              })
-            );
-        };
-
         const currentTargetD = obj.__currentTargetD || Object.assign({}, targetD, { alt: -1e-3 });
 
         if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD[k])) {
+          const h3Idxs = [];
+
+          if (geoJson.type === 'Polygon') {
+            polyfill(geoJson.coordinates, h3Res, true).forEach(idx => h3Idxs.push(idx));
+          } else if (geoJson.type === 'MultiPolygon') {
+            geoJson.coordinates.forEach(coords =>
+              polyfill(coords, h3Res, true).forEach(idx => h3Idxs.push(idx))
+            );
+          } else {
+            console.warn(`Unsupported GeoJson geometry type: ${geoJson.type}. Skipping geometry...`);
+          }
+
+
+          const hexBins = h3Idxs.map(h3Idx => {
+            const hexCenter = h3ToGeo(h3Idx);
+            const hexGeoJson = h3ToGeoBoundary(h3Idx, true).reverse(); // correct polygon winding
+
+
+            // stitch longitudes at the anti-meridian
+            const centerLng = hexCenter[1];
+            hexGeoJson.forEach(d => {
+              const edgeLng = d[0];
+              if (Math.abs(centerLng - edgeLng) > 170) {
+                // normalize large lng distances
+                d[0] += (centerLng > edgeLng ? 360 : -360);
+              }
+            });
+
+            return { h3Idx, hexCenter, hexGeoJson };
+          });
+
+          const applyUpdate = td => {
+            const { alt, margin, curvatureResolution } = obj.__currentTargetD = td;
+
+            obj.geometry && obj.geometry.dispose();
+            obj.geometry = !hexBins.length
+              ? new THREE.BufferGeometry()
+              : BufferGeometryUtils.mergeBufferGeometries(hexBins.map(h => {
+                  // compute new geojson with relative margin
+                  const relNum = (st, end, rat) => st - (st - end) * rat;
+                  const [clat, clng] = h.hexCenter;
+                  const geoJson = margin === 0
+                    ? h.hexGeoJson
+                    : h.hexGeoJson.map(([elng, elat]) => [[elng, clng], [elat, clat]].map(([st, end]) => relNum(st, end, margin)));
+
+                  return new ConicPolygonBufferGeometry([geoJson], GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false, true, false, curvatureResolution);
+                })
+              );
+          };
+
           if (!state.hexPolygonsTransitionDuration || state.hexPolygonsTransitionDuration < 0) {
             // set final position
             applyUpdate(targetD);
