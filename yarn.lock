@@ -1411,10 +1411,10 @@ globals@^11.1.0:
   resolved "https://registry.yarnpkg.com/globals/-/globals-11.12.0.tgz#ab8795338868a0babd8525758018c2a7eb95c42e"
   integrity sha512-WOBp/EEGUiIsJSp7wcv/y6MO+lV9UoncWqxuFfm8eBwzWNgyfBd6Gz+IeKQ9jCmyhoH99g15M3T+QaVHFjizVA==
 
-h3-js@3:
-  version "3.7.2"
-  resolved "https://registry.yarnpkg.com/h3-js/-/h3-js-3.7.2.tgz#61d4feb7bb42868ca9cdb2d5cf9d9dda94f9e5a3"
-  integrity sha512-LPjlHSwB9zQZrMqKloCZmmmt3yZzIK7nqPcXqwU93zT3TtYG6jP4tZBzAPouxut7lLjdFbMQ75wRBiKfpsnY7w==
+h3-js@4:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/h3-js/-/h3-js-4.0.1.tgz#3146307b7c669a82059664ef54c73fa264fce6f2"
+  integrity sha512-cZvkHAorS4QG5/t1XyWS6hnBFn2oKh/oDbl+nIMsbZfRfm1KP2robxH6cdVvYSr9gzwL02zAGUm5fGYw/VqCww==
 
 has-flag@^3.0.0:
   version "3.0.0"

@@ -22,7 +22,7 @@ import { ConicPolygonGeometry } from 'three-conic-polygon-geometry';
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
-import { polyfill, h3ToGeo, h3ToGeoBoundary } from 'h3-js';
+import { polygonToCells, cellToLatLng, cellToBoundary } from 'h3-js';
 import TWEEN from '@tweenjs/tween.js';
 
 import { colorStr2Hex, colorAlpha } from '../utils/color-utils';
@@ -93,10 +93,10 @@ export default Kapsule({
           const h3Idxs = [];
 
           if (geoJson.type === 'Polygon') {
-            polyfill(geoJson.coordinates, h3Res, true).forEach(idx => h3Idxs.push(idx));
+            polygonToCells(geoJson.coordinates, h3Res, true).forEach(idx => h3Idxs.push(idx));
           } else if (geoJson.type === 'MultiPolygon') {
             geoJson.coordinates.forEach(coords =>
-              polyfill(coords, h3Res, true).forEach(idx => h3Idxs.push(idx))
+              polygonToCells(coords, h3Res, true).forEach(idx => h3Idxs.push(idx))
             );
           } else {
             console.warn(`Unsupported GeoJson geometry type: ${geoJson.type}. Skipping geometry...`);
@@ -104,9 +104,8 @@ export default Kapsule({
 
 
           const hexBins = h3Idxs.map(h3Idx => {
-            const hexCenter = h3ToGeo(h3Idx);
-            const hexGeoJson = h3ToGeoBoundary(h3Idx, true).reverse(); // correct polygon winding
-
+            const hexCenter = cellToLatLng(h3Idx);
+            const hexGeoJson = cellToBoundary(h3Idx, true).reverse(); // correct polygon winding
 
             // stitch longitudes at the anti-meridian
             const centerLng = hexCenter[1];

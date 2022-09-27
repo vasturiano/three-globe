@@ -31,7 +31,7 @@ import { ConicPolygonGeometry } from 'three-conic-polygon-geometry';
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
 import indexBy from 'index-array-by';
-import { geoToH3, h3ToGeo, h3ToGeoBoundary } from 'h3-js';
+import { latLngToCell, cellToLatLng, cellToBoundary } from 'h3-js';
 import TWEEN from '@tweenjs/tween.js';
 
 import { colorStr2Hex, colorAlpha } from '../utils/color-utils';
@@ -79,7 +79,7 @@ export default Kapsule({
     const marginAccessor = accessorFn(state.hexMargin);
 
     const byH3Idx = indexBy(state.hexBinPointsData.map(d => ({ ...d,
-      h3Idx: geoToH3(latAccessor(d), lngAccessor(d), state.hexBinResolution)
+      h3Idx: latLngToCell(latAccessor(d), lngAccessor(d), state.hexBinResolution)
     })), 'h3Idx');
 
     const hexBins = Object.entries(byH3Idx).map(([h3Idx, points]) => ({
@@ -148,8 +148,8 @@ export default Kapsule({
 
     function createObj(d) {
       const obj = new THREE.Mesh();
-      obj.__hexCenter = h3ToGeo(d.h3Idx);
-      obj.__hexGeoJson = h3ToGeoBoundary(d.h3Idx, true).reverse(); // correct polygon winding
+      obj.__hexCenter = cellToLatLng(d.h3Idx);
+      obj.__hexGeoJson = cellToBoundary(d.h3Idx, true).reverse(); // correct polygon winding
 
       // stitch longitudes at the anti-meridian
       const centerLng = obj.__hexCenter[1];
