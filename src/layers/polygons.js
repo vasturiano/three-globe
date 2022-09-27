@@ -18,7 +18,7 @@ const THREE = window.THREE
   MeshBasicMaterial
 };
 
-import { ConicPolygonBufferGeometry } from 'three-conic-polygon-geometry';
+import { ConicPolygonGeometry } from 'three-conic-polygon-geometry';
 import { GeoJsonGeometry } from 'three-geojson-geometry';
 
 import Kapsule from 'kapsule';
@@ -135,7 +135,7 @@ export default Kapsule({
 
         // regenerate geometries if needed
         !objMatch(conicObj.geometry.parameters || {}, { polygonGeoJson: coords, curvatureResolution: capCurvatureResolution }) &&
-          (conicObj.geometry = new ConicPolygonBufferGeometry(
+          (conicObj.geometry = new ConicPolygonGeometry(
             coords,
             0,
             GLOBE_RADIUS,

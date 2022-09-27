@@ -26,7 +26,7 @@ import * as _bfg from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 const bfg = Object.assign({}, _bfg);
 const BufferGeometryUtils = bfg.BufferGeometryUtils || bfg;
 
-import { ConicPolygonBufferGeometry } from 'three-conic-polygon-geometry';
+import { ConicPolygonGeometry } from 'three-conic-polygon-geometry';
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
@@ -176,7 +176,7 @@ export default Kapsule({
 
       const topCurvatureResolution = state.hexTopCurvatureResolution;
 
-      obj.geometry = new ConicPolygonBufferGeometry(
+      obj.geometry = new ConicPolygonGeometry(
         [geoJson],
         0,
         GLOBE_RADIUS,

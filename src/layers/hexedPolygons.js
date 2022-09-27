@@ -18,7 +18,7 @@ import * as _bfg from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 const bfg = Object.assign({}, _bfg);
 const BufferGeometryUtils = bfg.BufferGeometryUtils || bfg;
 
-import { ConicPolygonBufferGeometry } from 'three-conic-polygon-geometry';
+import { ConicPolygonGeometry } from 'three-conic-polygon-geometry';
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
@@ -135,7 +135,7 @@ export default Kapsule({
                     ? h.hexGeoJson
                     : h.hexGeoJson.map(([elng, elat]) => [[elng, clng], [elat, clat]].map(([st, end]) => relNum(st, end, margin)));
 
-                  return new ConicPolygonBufferGeometry([geoJson], GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false, true, false, curvatureResolution);
+                  return new ConicPolygonGeometry([geoJson], GLOBE_RADIUS, GLOBE_RADIUS * (1 + alt), false, true, false, curvatureResolution);
                 })
               );
           };

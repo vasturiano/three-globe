@@ -2,7 +2,7 @@ import {
   Euler,
   Mesh,
   MeshLambertMaterial,
-  SphereBufferGeometry
+  SphereGeometry
 } from 'three';
 
 const THREE = window.THREE
@@ -11,7 +11,7 @@ const THREE = window.THREE
   Euler,
   Mesh,
   MeshLambertMaterial,
-  SphereBufferGeometry
+  SphereGeometry
 };
 
 import Kapsule from 'kapsule';
@@ -79,7 +79,7 @@ export default Kapsule({
           const rotLat = deg2Rad(-lat);
 
           obj.geometry && obj.geometry.dispose();
-          obj.geometry = new THREE.SphereBufferGeometry(
+          obj.geometry = new THREE.SphereGeometry(
             GLOBE_RADIUS * (1 + alt),
             Math.ceil(width / (curvatureResolution || -1)),
             Math.ceil(height / (curvatureResolution || -1)),

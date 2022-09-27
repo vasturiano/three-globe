@@ -2,7 +2,7 @@ import {
   BufferAttribute,
   BufferGeometry,
   Color,
-  CylinderBufferGeometry,
+  CylinderGeometry,
   Matrix4,
   Mesh,
   MeshBasicMaterial,
@@ -17,7 +17,7 @@ const THREE = window.THREE
     BufferAttribute,
     BufferGeometry,
     Color,
-    CylinderBufferGeometry,
+    CylinderGeometry,
     Matrix4,
     Mesh,
     MeshBasicMaterial,
@@ -75,7 +75,7 @@ export default Kapsule({
     const colorAccessor = accessorFn(state.pointColor);
 
     // shared geometry
-    const pointGeometry = new THREE.CylinderBufferGeometry(1, 1, 1, state.pointResolution);
+    const pointGeometry = new THREE.CylinderGeometry(1, 1, 1, state.pointResolution);
     pointGeometry[applyMatrix4Fn](new THREE.Matrix4().makeRotationX(Math.PI / 2));
     pointGeometry[applyMatrix4Fn](new THREE.Matrix4().makeTranslation(0, 0, -0.5));
 

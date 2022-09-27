@@ -9,7 +9,7 @@ import {
   NormalBlending,
   QuadraticBezierCurve3,
   ShaderMaterial,
-  TubeBufferGeometry,
+  TubeGeometry,
   Vector3
 } from 'three';
 
@@ -26,7 +26,7 @@ const THREE = window.THREE
     NormalBlending,
     QuadraticBezierCurve3,
     ShaderMaterial,
-    TubeBufferGeometry,
+    TubeGeometry,
     Vector3
   };
 
@@ -213,7 +213,7 @@ export default Kapsule({
 
           if (useTube) {
             obj.geometry && obj.geometry.dispose();
-            obj.geometry = new THREE.TubeBufferGeometry(curve, state.arcCurveResolution, stroke / 2, state.arcCircularResolution);
+            obj.geometry = new THREE.TubeGeometry(curve, state.arcCurveResolution, stroke / 2, state.arcCircularResolution);
             obj.geometry[setAttributeFn]('vertexColor', vertexColorArray);
             obj.geometry[setAttributeFn]('vertexRelDistance', vertexRelDistanceArray);
           } else {
