@@ -26,7 +26,7 @@
       .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
       .customLayerData(gData)
       .customThreeObject(d => new THREE.Mesh(
-        new THREE.SphereBufferGeometry(d.radius),
+        new THREE.SphereGeometry(d.radius),
         new THREE.MeshLambertMaterial({ color: d.color })
       ))
       .customThreeObjectUpdate((obj, d) => {
