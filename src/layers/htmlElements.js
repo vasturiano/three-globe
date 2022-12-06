@@ -31,10 +31,13 @@ export default Kapsule({
 
   methods: {
     updateObjVisibility(state, obj) {
-      // default to all if no obj specified
+      // Default to all if no obj specified
       const objs = obj ? [obj] : state.htmlElementsData.map(d => d.__threeObj).filter(d => d);
       // Hide elements on the far side of the globe
-      objs.forEach(obj => (obj.visible = !state.isBehindGlobe || !state.isBehindGlobe(obj.position)));
+      objs.forEach(obj => {
+        (obj.visible = !state.isBehindGlobe || !state.isBehindGlobe(obj.position))
+        obj.element.classList.toggle('visible', obj.visible );
+      });
     }
   },
 
@@ -60,6 +63,7 @@ export default Kapsule({
         let elem = elemAccessor(d);
 
         const obj = new THREE.CSS2DObject(elem);
+        obj.element.classList.add('css-object');
 
         obj.__globeObjType = 'html'; // Add object type
 
