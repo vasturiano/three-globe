@@ -2,17 +2,19 @@
   <style> body { margin: 0; } </style>
 
   <script src="//unpkg.com/three"></script>
-  <script src="//unpkg.com/three/examples/js/controls/TrackballControls.js"></script>
-  <script src="//unpkg.com/three/examples/js/renderers/CSS2DRenderer.js"></script>
-
-    <script src="//unpkg.com/three-globe"></script>
+  <script src="//unpkg.com/three-globe"></script>
 <!--  <script src="../../dist/three-globe.js"></script>-->
 </head>
 
 <body>
   <div id="globeViz"></div>
 
-  <script>
+  <script type="importmap">{ "imports": { "three": "https://unpkg.com/three/build/three.module.js" }}</script>
+  <script type="module">
+    import { TrackballControls } from '//unpkg.com/three/examples/jsm/controls/TrackballControls.js';
+    import { CSS2DRenderer } from '//unpkg.com/three/examples/jsm/renderers/CSS2DRenderer.js';
+    Object.assign(THREE , { TrackballControls, CSS2DRenderer });
+
     const markerSvg = `<svg viewBox="-4 0 36 36">
       <path fill="currentColor" d="M14,0 C21.732,0 28,5.641 28,12.6 C28,23.963 14,36 14,36 C14,36 0,24.064 0,12.6 C0,5.641 6.268,0 14,0 Z"></path>
       <circle fill="black" cx="14" cy="14" r="7"></circle>
