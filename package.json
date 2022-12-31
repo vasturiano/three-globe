@@ -65,11 +65,11 @@
     "@rollup/plugin-commonjs": "^24.0.0",
     "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.0.1",
-    "@types/three": ">=0.109.0",
+    "@rollup/plugin-terser": "^0.2.1",
+    "@types/three": ">=0.125.0",
     "rimraf": "^3.0.2",
-    "rollup": "^3.8.1",
+    "rollup": "^3.9.0",
     "rollup-plugin-dts": "^5.1.0",
-    "rollup-plugin-terser": "^7.0.2",
     "three": "^0.148.0",
     "typescript": "^4.9.4"
   }
