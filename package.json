@@ -54,7 +54,7 @@
     "tinycolor2": "^1.5"
   },
   "peerDependencies": {
-    "three": ">=0.109.0"
+    "three": ">=0.125.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.7",
