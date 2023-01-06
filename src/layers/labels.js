@@ -118,6 +118,7 @@ export default Kapsule({
 
         // create text geometry
         const textHeight = +sizeAccessor(d) * pxPerDeg;
+        textObj.geometry && textObj.geometry.dispose();
         textObj.geometry = new THREE.TextGeometry(textAccessor(d), {
           font: state.font,
           size: textHeight,

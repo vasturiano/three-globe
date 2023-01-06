@@ -176,6 +176,7 @@ export default Kapsule({
 
       const topCurvatureResolution = state.hexTopCurvatureResolution;
 
+      obj.geometry && obj.geometry.dispose();
       obj.geometry = new ConicPolygonGeometry(
         [geoJson],
         0,

@@ -134,8 +134,9 @@ export default Kapsule({
         strokeObj.visible = addStroke;
 
         // regenerate geometries if needed
-        !objMatch(conicObj.geometry.parameters || {}, { polygonGeoJson: coords, curvatureResolution: capCurvatureResolution }) &&
-          (conicObj.geometry = new ConicPolygonGeometry(
+        if(!objMatch(conicObj.geometry.parameters || {}, { polygonGeoJson: coords, curvatureResolution: capCurvatureResolution })) {
+          conicObj.geometry && conicObj.geometry.dispose();
+          conicObj.geometry = new ConicPolygonGeometry(
             coords,
             0,
             GLOBE_RADIUS,
@@ -143,14 +144,17 @@ export default Kapsule({
             true,
             true,
             capCurvatureResolution
-          ));
+          );
+        }
 
-        addStroke && (!strokeObj.geometry.parameters || strokeObj.geometry.parameters.geoJson.coordinates !== coords || strokeObj.geometry.parameters.resolution !== capCurvatureResolution) &&
-          (strokeObj.geometry = new GeoJsonGeometry(
-            { type: 'Polygon', coordinates: coords },
+        if (addStroke && (!strokeObj.geometry.parameters || strokeObj.geometry.parameters.geoJson.coordinates !== coords || strokeObj.geometry.parameters.resolution !== capCurvatureResolution)) {
+          strokeObj.geometry && strokeObj.geometry.dispose();
+          strokeObj.geometry = new GeoJsonGeometry(
+            {type: 'Polygon', coordinates: coords},
             GLOBE_RADIUS,
             capCurvatureResolution
-          ));
+          );
+        }
 
         // replace side/cap materials if defined
         conicObj.material[0] = sideMaterial || obj.__defaultSideMaterial;
