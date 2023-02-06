@@ -34,7 +34,7 @@ See also the [standalone version](https://github.com/vasturiano/globe.gl).
 ```js
 import ThreeGlobe from 'three-globe';
 ```
-or
+or using a *script* tag
 ```html
 <script src="//unpkg.com/three-globe"></script>
 ```
