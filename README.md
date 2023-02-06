@@ -35,10 +35,6 @@ See also the [standalone version](https://github.com/vasturiano/globe.gl).
 import ThreeGlobe from 'three-globe';
 ```
 or
-```js
-const ThreeGlobe = require('three-globe');
-```
-or even
 ```html
 <script src="//unpkg.com/three-globe"></script>
 ```

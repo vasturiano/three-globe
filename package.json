@@ -2,10 +2,15 @@
   "name": "three-globe",
   "version": "2.24.13",
   "description": "Globe data visualization as a ThreeJS reusable 3D object",
+  "type": "module",
   "unpkg": "dist/three-globe.min.js",
-  "main": "dist/three-globe.common.js",
-  "module": "dist/three-globe.module.js",
+  "main": "dist/three-globe.mjs",
+  "module": "dist/three-globe.mjs",
   "types": "dist/three-globe.d.ts",
+  "exports": {
+    "umd": "./dist/three-globe.min.js",
+    "default": "./dist/three-globe.mjs"
+  },
   "sideEffects": false,
   "repository": {
     "type": "git",
@@ -29,7 +34,7 @@
   },
   "scripts": {
     "build": "rimraf dist && rollup -c",
-    "dev": "rollup -w -c rollup.config.dev.mjs",
+    "dev": "rollup -w -c rollup.config.dev.js",
     "prepare": "npm run build"
   },
   "files": [
@@ -51,26 +56,27 @@
     "three-conic-polygon-geometry": "^1.5",
     "three-fatline": "^0.5",
     "three-geojson-geometry": "^1.1",
-    "tinycolor2": "^1.5"
+    "tinycolor2": "^1.6"
   },
   "peerDependencies": {
     "three": ">=0.125.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.7",
-    "@babel/plugin-proposal-class-properties": "^7.18.6",
-    "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
+    "@babel/core": "^7.20.12",
     "@babel/preset-env": "^7.20.2",
     "@rollup/plugin-babel": "^6.0.3",
-    "@rollup/plugin-commonjs": "^24.0.0",
+    "@rollup/plugin-commonjs": "^24.0.1",
     "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.0.1",
-    "@rollup/plugin-terser": "^0.2.1",
+    "@rollup/plugin-terser": "^0.4.0",
     "@types/three": ">=0.125.0",
-    "rimraf": "^3.0.2",
-    "rollup": "^3.9.0",
-    "rollup-plugin-dts": "^5.1.0",
-    "three": "^0.148.0",
-    "typescript": "^4.9.4"
+    "rimraf": "^4.1.2",
+    "rollup": "^3.14.0",
+    "rollup-plugin-dts": "^5.1.1",
+    "three": "^0.149.0",
+    "typescript": "^4.9.5"
+  },
+  "engines": {
+    "node": ">=12"
   }
 }
