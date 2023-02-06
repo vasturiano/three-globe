@@ -290,6 +290,9 @@ export default Kapsule({
       // pass behind globe checker for layers that need it
       state.layersThatNeedBehindGlobeChecker.forEach(l => l.isBehindGlobe(isBehindGlobe));
     },
+    _destructor: function(state) {
+      cancelAnimationFrame(state.animationFrameRequestId);
+    },
     ...linkedGlobeLayerMethods
   },
 
@@ -360,7 +363,7 @@ export default Kapsule({
 
     // run tween updates
     (function onFrame() {
-      requestAnimationFrame(onFrame);
+      state.animationFrameRequestId = requestAnimationFrame(onFrame);
       TWEEN.update();
     })(); // IIFE
   },
