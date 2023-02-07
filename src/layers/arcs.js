@@ -111,6 +111,12 @@ export default Kapsule({
     arcsTransitionDuration: { default: 1000, triggerUpdate: false } // ms
   },
 
+  methods: {
+    _destructor: function(state) {
+      state.ticker && state.ticker.dispose();
+    }
+  },
+
   init(threeObj, state) {
     // Clear the scene
     emptyObject(threeObj);
@@ -119,7 +125,8 @@ export default Kapsule({
     state.scene = threeObj;
 
     // Kick-off dash animations
-    new FrameTicker().onTick.add((_, timeDelta) => {
+    state.ticker = new FrameTicker();
+    state.ticker.onTick.add((_, timeDelta) => {
       state.arcsData
         .filter(d => d.__threeObj && d.__threeObj.children.length && d.__threeObj.children[0].material && d.__threeObj.children[0].__dashAnimateStep)
         .forEach(d => {

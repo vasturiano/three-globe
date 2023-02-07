@@ -292,6 +292,7 @@ export default Kapsule({
     },
     _destructor: function(state) {
       cancelAnimationFrame(state.animationFrameRequestId);
+      state.destructableLayers.forEach(l => l._destructor());
     },
     ...linkedGlobeLayerMethods
   },
@@ -315,7 +316,8 @@ export default Kapsule({
 
     return {
       ...layers,
-      layersThatNeedBehindGlobeChecker: Object.values(layers).filter(l => l.hasOwnProperty('isBehindGlobe'))
+      layersThatNeedBehindGlobeChecker: Object.values(layers).filter(l => l.hasOwnProperty('isBehindGlobe')),
+      destructableLayers: Object.values(layers).filter(l => l.hasOwnProperty('_destructor')),
     };
   },
 

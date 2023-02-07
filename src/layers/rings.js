@@ -44,6 +44,12 @@ export default Kapsule({
     ringRepeatPeriod: { default: 700, triggerUpdate: false } // ms
   },
 
+  methods: {
+    _destructor: function(state) {
+      state.ticker && state.ticker.dispose();
+    }
+  },
+
   init(threeObj, state) {
     // Clear the scene
     emptyObject(threeObj);
@@ -51,7 +57,8 @@ export default Kapsule({
     // Main three object to manipulate
     state.scene = threeObj;
 
-    new FrameTicker().onTick.add((time) => {
+    state.ticker = new FrameTicker();
+    state.ticker.onTick.add((time) => {
       if (!state.ringsData.length) return;
 
       // Data accessors

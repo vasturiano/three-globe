@@ -49,6 +49,10 @@ export default Kapsule({
         return this;
       }
       return state.globeObj.material;
+    },
+    _destructor: function(state) {
+      emptyObject(state.globeObj);
+      emptyObject(state.graticulesObj);
     }
   },
 
