@@ -89,7 +89,7 @@ export default Kapsule({
     if (state.pointsMerge) { // merge points into a single mesh
       const pointsGeometry = !state.pointsData.length
         ? new THREE.BufferGeometry()
-        : BufferGeometryUtils.mergeBufferGeometries(state.pointsData.map(d => {
+        : (BufferGeometryUtils.mergeGeometries || BufferGeometryUtils.mergeBufferGeometries)(state.pointsData.map(d => {
             const obj = d.__threeObj;
             d.__threeObj = undefined; // unbind merged points
 

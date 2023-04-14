@@ -126,7 +126,7 @@ export default Kapsule({
             obj.geometry && obj.geometry.dispose();
             obj.geometry = !hexBins.length
               ? new THREE.BufferGeometry()
-              : BufferGeometryUtils.mergeBufferGeometries(hexBins.map(h => {
+              : (BufferGeometryUtils.mergeGeometries || BufferGeometryUtils.mergeBufferGeometries)(hexBins.map(h => {
                   // compute new geojson with relative margin
                   const relNum = (st, end, rat) => st - (st - end) * rat;
                   const [clat, clng] = h.hexCenter;

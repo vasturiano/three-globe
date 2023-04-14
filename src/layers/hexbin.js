@@ -101,7 +101,7 @@ export default Kapsule({
     if (state.hexBinMerge) { // merge points into a single mesh
       const hexPointsGeometry = !hexBins.length
         ? new THREE.BufferGeometry()
-        : BufferGeometryUtils.mergeBufferGeometries(hexBins.map(d => {
+        : (BufferGeometryUtils.mergeGeometries || BufferGeometryUtils.mergeBufferGeometries)(hexBins.map(d => {
             const obj = d.__threeObj;
             d.__threeObj = undefined; // unbind merged points
 
