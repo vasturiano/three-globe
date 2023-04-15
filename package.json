@@ -8,7 +8,7 @@
   "module": "dist/three-globe.mjs",
   "types": "dist/three-globe.d.ts",
   "exports": {
-    "types": "dist/three-globe.d.ts",
+    "types": "./dist/three-globe.d.ts",
     "umd": "./dist/three-globe.min.js",
     "default": "./dist/three-globe.mjs"
   },
