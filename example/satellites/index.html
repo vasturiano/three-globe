@@ -41,7 +41,8 @@
       .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
       .objectLat('lat')
       .objectLng('lng')
-      .objectAltitude('alt');
+      .objectAltitude('alt')
+      .objectFacesSurface(false);
 
     const satGeometry = new THREE.OctahedronGeometry(SAT_SIZE * Globe.getGlobeRadius() / EARTH_RADIUS_KM / 2, 0);
     const satMaterial = new THREE.MeshLambertMaterial({ color: 'palegreen', transparent: true, opacity: 0.7 });
