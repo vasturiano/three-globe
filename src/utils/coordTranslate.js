@@ -27,4 +27,7 @@ function cartesian2Polar({ x, y, z }) {
   }
 }
 
-export { getGlobeRadius, polar2Cartesian, cartesian2Polar };
+function deg2Rad(deg) { return deg * Math.PI / 180; }
+function rad2Deg(rad) { return rad / Math.PI * 180; }
+
+export { getGlobeRadius, polar2Cartesian, cartesian2Polar, rad2Deg, deg2Rad };
