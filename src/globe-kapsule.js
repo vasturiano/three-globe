@@ -220,6 +220,8 @@ const linkedObjectsLayerProps = Object.assign(...[
   'objectLat',
   'objectLng',
   'objectAltitude',
+  'objectRotation',
+  'objectFacesSurface',
   'objectThreeObject'
 ].map(p => ({ [p]: bindObjectsLayer.linkProp(p)})));
 

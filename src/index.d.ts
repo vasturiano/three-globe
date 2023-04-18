@@ -14,6 +14,12 @@ interface TypeFace {}
 
 type LabelOrientation = 'right' | 'top' | 'bottom';
 
+interface Rotation {
+  x?: number;
+  y?: number;
+  z?: number;
+}
+
 export interface ConfigOptions {
   waitForGlobeReady?: boolean;
   animateIn?: boolean;
@@ -284,6 +290,10 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   objectLng(longitudeAccessor: ObjAccessor<number>): ChainableInstance;
   objectAltitude(): ObjAccessor<number>;
   objectAltitude(altitudeAccessor: ObjAccessor<number>): ChainableInstance;
+  objectRotation(): ObjAccessor<Rotation>
+  objectRotation(rotationAccessor: ObjAccessor<Rotation>): ChainableInstance;
+  objectFacesSurface(): ObjAccessor<boolean>;
+  objectFacesSurface(facesSurfaceAccessor: ObjAccessor<boolean>): ChainableInstance;
   objectThreeObject(): Object3D | string | ((d: object) => Object3D);
   objectThreeObject(object3DAccessor: Object3D | string | ((d: object) => Object3D)): ChainableInstance;
 
