@@ -292,8 +292,27 @@ export default Kapsule({
       // pass behind globe checker for layers that need it
       state.layersThatNeedBehindGlobeChecker.forEach(l => l.isBehindGlobe(isBehindGlobe));
     },
+    pauseAnimation: function(state) {
+      if (state.animationFrameRequestId !== null) {
+        cancelAnimationFrame(state.animationFrameRequestId);
+        state.animationFrameRequestId = null;
+      }
+      state.pausableLayers.forEach(l => l.pauseAnimation?.());
+      return this;
+    },
+    resumeAnimation: function(state) {
+      if (state.animationFrameRequestId === null) {
+        this._animationCycle();
+      }
+      state.pausableLayers.forEach(l => l.resumeAnimation?.());
+      return this;
+    },
+    _animationCycle(state) {
+      state.animationFrameRequestId = requestAnimationFrame(this._animationCycle);
+      TWEEN.update(); // run tween updates
+    },
     _destructor: function(state) {
-      cancelAnimationFrame(state.animationFrameRequestId);
+      this.pauseAnimation();
       state.destructableLayers.forEach(l => l._destructor());
     },
     ...linkedGlobeLayerMethods
@@ -320,6 +339,7 @@ export default Kapsule({
       ...layers,
       layersThatNeedBehindGlobeChecker: Object.values(layers).filter(l => l.hasOwnProperty('isBehindGlobe')),
       destructableLayers: Object.values(layers).filter(l => l.hasOwnProperty('_destructor')),
+      pausableLayers: Object.values(layers).filter(l => l.hasOwnProperty('pauseAnimation')),
     };
   },
 
@@ -365,11 +385,8 @@ export default Kapsule({
       ? state.globeLayer.onReady(initGlobe)
       : initGlobe();
 
-    // run tween updates
-    (function onFrame() {
-      state.animationFrameRequestId = requestAnimationFrame(onFrame);
-      TWEEN.update();
-    })(); // IIFE
+    // Kick-off animation cycle
+    this._animationCycle();
   },
 
   update(state) {}

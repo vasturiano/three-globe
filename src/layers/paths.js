@@ -104,8 +104,14 @@ export default Kapsule({
   },
 
   methods: {
+    pauseAnimation: function(state) {
+      state.ticker?.pause();
+    },
+    resumeAnimation: function(state) {
+      state.ticker?.resume();
+    },
     _destructor: function(state) {
-      state.ticker && state.ticker.dispose();
+      state.ticker?.dispose();
     }
   },
 
