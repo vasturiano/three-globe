@@ -280,6 +280,9 @@ new ThreeGlobe({ configOptions })
 | Method | Description | Default |
 | --- | --- | :--: |
 | <b>rendererSize</b>(<i>Vector2</i>) | It's recommended to inject the current [renderer size](https://threejs.org/docs/#api/en/renderers/WebGLRenderer.getSize) to ensure the object proportions remain constant. This is specially necessary when using path FatLines. | Fallback to the full browser window size (`THREE.Vector2(window.innerWidth, window.innerHeight)`) |
+| <b>pauseAnimation</b>() | Pauses the animation on all globe layers. | |
+| <b>resumeAnimation</b>() | Resumes the animation on all globe layers. | |
+
 
 ## Giving Back
 
