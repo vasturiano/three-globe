@@ -5,6 +5,7 @@ import {
   Mesh,
   MeshPhongMaterial,
   SphereGeometry,
+  SRGBColorSpace,
   TextureLoader
 } from 'three';
 
@@ -17,6 +18,7 @@ const THREE = window.THREE
     Mesh,
     MeshPhongMaterial,
     SphereGeometry,
+    SRGBColorSpace,
     TextureLoader
   };
 
@@ -99,6 +101,7 @@ export default Kapsule({
         !globeMaterial.color && (globeMaterial.color = new THREE.Color(0x000000));
       } else {
         new THREE.TextureLoader().load(state.globeImageUrl, texture => {
+          texture.colorSpace = THREE.SRGBColorSpace;
           globeMaterial.map = texture;
           globeMaterial.color = null;
           globeMaterial.needsUpdate = true;
