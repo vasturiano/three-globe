@@ -10,7 +10,7 @@ const THREE = {
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
-import TWEEN from '@tweenjs/tween.js';
+import * as TWEEN from '@tweenjs/tween.js';
 
 import { emptyObject } from '../utils/gc';
 import threeDigest from '../utils/digest';

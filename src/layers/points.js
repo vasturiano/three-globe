@@ -32,7 +32,7 @@ const BufferGeometryUtils = bfg.BufferGeometryUtils || bfg;
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
-import TWEEN from '@tweenjs/tween.js';
+import * as TWEEN from '@tweenjs/tween.js';
 
 import { colorStr2Hex, colorAlpha } from '../utils/color-utils';
 import { emptyObject } from '../utils/gc';

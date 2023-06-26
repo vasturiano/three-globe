@@ -13,7 +13,7 @@ const THREE = window.THREE
   };
 
 import Kapsule from 'kapsule';
-import TWEEN from '@tweenjs/tween.js';
+import * as TWEEN from '@tweenjs/tween.js';
 
 import { emptyObject } from './utils/gc';
 import linkKapsule from './utils/kapsule-link.js';

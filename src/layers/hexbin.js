@@ -32,7 +32,7 @@ import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
 import indexBy from 'index-array-by';
 import { latLngToCell, cellToLatLng, cellToBoundary } from 'h3-js';
-import TWEEN from '@tweenjs/tween.js';
+import * as TWEEN from '@tweenjs/tween.js';
 
 import { colorStr2Hex, colorAlpha } from '../utils/color-utils';
 import { emptyObject } from '../utils/gc';
