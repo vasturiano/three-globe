@@ -1,5 +1,6 @@
 import {
   CircleGeometry,
+  DoubleSide,
   Group,
   Mesh,
   MeshLambertMaterial,
@@ -14,6 +15,7 @@ const THREE = {
     ? window.THREE // Prefer consumption from global THREE, if exists
     : {
       CircleGeometry,
+      DoubleSide,
       Group,
       Mesh,
       MeshLambertMaterial,
@@ -87,6 +89,7 @@ export default Kapsule({
     threeDigest(state.labelsData, state.scene, {
       createObj: () => {
         const material = new THREE.MeshLambertMaterial();
+        material.side = DoubleSide;
 
         const obj = new THREE.Group(); // container
 
