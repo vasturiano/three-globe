@@ -27,7 +27,7 @@
       globeMaterial.shininess = 15;
     });
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6 * Math.PI);
     directionalLight.position.set(1, 1, 1); // change light position to see the specularMap's effect
 
     // Setup renderer
@@ -38,7 +38,7 @@
     // Setup scene
     const scene = new THREE.Scene();
     scene.add(Globe);
-    scene.add(new THREE.AmbientLight(0xcccccc));
+    scene.add(new THREE.AmbientLight(0xcccccc, Math.PI));
     scene.add(directionalLight);
 
     // Setup camera
