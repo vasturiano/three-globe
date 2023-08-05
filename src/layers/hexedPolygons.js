@@ -87,9 +87,13 @@ export default Kapsule({
         obj.material.opacity = opacity;
 
         const targetD = { alt, margin, curvatureResolution };
+        const memD = { geoJson, h3Res };
         const currentTargetD = obj.__currentTargetD || Object.assign({}, targetD, { alt: -1e-3 });
+        const currentMemD = obj.__currentMemD || memD;
 
-        if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD[k])) {
+        if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD[k]) || Object.keys(memD).some(k => currentMemD[k] !== memD[k])) {
+          obj.__currentMemD = memD;
+
           const h3Idxs = [];
 
           if (geoJson.type === 'Polygon') {
