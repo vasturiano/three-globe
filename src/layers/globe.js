@@ -61,7 +61,7 @@ export default Kapsule({
   stateInit: () => {
     // create globe
     const globeGeometry = new THREE.SphereGeometry(GLOBE_RADIUS, 75, 75);
-    const defaultGlobeMaterial = new THREE.MeshPhongMaterial({ color: 0x000000, transparent: true });
+    const defaultGlobeMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
     const globeObj = new THREE.Mesh(globeGeometry, defaultGlobeMaterial);
     globeObj.rotation.y = -Math.PI / 2; // face prime meridian along Z axis
     globeObj.__globeObjType = 'globe'; // Add object type
