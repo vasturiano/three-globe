@@ -1,0 +1,67 @@
+<head>
+  <style> body { margin: 0; } </style>
+
+  <script src="//unpkg.com/three"></script>
+  <script src="//unpkg.com/three-globe"></script>
+<!--  <script src="../../dist/three-globe.js"></script>-->
+</head>
+
+<body>
+<div id="globeViz"></div>
+
+<script type="importmap">{ "imports": { "three": "https://unpkg.com/three/build/three.module.js" }}</script>
+<script type="module">
+  import { TrackballControls } from '//unpkg.com/three/examples/jsm/controls/TrackballControls.js';
+  Object.assign(THREE , { TrackballControls });
+
+  const Globe = new ThreeGlobe()
+    .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+    .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png');
+
+  const CLOUDS_IMG_URL = './clouds.png'; // from https://github.com/turban/webgl-earth
+  const CLOUDS_ALT = 0.004;
+  const CLOUDS_ROTATION_SPEED = -0.006; // deg/frame
+
+  const Clouds = new THREE.Mesh(new THREE.SphereGeometry(Globe.getGlobeRadius() * (1 + CLOUDS_ALT), 75, 75));
+  new THREE.TextureLoader().load(CLOUDS_IMG_URL, cloudsTexture => {
+    Clouds.material = new THREE.MeshPhongMaterial({ map: cloudsTexture, transparent: true });
+  });
+
+  (function rotateClouds() {
+    Clouds.rotation.y += CLOUDS_ROTATION_SPEED * Math.PI / 180;
+    requestAnimationFrame(rotateClouds);
+  })();
+
+  // Setup renderer
+  const renderer = new THREE.WebGLRenderer();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.getElementById('globeViz').appendChild(renderer.domElement);
+
+  // Setup scene
+  const scene = new THREE.Scene();
+  scene.add(Globe);
+  scene.add(Clouds);
+  scene.add(new THREE.AmbientLight(0xcccccc, Math.PI));
+  scene.add(new THREE.DirectionalLight(0xffffff, 0.6 * Math.PI));
+
+  // Setup camera
+  const camera = new THREE.PerspectiveCamera();
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  camera.position.z = 500;
+
+  // Add camera controls
+  const tbControls = new THREE.TrackballControls(camera, renderer.domElement);
+  tbControls.minDistance = 101;
+  tbControls.rotateSpeed = 5;
+  tbControls.zoomSpeed = 0.8;
+
+  // Kick-off renderer
+  (function animate() { // IIFE
+    // Frame cycle
+    tbControls.update();
+    renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+  })();
+</script>
+</body>
