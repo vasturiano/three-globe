@@ -25,6 +25,8 @@
     const Globe = new ThreeGlobe()
       .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
       .heatmapsData([gData])
+      .heatmapPointLat('lat')
+      .heatmapPointLng('lng')
       .heatmapPointWeight('weight')
       .heatmapTopAltitude(0.7)
       .heatmapsTransitionDuration(3000);
