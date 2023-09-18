@@ -1,11 +1,9 @@
 import {
-  BufferAttribute,
   BufferGeometry,
   Color,
   CylinderGeometry,
   Matrix4,
   Mesh,
-  MeshBasicMaterial,
   MeshLambertMaterial,
   Object3D,
   Vector3
@@ -14,13 +12,11 @@ import {
 const THREE = window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
   : {
-    BufferAttribute,
     BufferGeometry,
     Color,
     CylinderGeometry,
     Matrix4,
     Mesh,
-    MeshBasicMaterial,
     MeshLambertMaterial,
     Object3D,
     Vector3
@@ -34,16 +30,14 @@ import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
 import * as TWEEN from '@tweenjs/tween.js';
 
-import { colorStr2Hex, colorAlpha } from '../utils/color-utils';
+import { colorStr2Hex, colorAlpha, color2ShaderArr } from '../utils/color-utils';
+import { array2BufferAttr } from '../utils/three-utils';
 import { emptyObject } from '../utils/gc';
 import threeDigest from '../utils/digest';
 import { polar2Cartesian } from '../utils/coordTranslate';
 import { GLOBE_RADIUS } from '../constants';
 
 //
-
-// support multiple method names for backwards threejs compatibility
-const applyMatrix4Fn = new THREE.BufferGeometry().applyMatrix4 ? 'applyMatrix4' : 'applyMatrix';
 
 export default Kapsule({
   props: {
@@ -76,8 +70,8 @@ export default Kapsule({
 
     // shared geometry
     const pointGeometry = new THREE.CylinderGeometry(1, 1, 1, state.pointResolution);
-    pointGeometry[applyMatrix4Fn](new THREE.Matrix4().makeRotationX(Math.PI / 2));
-    pointGeometry[applyMatrix4Fn](new THREE.Matrix4().makeTranslation(0, 0, -0.5));
+    pointGeometry.applyMatrix4(new THREE.Matrix4().makeRotationX(Math.PI / 2));
+    pointGeometry.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0, -0.5));
 
     const pxPerDeg = 2 * Math.PI * GLOBE_RADIUS / 360;
     const pointMaterials = {}; // indexed by color
@@ -97,25 +91,21 @@ export default Kapsule({
 
             // apply mesh world transform to vertices
             obj.updateMatrix();
-            geom[applyMatrix4Fn](obj.matrix);
+            geom.applyMatrix4(obj.matrix);
 
             // color vertices
-            const color = new THREE.Color(colorAccessor(d));
-            const nVertices = geom.attributes.position.count;
-            const colors = new Float32Array(nVertices * 3);
-            for (let i=0, len=nVertices; i<len; i++) {
-              const idx = i * 3;
-              colors[idx] = color.r;
-              colors[idx+1] = color.g;
-              colors[idx+2] = color.b;
-            }
-            geom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            const color = color2ShaderArr(colorAccessor(d));
+            geom.setAttribute('color', array2BufferAttr(
+              [...new Array(geom.getAttribute('position').count)].map(() => color),
+              4
+            ));
 
             return geom;
           }));
 
-      const points = new THREE.Mesh(pointsGeometry, new THREE.MeshBasicMaterial({
+      const points = new THREE.Mesh(pointsGeometry, new THREE.MeshLambertMaterial({
         color: 0xffffff,
+        transparent: true,
         vertexColors: true
       }));
 

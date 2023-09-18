@@ -1,7 +1,6 @@
 import {
   BufferGeometry,
   Color,
-  Float32BufferAttribute,
   Group,
   Line,
   NormalBlending,
@@ -14,7 +13,6 @@ const THREE = window.THREE
   : {
     BufferGeometry,
     Color,
-    Float32BufferAttribute,
     Group,
     Line,
     NormalBlending,
@@ -34,13 +32,11 @@ import { scaleLinear as d3ScaleLinear } from 'd3-scale';
 import threeDigest from '../utils/digest';
 import { emptyObject } from '../utils/gc';
 import { color2ShaderArr, colorStr2Hex, colorAlpha } from '../utils/color-utils';
+import { array2BufferAttr } from "../utils/three-utils";
 import { polar2Cartesian } from '../utils/coordTranslate';
 import { interpolateVectors } from '../utils/interpolate';
 
 //
-
-// support both modes for backwards threejs compatibility
-const setAttributeFn = new THREE.BufferGeometry().setAttribute ? 'setAttribute' : 'addAttribute';
 
 const gradientShaders = {
   uniforms: {
@@ -217,8 +213,8 @@ export default Kapsule({
             true // run from end to start, to animate in the correct direction
           );
 
-          obj.geometry[setAttributeFn]('vertexColor', vertexColorArray);
-          obj.geometry[setAttributeFn]('vertexRelDistance', vertexRelDistanceArray);
+          obj.geometry.setAttribute('vertexColor', vertexColorArray);
+          obj.geometry.setAttribute('vertexRelDistance', vertexRelDistanceArray);
         } else { // fat lines
           obj.material.resolution = state.rendererSize;
 
@@ -390,42 +386,37 @@ export default Kapsule({
             .range(colors)
           : colors; // already interpolator fn
 
-        getVertexColor = t => color2ShaderArr(colorInterpolator(t), includeAlpha);
+        getVertexColor = t => color2ShaderArr(colorInterpolator(t), includeAlpha, true);
       } else {
         // single color, use constant
-        const vertexColor = color2ShaderArr(colors, includeAlpha);
+        const vertexColor = color2ShaderArr(colors, includeAlpha, true);
         getVertexColor = () => vertexColor;
       }
 
-      const numArgs = includeAlpha ? 4 : 3;
-      const vertexColorArray = new THREE.Float32BufferAttribute(numVerticesGroup * numArgs * numVerticesPerSegment, numArgs);
-
+      const vertexColors = [];
       for (let v = 0, l = numVerticesGroup; v < l; v++) {
         const vertexColor = getVertexColor(v / (l - 1));
         for (let s = 0; s < numVerticesPerSegment; s++) {
-          vertexColorArray.set(vertexColor, (v * numVerticesPerSegment + s) * numArgs);
+          vertexColors.push(vertexColor);
         }
       }
 
-      return vertexColorArray;
+      return array2BufferAttr(vertexColors, includeAlpha ? 4 : 3);
     }
 
     function calcVertexRelDistances(numSegments, numVerticesPerSegment = 1, invert = false) {
       const numVerticesGroup = numSegments + 1; // one between every two segments and two at the ends
-      const arrLen = numVerticesGroup * numVerticesPerSegment;
 
-      const vertexDistanceArray = new THREE.Float32BufferAttribute(arrLen, 1);
-
+      const vertexDistances = [];
       for (let v = 0, l = numVerticesGroup; v < l; v++) {
         const relDistance = v / (l - 1);
         for (let s = 0; s < numVerticesPerSegment; s++) {
-          const idx = v * numVerticesPerSegment + s;
-          const pos = invert ? arrLen - 1 - idx :idx;
-          vertexDistanceArray.setX(pos, relDistance);
+          vertexDistances.push(relDistance);
         }
       }
+      invert && vertexDistances.reverse();
 
-      return vertexDistanceArray;
+      return array2BufferAttr(vertexDistances, 1);
     }
   }
 });

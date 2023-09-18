@@ -23,6 +23,7 @@ import GlobeLayerKapsule from './layers/globe';
 import PointsLayerKapsule from './layers/points';
 import ArcsLayerKapsule from './layers/arcs';
 import HexBinLayerKapsule from './layers/hexbin';
+import HeatmapsLayerKapsule from './layers/heatmaps';
 import PolygonsLayerKapsule from './layers/polygons';
 import HexedPolygonsLayerKapsule from './layers/hexedPolygons';
 import PathsLayerKapsule from './layers/paths';
@@ -40,6 +41,7 @@ const layers = [
   'pointsLayer',
   'arcsLayer',
   'hexBinLayer',
+  'heatmapsLayer',
   'polygonsLayer',
   'hexedPolygonsLayer',
   'pathsLayer',
@@ -115,6 +117,22 @@ const linkedHexBinLayerProps = Object.assign(...[
   'hexBinMerge',
   'hexTransitionDuration'
 ].map(p => ({ [p]: bindHexBinLayer.linkProp(p)})));
+
+const bindHeatmapsLayer = linkKapsule('heatmapsLayer', HeatmapsLayerKapsule);
+const linkedHeatmapsLayerProps = Object.assign(...[
+  'heatmapsData',
+  'heatmapPoints',
+  'heatmapPointLat',
+  'heatmapPointLng',
+  'heatmapPointWeight',
+  'heatmapBandwidth',
+  'heatmapResolution',
+  'heatmapColorFn',
+  'heatmapColorSaturation',
+  'heatmapBaseAltitude',
+  'heatmapTopAltitude',
+  'heatmapsTransitionDuration'
+].map(p => ({ [p]: bindHeatmapsLayer.linkProp(p)})));
 
 const bindHexedPolygonsLayer = linkKapsule('hexedPolygonsLayer', HexedPolygonsLayerKapsule);
 const linkedHexedPolygonsLayerProps = Object.assign(...[
@@ -248,6 +266,7 @@ export default Kapsule({
     ...linkedPointsLayerProps,
     ...linkedArcsLayerProps,
     ...linkedHexBinLayerProps,
+    ...linkedHeatmapsLayerProps,
     ...linkedPolygonsLayerProps,
     ...linkedHexedPolygonsLayerProps,
     ...linkedPathsLayerProps,
@@ -324,6 +343,7 @@ export default Kapsule({
       pointsLayer: PointsLayerKapsule(),
       arcsLayer: ArcsLayerKapsule(),
       hexBinLayer: HexBinLayerKapsule(),
+      heatmapsLayer: HeatmapsLayerKapsule(),
       polygonsLayer: PolygonsLayerKapsule(),
       hexedPolygonsLayer: HexedPolygonsLayerKapsule(),
       pathsLayer: PathsLayerKapsule(),

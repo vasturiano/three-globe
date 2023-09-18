@@ -1,10 +1,8 @@
 import {
-  BufferAttribute,
   BufferGeometry,
   Color,
   DoubleSide,
   Mesh,
-  MeshBasicMaterial,
   MeshLambertMaterial,
   Object3D
 } from 'three';
@@ -12,12 +10,10 @@ import {
 const THREE = window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
   : {
-    BufferAttribute,
     BufferGeometry,
     Color,
     DoubleSide,
     Mesh,
-    MeshBasicMaterial,
     MeshLambertMaterial,
     Object3D
   };
@@ -34,15 +30,13 @@ import indexBy from 'index-array-by';
 import { latLngToCell, cellToLatLng, cellToBoundary } from 'h3-js';
 import * as TWEEN from '@tweenjs/tween.js';
 
-import { colorStr2Hex, colorAlpha } from '../utils/color-utils';
+import { colorStr2Hex, colorAlpha, color2ShaderArr } from '../utils/color-utils';
+import { array2BufferAttr } from '../utils/three-utils';
 import { emptyObject } from '../utils/gc';
 import threeDigest from '../utils/digest';
 import { GLOBE_RADIUS } from '../constants';
 
 //
-
-// support multiple method names for backwards threejs compatibility
-const applyMatrix4Fn = new THREE.BufferGeometry().applyMatrix4 ? 'applyMatrix4' : 'applyMatrix';
 
 export default Kapsule({
   props: {
@@ -110,29 +104,25 @@ export default Kapsule({
 
             // apply mesh world transform to vertices
             obj.updateMatrix();
-            geom[applyMatrix4Fn](obj.matrix);
+            geom.applyMatrix4(obj.matrix);
 
             // color vertices
-            const topColor = new THREE.Color(topColorAccessor(d));
-            const sideColor = new THREE.Color(sideColorAccessor(d));
+            const topColor = color2ShaderArr(topColorAccessor(d));
+            const sideColor = color2ShaderArr(sideColorAccessor(d));
 
-            const nVertices = geom.attributes.position.count;
+            const nVertices = geom.getAttribute('position').count;
             const topFaceIdx = geom.groups[0].count; // starting vertex index of top group
-            const colors = new Float32Array(nVertices * 3);
-            for (let i=0, len=nVertices; i<len; i++) {
-              const idx = i * 3;
-              const c = i >= topFaceIdx ? topColor : sideColor;
-              colors[idx] = c.r;
-              colors[idx+1] = c.g;
-              colors[idx+2] = c.b;
-            }
-            geom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            geom.setAttribute('color', array2BufferAttr(
+              [...new Array(nVertices)].map((_, idx) => idx >= topFaceIdx ? topColor : sideColor),
+              4
+            ));
 
             return geom;
           }));
 
-      const hexPoints = new THREE.Mesh(hexPointsGeometry, new THREE.MeshBasicMaterial({
+      const hexPoints = new THREE.Mesh(hexPointsGeometry, new THREE.MeshLambertMaterial({
         color: 0xffffff,
+        transparent: true,
         vertexColors: true,
         side: THREE.DoubleSide
       }));

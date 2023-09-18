@@ -18,6 +18,7 @@ See also the [standalone version](https://github.com/vasturiano/globe.gl).
 * [Arc Links](https://vasturiano.github.io/three-globe/example/links/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/links/index.html))
 * [Country Polygons](https://vasturiano.github.io/three-globe/example/country-polygons/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/country-polygons/index.html))
 * [Path lines](https://vasturiano.github.io/three-globe/example/paths/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/paths/index.html))
+* [Heatmap](https://vasturiano.github.io/three-globe/example/heatmap/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/heatmap/index.html))
 * [Hexagonal Binning](https://vasturiano.github.io/three-globe/example/hexbin/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/hexbin/index.html))
 * [Hexed Country Polygons](https://vasturiano.github.io/three-globe/example/hexed-polygons/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/hexed-polygons/index.html))
 * [Tiles](https://vasturiano.github.io/three-globe/example/tiles/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/tiles/index.html))
@@ -57,6 +58,7 @@ myScene.add(myGlobe);
 * [Arcs Layer](#arcs-layer)
 * [Polygons Layer](#polygons-layer)
 * [Paths Layer](#paths-layer)
+* [Heatmaps Layer](#heatmaps-layer)
 * [Hex Bin Layer](#hex-bin-layer)
 * [Hexed Polygons Layer](#hexed-polygons-layer)
 * [Tiles Layer](#tiles-layer)
@@ -159,6 +161,23 @@ new ThreeGlobe({ configOptions })
 | <b>pathDashInitialGap</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Path object accessor function, attribute or a numeric constant for the length of the initial gap before the first dash segment, in terms of relative line length. | 0 |
 | <b>pathDashAnimateTime</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Path object accessor function, attribute or a numeric constant for the time duration (in `ms`) to animate the motion of dash positions from the start to the end point for a full line length. A value of `0` disables the animation. | 0 |
 | <b>pathTransitionDuration</b>([<i>num</i>]) | Getter/setter for duration (ms) of the transition to animate path changes. A value of `0` will move the paths immediately to their final position. New paths are animated from start to end. | 1000 |
+
+### Heatmaps Layer
+
+| Method | Description | Default |
+| --- | --- | :--: |
+| <b>heatmapsData</b>([<i>array</i>]) | Getter/setter for the list of heatmap datasets to represent in the heatmaps map layer. Each set of points is represented as an individual global heatmap with varying color and/or altitude, according to the point density. It uses a [Gaussian KDE](https://en.wikipedia.org/wiki/Kernel_density_estimation) to perform the density estimation, based on the great-arc distance between points. | `[]` |
+| <b>heatmapPoints</b>([<i>array</i>, <i>str</i> or <i>fn</i>]) | Heatmap object accessor function, attribute or an array for the set of points that define the heatmap. By default, each point is assumed to be a 2-position array (`[<lat>, <lon>]`). This default behavior can be modified using the `heatmapPointLat` and `heatmapPointLng` methods. | `pnts => pnts` |
+| <b>heatmapPointLat</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Heatmap point object accessor function, attribute or a numeric constant for the latitude coordinate. | `arr => arr[0]` |
+| <b>heatmapPointLng</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Heatmap point object accessor function, attribute or a numeric constant for the longitude coordinate. | `arr => arr[1]` |
+| <b>heatmapPointWeight</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Heatmap point object accessor function, attribute or a numeric constant for the weight of the point. The weight of a point determines its influence on the density of the surrounding area. | 1 |
+| <b>heatmapBandwidth</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Heatmap object accessor function, attribute or a numeric constant for the heatmap bandwidth, in angular degrees. The bandwidth is an internal parameter of the [Gaussian kernel function](https://en.wikipedia.org/wiki/Gaussian_function) and defines how localized is the influence of a point on distant locations. A narrow bandwidth leads to a more spiky representation, while a broad one has smoother curves. | 4 |
+| <b>heatmapResolution</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Heatmap object accessor function, attribute or a numeric constant for the heatmap resolution, in angular degrees. The resolution defines the angular distance between the heatmap sampling vertices around the equatorial line. The finer the resolution, the more the globe surface area is fragmented into smaller faces to approximate the fine-grained variations of density, at the cost of performance. It's not recommended to have a higher value than `heatmapBandwidth` otherwise too much detail could be lost due to the wide resolution. | 2 |
+| <b>heatmapColorFn</b>([<i>str</i> or <i>fn</i>]) | Heatmap object accessor function or attribute for the color interpolator function to represent density in the heatmap. This function should receive a number between `0` and `1` (or potentially higher if saturation > 1), and return a color string. | [Turbo colormap](https://blog.research.google/2019/08/turbo-improved-rainbow-colormap-for.html) interpolator with fading opacity |
+| <b>heatmapColorSaturation</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Heatmap object accessor function, attribute or a numeric constant for the color scale saturation. The saturation is a multiplier of the normalized density value (`[0,1]`) before passing it to the color interpolation function. It can be used to dampen outlier peaks in density and bring the data floor into view. | 1.5 |
+| <b>heatmapBaseAltitude</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Heatmap polygon object accessor function, attribute or a numeric constant for the heatmap base floor altitude in terms of globe radius units (`0` = 0 altitude, `1` = globe radius). | 0.01 |
+| <b>heatmapTopAltitude</b>([<i>num</i>, <i>str</i> or <i>fn</i>]) | Heatmap polygon object accessor function, attribute or a numeric constant for the heatmap top peak altitude in terms of globe radius units (`0` = 0 altitude, `1` = globe radius). An equal value to the base altitude will yield a surface flat heatmap. If a top altitude is set, the variations in density will be used to define the altitude curves between base and top. | - |
+| <b>heatmapsTransitionDuration</b>([<i>num</i>]) | Getter/setter for duration (ms) of the transition to animate heatmap changes. A value of `0` will set the heatmap colors/altitudes immediately in their final position. New heatmaps are animated by rising them from the ground up and gently fading in through the color scale. | 0 |
 
 ### Hex Bin Layer
 

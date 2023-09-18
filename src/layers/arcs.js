@@ -2,7 +2,6 @@ import {
   BufferGeometry,
   CubicBezierCurve3,
   Curve,
-  Float32BufferAttribute,
   Group,
   Line,
   Mesh,
@@ -19,7 +18,6 @@ const THREE = window.THREE
     BufferGeometry,
     CubicBezierCurve3,
     Curve,
-    Float32BufferAttribute,
     Group,
     Line,
     Mesh,
@@ -41,12 +39,10 @@ import { scaleLinear as d3ScaleLinear } from 'd3-scale';
 import threeDigest from '../utils/digest';
 import { emptyObject } from '../utils/gc';
 import { color2ShaderArr } from '../utils/color-utils';
+import { array2BufferAttr } from '../utils/three-utils';
 import { polar2Cartesian } from '../utils/coordTranslate';
 
 //
-
-// support both modes for backwards threejs compatibility
-const setAttributeFn = new THREE.BufferGeometry().setAttribute ? 'setAttribute' : 'addAttribute';
 
 const gradientShaders = {
   uniforms: {
@@ -216,8 +212,8 @@ export default Kapsule({
           true // run from end to start, to animate in the correct direction
         );
 
-        obj.geometry[setAttributeFn]('vertexColor', vertexColorArray);
-        obj.geometry[setAttributeFn]('vertexRelDistance', vertexRelDistanceArray);
+        obj.geometry.setAttribute('vertexColor', vertexColorArray);
+        obj.geometry.setAttribute('vertexRelDistance', vertexRelDistanceArray);
 
         const applyUpdate = td => {
           const { stroke, ...curveD } = arc.__currentTargetD = td;
@@ -227,8 +223,8 @@ export default Kapsule({
           if (useTube) {
             obj.geometry && obj.geometry.dispose();
             obj.geometry = new THREE.TubeGeometry(curve, state.arcCurveResolution, stroke / 2, state.arcCircularResolution);
-            obj.geometry[setAttributeFn]('vertexColor', vertexColorArray);
-            obj.geometry[setAttributeFn]('vertexRelDistance', vertexRelDistanceArray);
+            obj.geometry.setAttribute('vertexColor', vertexColorArray);
+            obj.geometry.setAttribute('vertexRelDistance', vertexRelDistanceArray);
           } else {
             obj.geometry.setFromPoints(curve.getPoints(state.arcCurveResolution));
           }
@@ -323,41 +319,37 @@ export default Kapsule({
             .range(colors)
           : colors; // already interpolator fn
 
-        getVertexColor = t => color2ShaderArr(colorInterpolator(t));
+        getVertexColor = t => color2ShaderArr(colorInterpolator(t), true, true);
       } else {
         // single color, use constant
-        const vertexColor = color2ShaderArr(colors);
+        const vertexColor = color2ShaderArr(colors, true, true);
         getVertexColor = () => vertexColor;
       }
 
-      const vertexColorArray = new THREE.Float32BufferAttribute(numVerticesGroup * 4 * numVerticesPerSegment, 4);
-
+      const vertexColors = [];
       for (let v = 0, l = numVerticesGroup; v < l; v++) {
         const vertexColor = getVertexColor(v / (l - 1));
         for (let s = 0; s < numVerticesPerSegment; s++) {
-          vertexColorArray.set(vertexColor, (v * numVerticesPerSegment + s) * 4);
+          vertexColors.push(vertexColor);
         }
       }
 
-      return vertexColorArray;
+      return array2BufferAttr(vertexColors, 4);
     }
 
     function calcVertexRelDistances(numSegments, numVerticesPerSegment = 1, invert = false) {
       const numVerticesGroup = numSegments + 1; // one between every two segments and two at the ends
-      const arrLen = numVerticesGroup * numVerticesPerSegment;
 
-      const vertexDistanceArray = new THREE.Float32BufferAttribute(arrLen, 1);
-
+      const vertexDistances = [];
       for (let v = 0, l = numVerticesGroup; v < l; v++) {
         const relDistance = v / (l - 1);
         for (let s = 0; s < numVerticesPerSegment; s++) {
-          const idx = v * numVerticesPerSegment + s;
-          const pos = invert ? arrLen - 1 - idx :idx;
-          vertexDistanceArray.setX(pos, relDistance);
+          vertexDistances.push(relDistance);
         }
       }
+      invert && vertexDistances.reverse();
 
-      return vertexDistanceArray;
+      return array2BufferAttr(vertexDistances, 1);
     }
   }
 });

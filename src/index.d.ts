@@ -177,6 +177,32 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   hexTransitionDuration(): number;
   hexTransitionDuration(durationMs: number): ChainableInstance;
 
+  // Heatmaps layer
+  heatmapsData(): object[];
+  heatmapsData(data: object[]): ChainableInstance;
+  heatmapPoints(): ObjAccessor<object[]>;
+  heatmapPoints(pointsAccessor: ObjAccessor<object[]>): ChainableInstance;
+  heatmapPointLat(): ObjAccessor<number>;
+  heatmapPointLat(latitudeAccessor: ObjAccessor<number>): ChainableInstance;
+  heatmapPointLng(): ObjAccessor<number>;
+  heatmapPointLng(longitudeAccessor: ObjAccessor<number>): ChainableInstance;
+  heatmapPointWeight(): ObjAccessor<number>;
+  heatmapPointWeight(weightAccessor: ObjAccessor<number>): ChainableInstance;
+  heatmapBandwidth(): ObjAccessor<number>;
+  heatmapBandwidth(bandwidthAccessor: ObjAccessor<number>): ChainableInstance;
+  heatmapResolution(): ObjAccessor<number>;
+  heatmapResolution(resolutionAccessor: ObjAccessor<number>): ChainableInstance;
+  heatmapColorFn(): ObjAccessor<(t: number) => string>;
+  heatmapColorFn(colorFnAccessor: ObjAccessor<(t: number) => string>): ChainableInstance;
+  heatmapColorSaturation(): ObjAccessor<number>;
+  heatmapColorSaturation(saturationAccessor: ObjAccessor<number>): ChainableInstance;
+  heatmapBaseAltitude(): ObjAccessor<number>;
+  heatmapBaseAltitude(altitudeAccessor: ObjAccessor<number>): ChainableInstance;
+  heatmapTopAltitude(): ObjAccessor<number>;
+  heatmapTopAltitude(altitudeAccessor: ObjAccessor<number>): ChainableInstance;
+  heatmapsTransitionDuration(): number;
+  heatmapsTransitionDuration(durationMs: number): ChainableInstance;
+
   // Hexed Polygons layer
   hexPolygonsData(): object[];
   hexPolygonsData(data: object[]): ChainableInstance;
