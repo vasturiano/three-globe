@@ -130,7 +130,7 @@ export default Kapsule({
         // Animations
         const applyUpdate = td => {
           const { kdeVals, topAlt, saturation } = obj.__currentTargetD = td;
-          const maxVal = max(kdeVals);
+          const maxVal = max(kdeVals) || 1e-15;
 
           // Set vertex colors
           obj.geometry.setAttribute('color', array2BufferAttr(
