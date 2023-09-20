@@ -35,14 +35,10 @@ export const getGeoKDE = ([lng, lat], data = [], {
   const pnt = [lng, lat];
   const bwRad = bandwidth * Math.PI / 180;
 
-  let acc = 0;
-  const vals = data.map(d => {
+  return sum(data.map(d => {
     const weight = weightAccessor(d);
     if (weight <= 0) return;
-    acc = acc + weight;
     const dist = geoDistance(pnt, [lngAccessor(d), latAccessor(d)]);
     return gaussianKernel(dist, bwRad) * weight;
-  });
-
-  return acc ? sum(vals) / acc : 0;
+  }));
 };

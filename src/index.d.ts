@@ -190,8 +190,6 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   heatmapPointWeight(weightAccessor: ObjAccessor<number>): ChainableInstance;
   heatmapBandwidth(): ObjAccessor<number>;
   heatmapBandwidth(bandwidthAccessor: ObjAccessor<number>): ChainableInstance;
-  heatmapResolution(): ObjAccessor<number>;
-  heatmapResolution(resolutionAccessor: ObjAccessor<number>): ChainableInstance;
   heatmapColorFn(): ObjAccessor<(t: number) => string>;
   heatmapColorFn(colorFnAccessor: ObjAccessor<(t: number) => string>): ChainableInstance;
   heatmapColorSaturation(): ObjAccessor<number>;

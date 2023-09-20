@@ -15,6 +15,7 @@ const THREE = window.THREE
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
 import { scaleLinear } from 'd3-scale';
+import { octree } from 'd3-octree';
 import { interpolateTurbo } from 'd3-scale-chromatic';
 import { max } from 'd3-array';
 import { color as d3Color } from 'd3-color';
@@ -30,6 +31,42 @@ import { GLOBE_RADIUS } from '../constants';
 
 //
 
+const RES_BW_FACTOR = 3.5; // divider of bandwidth to use in geometry resolution
+const BW_RADIUS_INFLUENCE = 3.5; // multiplier of bandwidth to use in octree for max radius of point influence
+
+class PointsOctree {
+  constructor(points, neighborhoodAngularDistance) {
+    this.#pntOctree = octree(points, pnt => pnt.x, pnt => pnt.y, pnt => pnt.z);
+    this.#distance = this.#getDistance(
+      polar2Cartesian(0, 0),
+      polar2Cartesian(0, Math.min(180, neighborhoodAngularDistance))
+    );
+  }
+
+  getNearPoints(x, y, z) {
+    const [[xmin, xmax], [ymin, ymax], [zmin, zmax]] = [x, y, z].map(c => [c - this.#distance, c + this.#distance]);
+
+    const nearbyPnts = [];
+    this.#pntOctree.visit((node, x1, y1, z1, x2, y2, z2) => {
+      if (!node.length) {
+        do {
+          (this.#getDistance(node.data, { x, y, z }) <= this.#distance) && nearbyPnts.push(node.data);
+        } while (node = node.next);
+      }
+      return x1 >= xmax || y1 >= ymax || z1 >= zmax || x2 < xmin || y2 < ymin || z2 < zmin;
+    });
+
+    return nearbyPnts;
+  }
+
+  #getDistance(a, b) {
+    return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2 + (a.z - b.z) ** 2);
+  }
+
+  #pntOctree;
+  #distance;
+}
+
 const defaultColorInterpolator = t => {
   const c = d3Color(interpolateTurbo(t)); // turbo, inferno
   c.opacity = Math.cbrt(t);
@@ -44,7 +81,6 @@ export default Kapsule({
     heatmapPointLng: { default: d => d[1] },
     heatmapPointWeight: { default: 1 },
     heatmapBandwidth: { default: 4 }, // Gaussian kernel bandwidth, in angular degrees
-    heatmapResolution: { default: 2 }, // in angular degrees
     heatmapColorFn: { default: () => defaultColorInterpolator },
     heatmapColorSaturation: { default: 1.5 }, // multiplier for color scale max
     heatmapBaseAltitude: { default: 0.01 }, // in units of globe radius
@@ -67,7 +103,6 @@ export default Kapsule({
     const lngPntAccessor = accessorFn(state.heatmapPointLng);
     const weightPntAccessor = accessorFn(state.heatmapPointWeight);
     const bandwidthAccessor = accessorFn(state.heatmapBandwidth);
-    const resolutionAccessor = accessorFn(state.heatmapResolution);
     const colorFnAccessor = accessorFn(state.heatmapColorFn);
     const saturationAccessor = accessorFn(state.heatmapColorSaturation);
     const baseAltitudeAccessor = accessorFn(state.heatmapBaseAltitude);
@@ -75,18 +110,9 @@ export default Kapsule({
 
     threeDigest(state.heatmapsData, state.scene, {
       createObj: d => {
-        const equatorNumSegments = Math.ceil(360 / (resolutionAccessor(d) || -1));
-
         const obj = new THREE.Mesh(
-          new THREE.SphereGeometry(
-            GLOBE_RADIUS,
-            equatorNumSegments,
-            equatorNumSegments / 2
-          ),
-          new THREE.MeshLambertMaterial({
-            vertexColors: true,
-            transparent: true
-          })
+          new THREE.SphereGeometry(GLOBE_RADIUS),
+          new THREE.MeshLambertMaterial({ vertexColors: true, transparent: true })
         );
 
         obj.__globeObjType = 'heatmap'; // Add object type
@@ -95,18 +121,23 @@ export default Kapsule({
       updateObj: (obj, d) => {
         // Accessors
         const bandwidth = bandwidthAccessor(d);
-        const resolution = resolutionAccessor(d);
         const colorFn = colorFnAccessor(d);
         const saturation = saturationAccessor(d);
         const baseAlt = baseAltitudeAccessor(d);
         const topAlt = topAltitudeAccessor(d);
-        const pnts = pointsAccessor(d).map(pnt => ({
-          lat: latPntAccessor(pnt),
-          lng: lngPntAccessor(pnt),
-          weight: weightPntAccessor(pnt)
-        }));
+        const pnts = pointsAccessor(d).map(pnt => {
+          const lat = latPntAccessor(pnt);
+          const lng = lngPntAccessor(pnt);
+          const { x, y, z } = polar2Cartesian(lat, lng);
+          return {
+            x, y, z,
+            lat, lng,
+            weight: weightPntAccessor(pnt)
+          }
+        });
 
         // Check resolution
+        const resolution = bandwidth / RES_BW_FACTOR;
         const equatorNumSegments = Math.ceil(360 / (resolution || -1));
         if (obj.geometry.parameters.widthSegments !== equatorNumSegments) {
           obj.geometry.dispose();
@@ -114,18 +145,23 @@ export default Kapsule({
         }
 
         // Get vertex polar coordinates
-        const vertexCoords = bufferAttr2Array(obj.geometry.getAttribute('position')).map(([x, y, z]) => {
+        const vertexCoords = bufferAttr2Array(obj.geometry.getAttribute('position'));
+        const vertexGeoCoords = vertexCoords.map(([x, y, z]) => {
           const { lng, lat } = cartesian2Polar({ x, y, z });
           return [lng, lat];
         });
 
         // Compute KDE
-        const kdeVals = vertexCoords.map(vxCoords => getGeoKDE(vxCoords, pnts, {
-          latAccessor: d => d.lat,
-          lngAccessor: d => d.lng,
-          weightAccessor: d => d.weight,
-          bandwidth
-        }));
+        const pntsOctree = new PointsOctree(pnts, bandwidth * BW_RADIUS_INFLUENCE);
+        const kdeVals = vertexGeoCoords.map((vxCoords, idx) => {
+          const [x, y, z] = vertexCoords[idx];
+          return getGeoKDE(vxCoords, pntsOctree.getNearPoints(x, y, z), {
+            latAccessor: d => d.lat,
+            lngAccessor: d => d.lng,
+            weightAccessor: d => d.weight,
+            bandwidth
+          });
+        });
 
         // Animations
         const applyUpdate = td => {
@@ -143,7 +179,7 @@ export default Kapsule({
           const altScale = scaleLinear([0, maxVal], [baseAlt, topAlt || baseAlt]);
           obj.geometry.setAttribute('position', array2BufferAttr(
             kdeVals.map((val, idx) => {
-              const [lng, lat] = vertexCoords[idx];
+              const [lng, lat] = vertexGeoCoords[idx];
               const alt = altScale(val);
               const p = polar2Cartesian(lat, lng, alt);
               return [p.x, p.y, p.z];

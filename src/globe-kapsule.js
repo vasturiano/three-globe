@@ -126,7 +126,6 @@ const linkedHeatmapsLayerProps = Object.assign(...[
   'heatmapPointLng',
   'heatmapPointWeight',
   'heatmapBandwidth',
-  'heatmapResolution',
   'heatmapColorFn',
   'heatmapColorSaturation',
   'heatmapBaseAltitude',
