@@ -48,12 +48,13 @@ class PointsOctree {
 
     const nearbyPnts = [];
     this.#pntOctree.visit((node, x1, y1, z1, x2, y2, z2) => {
-      if (!node.length) {
-        do {
-          (this.#getDistance(node.data, { x, y, z }) <= this.#distance) && nearbyPnts.push(node.data);
-        } while (node = node.next);
-      }
-      return x1 >= xmax || y1 >= ymax || z1 >= zmax || x2 < xmin || y2 < ymin || z2 < zmin;
+      if (node.length) // tree node
+        return x1 >= xmax || y1 >= ymax || z1 >= zmax || x2 < xmin || y2 < ymin || z2 < zmin;
+
+      // leaf node
+      if (this.#getDistance(node.data, { x, y, z }) <= this.#distance)
+        do { nearbyPnts.push(node.data) } while (node = node.next);
+      return true;
     });
 
     return nearbyPnts;
