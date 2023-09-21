@@ -15,11 +15,11 @@ const THREE = window.THREE
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
 import { scaleLinear } from 'd3-scale';
-import { octree } from 'd3-octree';
 import { interpolateTurbo } from 'd3-scale-chromatic';
 import { max } from 'd3-array';
 import { color as d3Color } from 'd3-color';
 import * as TWEEN from '@tweenjs/tween.js';
+import yaOctree from 'yaot';
 
 import { emptyObject } from '../utils/gc';
 import threeDigest from '../utils/digest';
@@ -36,7 +36,9 @@ const BW_RADIUS_INFLUENCE = 3.5; // multiplier of bandwidth to use in octree for
 
 class PointsOctree {
   constructor(points, neighborhoodAngularDistance) {
-    this.#pntOctree = octree(points, pnt => pnt.x, pnt => pnt.y, pnt => pnt.z);
+    this.#points = points;
+    this.#pntOctree = yaOctree();
+    this.#pntOctree.init(points.map(d => [d.x, d.y, d.z]).flat());
     this.#distance = this.#getDistance(
       polar2Cartesian(0, 0),
       polar2Cartesian(0, Math.min(180, neighborhoodAngularDistance))
@@ -44,26 +46,14 @@ class PointsOctree {
   }
 
   getNearPoints(x, y, z) {
-    const [[xmin, xmax], [ymin, ymax], [zmin, zmax]] = [x, y, z].map(c => [c - this.#distance, c + this.#distance]);
-
-    const nearbyPnts = [];
-    this.#pntOctree.visit((node, x1, y1, z1, x2, y2, z2) => {
-      if (node.length) // tree node
-        return x1 >= xmax || y1 >= ymax || z1 >= zmax || x2 < xmin || y2 < ymin || z2 < zmin;
-
-      // leaf node
-      if (this.#getDistance(node.data, { x, y, z }) <= this.#distance)
-        do { nearbyPnts.push(node.data) } while (node = node.next);
-      return true;
-    });
-
-    return nearbyPnts;
+    return this.#pntOctree.intersectSphere(x, y, z, this.#distance).map(idx => this.#points[idx / 3]);
   }
 
   #getDistance(a, b) {
     return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2 + (a.z - b.z) ** 2);
   }
 
+  #points;
   #pntOctree;
   #distance;
 }
