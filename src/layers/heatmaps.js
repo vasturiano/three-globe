@@ -32,6 +32,7 @@ import { GLOBE_RADIUS } from '../constants';
 //
 
 const RES_BW_FACTOR = 3.5; // divider of bandwidth to use in geometry resolution
+const MIN_RESOLUTION = 0.1; // degrees
 const BW_RADIUS_INFLUENCE = 3.5; // multiplier of bandwidth to use in octree for max radius of point influence
 
 class PointsOctree {
@@ -128,7 +129,7 @@ export default Kapsule({
         });
 
         // Check resolution
-        const resolution = bandwidth / RES_BW_FACTOR;
+        const resolution = Math.max(MIN_RESOLUTION, bandwidth / RES_BW_FACTOR);
         const equatorNumSegments = Math.ceil(360 / (resolution || -1));
         if (obj.geometry.parameters.widthSegments !== equatorNumSegments) {
           obj.geometry.dispose();
