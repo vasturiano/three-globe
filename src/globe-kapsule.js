@@ -141,7 +141,9 @@ const linkedHexedPolygonsLayerProps = Object.assign(...[
   'hexPolygonAltitude',
   'hexPolygonResolution',
   'hexPolygonMargin',
+  'hexPolygonUseDots',
   'hexPolygonCurvatureResolution',
+  'hexPolygonDotResolution',
   'hexPolygonsTransitionDuration'
 ].map(p => ({ [p]: bindHexedPolygonsLayer.linkProp(p)})));
 

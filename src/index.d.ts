@@ -214,8 +214,12 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   hexPolygonResolution(resolutionAccessor: ObjAccessor<number>): ChainableInstance;
   hexPolygonMargin(): ObjAccessor<number>;
   hexPolygonMargin(marginAccessor: ObjAccessor<number>): ChainableInstance;
+  hexPolygonUseDots(): ObjAccessor<boolean>;
+  hexPolygonUseDots(useDotsAccessor: ObjAccessor<boolean>): ChainableInstance;
   hexPolygonCurvatureResolution(): ObjAccessor<number>;
   hexPolygonCurvatureResolution(resolutionAccessor: ObjAccessor<number>): ChainableInstance;
+  hexPolygonDotResolution(): ObjAccessor<number>;
+  hexPolygonDotResolution(resolutionAccessor: ObjAccessor<number>): ChainableInstance;
   hexPolygonsTransitionDuration(): number;
   hexPolygonsTransitionDuration(durationMs: number): ChainableInstance;
 
