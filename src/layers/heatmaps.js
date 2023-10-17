@@ -158,7 +158,7 @@ export default Kapsule({
         // Animations
         const applyUpdate = td => {
           const { kdeVals, topAlt, saturation } = obj.__currentTargetD = td;
-          const maxVal = max(kdeVals) || 1e-15;
+          const maxVal = max(kdeVals.map(Math.abs)) || 1e-15;
 
           // Set vertex colors
           obj.geometry.setAttribute('color', array2BufferAttr(
@@ -172,7 +172,7 @@ export default Kapsule({
           obj.geometry.setAttribute('position', array2BufferAttr(
             kdeVals.map((val, idx) => {
               const [lng, lat] = vertexGeoCoords[idx];
-              const alt = altScale(val);
+              const alt = altScale(Math.abs(val));
               const p = polar2Cartesian(lat, lng, alt);
               return [p.x, p.y, p.z];
             }),
