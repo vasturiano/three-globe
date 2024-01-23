@@ -84,7 +84,7 @@ export default Kapsule({
         } else {
           // animate
           new TWEEN.Tween(obj.__currentTargetD)
-            .to(targetD, state.pointsTransitionDuration)
+            .to(targetD, state.htmlTransitionDuration)
             .easing(TWEEN.Easing.Quadratic.InOut)
             .onUpdate(applyUpdate)
             .start();
