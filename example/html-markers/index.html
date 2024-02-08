@@ -1,19 +1,25 @@
 <head>
   <style> body { margin: 0; } </style>
 
-  <script src="//unpkg.com/three"></script>
-  <script src="//unpkg.com/three-globe"></script>
-<!--  <script src="../../dist/three-globe.js"></script>-->
+  <script type="importmap">{ "imports": {
+    "three": "//unpkg.com/three/build/three.module.js",
+    "three/addons/": "//unpkg.com/three/examples/jsm/"
+  }}</script>
+  <script type="module">
+    import * as THREE from '//unpkg.com/three/build/three.module.js';
+    window.THREE = THREE;
+  </script>
+
+  <script src="//unpkg.com/three-globe" defer></script>
+  <!--  <script src="../../dist/three-globe.js" defer></script>-->
 </head>
 
 <body>
   <div id="globeViz"></div>
 
-  <script type="importmap">{ "imports": { "three": "https://unpkg.com/three/build/three.module.js" }}</script>
-  <script type="module">
-    import { TrackballControls } from '//unpkg.com/three/examples/jsm/controls/TrackballControls.js';
-    import { CSS2DRenderer } from '//unpkg.com/three/examples/jsm/renderers/CSS2DRenderer.js';
-    Object.assign(THREE , { TrackballControls, CSS2DRenderer });
+<script type="module">
+    import { TrackballControls } from 'three/addons/controls/TrackballControls.js';
+    import { CSS2DRenderer } from 'three/addons/renderers/CSS2DRenderer.js';
 
     const markerSvg = `<svg viewBox="-4 0 36 36">
       <path fill="currentColor" d="M14,0 C21.732,0 28,5.641 28,12.6 C28,23.963 14,36 14,36 C14,36 0,24.064 0,12.6 C0,5.641 6.268,0 14,0 Z"></path>
@@ -42,7 +48,7 @@
       });
 
     // Setup renderers
-    const renderers = [new THREE.WebGLRenderer(), new THREE.CSS2DRenderer()];
+    const renderers = [new THREE.WebGLRenderer(), new CSS2DRenderer()];
     renderers.forEach((r, idx) => {
       r.setSize(window.innerWidth, window.innerHeight);
       if (idx > 0) {
@@ -67,7 +73,7 @@
     camera.position.z = 500;
 
     // Add camera controls
-    const tbControls = new THREE.TrackballControls(camera, renderers[0].domElement);
+    const tbControls = new TrackballControls(camera, renderers[0].domElement);
     tbControls.minDistance = 101;
     tbControls.rotateSpeed = 5;
     tbControls.zoomSpeed = 0.8;

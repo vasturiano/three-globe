@@ -15,21 +15,27 @@
     }
   </style>
 
-  <script src="//unpkg.com/satellite.js/dist/satellite.min.js"></script>
+  <script type="importmap">{ "imports": {
+    "three": "//unpkg.com/three/build/three.module.js",
+    "three/addons/": "//unpkg.com/three/examples/jsm/"
+  }}</script>
+  <script type="module">
+    import * as THREE from '//unpkg.com/three/build/three.module.js';
+    window.THREE = THREE;
+  </script>
 
-  <script src="//unpkg.com/three"></script>
-  <script src="//unpkg.com/three-globe"></script>
-<!--  <script src="../../dist/three-globe.js"></script>-->
+  <script src="//unpkg.com/three-globe" defer></script>
+  <!--  <script src="../../dist/three-globe.js" defer></script>-->
+
+  <script src="//unpkg.com/satellite.js/dist/satellite.min.js"></script>
 </head>
 
 <body>
   <div id="globeViz"></div>
   <div id="time-log"></div>
 
-  <script type="importmap">{ "imports": { "three": "https://unpkg.com/three/build/three.module.js" }}</script>
-  <script type="module">
-    import { TrackballControls } from '//unpkg.com/three/examples/jsm/controls/TrackballControls.js';
-    Object.assign(THREE , { TrackballControls });
+<script type="module">
+    import { TrackballControls } from 'three/addons/controls/TrackballControls.js';
 
     const EARTH_RADIUS_KM = 6371; // km
     const SAT_SIZE = 80; // km
@@ -99,7 +105,7 @@
     camera.position.z = 400;
 
     // Add camera controls
-    const tbControls = new THREE.TrackballControls(camera, renderer.domElement);
+    const tbControls = new TrackballControls(camera, renderer.domElement);
     tbControls.minDistance = 101;
     tbControls.rotateSpeed = 5;
     tbControls.zoomSpeed = 0.8;
