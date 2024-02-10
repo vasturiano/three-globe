@@ -15,51 +15,51 @@
 </head>
 
 <body>
-<div id="globeViz"></div>
+  <div id="globeViz"></div>
 
-<script type="module">
-  import { TrackballControls } from 'three/addons/controls/TrackballControls.js';
+  <script type="module">
+    import { TrackballControls } from 'three/addons/controls/TrackballControls.js';
 
-  fetch('./ne_110m_admin_0_countries.geojson').then(res => res.json()).then(countries =>
-  {
-    const Globe = new ThreeGlobe()
-      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
-      .hexPolygonsData(countries.features)
-      .hexPolygonResolution(3)
-      .hexPolygonMargin(0.3)
-      .hexPolygonUseDots(true)
-      .hexPolygonColor(() => `#${Math.round(Math.random() * Math.pow(2, 24)).toString(16).padStart(6, '0')}`);
+    fetch('./ne_110m_admin_0_countries.geojson').then(res => res.json()).then(countries =>
+    {
+      const Globe = new ThreeGlobe()
+        .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
+        .hexPolygonsData(countries.features)
+        .hexPolygonResolution(3)
+        .hexPolygonMargin(0.3)
+        .hexPolygonUseDots(true)
+        .hexPolygonColor(() => `#${Math.round(Math.random() * Math.pow(2, 24)).toString(16).padStart(6, '0')}`);
 
-    // Setup renderer
-    const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.getElementById('globeViz').appendChild(renderer.domElement);
+      // Setup renderer
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.getElementById('globeViz').appendChild(renderer.domElement);
 
-    // Setup scene
-    const scene = new THREE.Scene();
-    scene.add(Globe);
-    scene.add(new THREE.AmbientLight(0xcccccc, Math.PI));
-    scene.add(new THREE.DirectionalLight(0xffffff, 0.6 * Math.PI));
+      // Setup scene
+      const scene = new THREE.Scene();
+      scene.add(Globe);
+      scene.add(new THREE.AmbientLight(0xcccccc, Math.PI));
+      scene.add(new THREE.DirectionalLight(0xffffff, 0.6 * Math.PI));
 
-    // Setup camera
-    const camera = new THREE.PerspectiveCamera();
-    camera.aspect = window.innerWidth/ window.innerHeight;
-    camera.updateProjectionMatrix();
-    camera.position.z = 500;
+      // Setup camera
+      const camera = new THREE.PerspectiveCamera();
+      camera.aspect = window.innerWidth/ window.innerHeight;
+      camera.updateProjectionMatrix();
+      camera.position.z = 500;
 
-    // Add camera controls
-    const tbControls = new TrackballControls(camera, renderer.domElement);
-    tbControls.minDistance = 101;
-    tbControls.rotateSpeed = 5;
-    tbControls.zoomSpeed = 0.8;
+      // Add camera controls
+      const tbControls = new TrackballControls(camera, renderer.domElement);
+      tbControls.minDistance = 101;
+      tbControls.rotateSpeed = 5;
+      tbControls.zoomSpeed = 0.8;
 
-    // Kick-off renderer
-    (function animate() { // IIFE
-      // Frame cycle
-      tbControls.update();
-      renderer.render(scene, camera);
-      requestAnimationFrame(animate);
-    })();
-  });
-</script>
+      // Kick-off renderer
+      (function animate() { // IIFE
+        // Frame cycle
+        tbControls.update();
+        renderer.render(scene, camera);
+        requestAnimationFrame(animate);
+      })();
+    });
+  </script>
 </body>
