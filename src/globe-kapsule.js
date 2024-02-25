@@ -369,7 +369,7 @@ export default Kapsule({
     emptyObject(threeObj);
 
     // Main three object to manipulate
-    threeObj.add(state.scene = new THREE.Group());
+    state.scene = threeObj;
     state.scene.visible = false; // hide scene before globe initialization
 
     // Add all layers groups
