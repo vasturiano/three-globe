@@ -33,6 +33,8 @@
       Clouds.material = new THREE.MeshPhongMaterial({ map: cloudsTexture, transparent: true });
     });
 
+    Globe.add(Clouds);
+
     (function rotateClouds() {
       Clouds.rotation.y += CLOUDS_ROTATION_SPEED * Math.PI / 180;
       requestAnimationFrame(rotateClouds);
@@ -46,7 +48,6 @@
     // Setup scene
     const scene = new THREE.Scene();
     scene.add(Globe);
-    scene.add(Clouds);
     scene.add(new THREE.AmbientLight(0xcccccc, Math.PI));
     scene.add(new THREE.DirectionalLight(0xffffff, 0.6 * Math.PI));
 
