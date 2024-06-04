@@ -270,6 +270,8 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   labelIncludeDot(includeAccessor: ObjAccessor<boolean>): ChainableInstance;
   labelDotRadius(): ObjAccessor<number>;
   labelDotRadius(radiusAccessor: ObjAccessor<number>): ChainableInstance;
+  labelDotSegments(): ObjAccessor<number>;
+  labelDotSegments(segmentsAccessor: ObjAccessor<number>): ChainableInstance;
   labelDotOrientation(): ObjAccessor<LabelOrientation>;
   labelDotOrientation(orientationAccessor: ObjAccessor<LabelOrientation>): ChainableInstance;
   labelsTransitionDuration(): number;

@@ -206,6 +206,7 @@ const linkedLabelsLayerProps = Object.assign(...[
   'labelResolution',
   'labelIncludeDot',
   'labelDotRadius',
+  'labelDotSegments',
   'labelDotOrientation',
   'labelsTransitionDuration'
 ].map(p => ({ [p]: bindLabelsLayer.linkProp(p)})));
