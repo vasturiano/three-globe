@@ -58,7 +58,7 @@
     "index-array-by": "1",
     "kapsule": "1",
     "three-conic-polygon-geometry": "1",
-    "three-fatline": "^0.6",
+    "three-fatline": "^0.7",
     "three-geojson-geometry": "1",
     "tinycolor2": "1",
     "yaot": "^1.1"
@@ -67,19 +67,19 @@
     "three": ">=0.125"
   },
   "devDependencies": {
-    "@babel/core": "^7.23.9",
-    "@babel/preset-env": "^7.23.9",
+    "@babel/core": "^7.24.7",
+    "@babel/preset-env": "^7.24.7",
     "@rollup/plugin-babel": "^6.0.4",
-    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-commonjs": "^26.0.1",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
     "@types/three": ">=0.125.0",
-    "rimraf": "^5.0.5",
-    "rollup": "^4.12.0",
-    "rollup-plugin-dts": "^6.1.0",
-    "three": "^0.161.0",
-    "typescript": "^5.3.3"
+    "rimraf": "^5.0.7",
+    "rollup": "^4.18.0",
+    "rollup-plugin-dts": "^6.1.1",
+    "three": "^0.165.0",
+    "typescript": "^5.5.2"
   },
   "engines": {
     "node": ">=12"
