@@ -125,6 +125,7 @@ export default Kapsule({
         textObj.geometry = new THREE.TextGeometry(textAccessor(d), {
           font: state.font,
           size: textHeight,
+          depth: 0,
           height: 0,
           curveSegments: state.labelResolution
         });
