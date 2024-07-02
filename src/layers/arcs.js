@@ -92,8 +92,10 @@ export default Kapsule({
     arcsData: { default: [] },
     arcStartLat: { default: 'startLat' },
     arcStartLng: { default: 'startLng' },
+    arcStartAlt: { default: 'startAlt' },
     arcEndLat: { default: 'endLat' },
     arcEndLng: { default: 'endLng' },
+    arcEndAlt: { default: 'endAlt' },
     arcColor: { default: () => '#ffffaa' }, // single color, array of colors or color interpolation fn
     arcAltitude: {}, // in units of globe radius
     arcAltitudeAutoScale: { default: 0.5 }, // scale altitude proportional to great-arc distance between the two points
@@ -144,8 +146,10 @@ export default Kapsule({
     // Data accessors
     const startLatAccessor = accessorFn(state.arcStartLat);
     const startLngAccessor = accessorFn(state.arcStartLng);
+    const startAltAccessor = accessorFn(state.arcStartAlt);
     const endLatAccessor = accessorFn(state.arcEndLat);
     const endLngAccessor = accessorFn(state.arcEndLng);
+    const endAltAccessor = accessorFn(state.arcEndAlt);
     const altitudeAccessor = accessorFn(state.arcAltitude);
     const altitudeAutoScaleAccessor = accessorFn(state.arcAltitudeAutoScale);
     const strokeAccessor = accessorFn(state.arcStroke);
@@ -218,6 +222,10 @@ export default Kapsule({
         const applyUpdate = td => {
           const { stroke, ...curveD } = arc.__currentTargetD = td;
 
+           // Set default altitude
+           if(!curveD.startAlt) curveD.startAlt = 0;
+           if(!curveD.endAlt) curveD.endAlt = 0;
+
           const curve = calcCurve(curveD);
 
           if (useTube) {
@@ -236,8 +244,10 @@ export default Kapsule({
           altAutoScale: +altitudeAutoScaleAccessor(arc),
           startLat: +startLatAccessor(arc),
           startLng: +startLngAccessor(arc),
+          startAlt: +startAltAccessor(arc),
           endLat: +endLatAccessor(arc),
-          endLng: +endLngAccessor(arc)
+          endLng: +endLngAccessor(arc),
+          endAlt: +endAltAccessor(arc)
         };
 
         const currentTargetD = arc.__currentTargetD || Object.assign({}, targetD, { altAutoScale: -1e-3 });
@@ -260,15 +270,15 @@ export default Kapsule({
 
     //
 
-    function calcCurve({ alt, altAutoScale, startLat, startLng, endLat, endLng }) {
+    function calcCurve({ alt, altAutoScale, startLat, startLng, startAlt, endLat, endLng, endAlt }) {
       const getVec = ([lng, lat, alt]) => {
         const { x, y, z } = polar2Cartesian(lat, lng, alt);
         return new THREE.Vector3(x, y, z);
       };
 
       //calculate curve
-      const startPnt = [startLng, startLat];
-      const endPnt = [endLng, endLat];
+      const startPnt = [startLng, startLat, startAlt];
+      const endPnt = [endLng, endLat, endAlt];
 
       let altitude = alt;
       (altitude === null || altitude === undefined) &&
