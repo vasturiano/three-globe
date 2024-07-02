@@ -55,6 +55,7 @@ export default Kapsule({
     labelResolution: { default: 3 }, // how many segments in the text's curves
     labelIncludeDot: { default: true },
     labelDotRadius: { default: 0.1 }, // in deg
+    labelDotSegments: { default: 16 }, // number of segments
     labelDotOrientation: { default: () => 'bottom' }, // right, top, bottom
     labelsTransitionDuration: { default: 1000, triggerUpdate: false } // ms
   },
@@ -78,13 +79,13 @@ export default Kapsule({
     const colorAccessor = accessorFn(state.labelColor);
     const includeDotAccessor = accessorFn(state.labelIncludeDot);
     const dotRadiusAccessor = accessorFn(state.labelDotRadius);
+    const labelDotSegmentsAccessor = accessorFn(state.labelDotSegments);
     const dotOrientationAccessor = accessorFn(state.labelDotOrientation);
 
     const orientations = new Set(['right', 'top', 'bottom']);
 
     const pxPerDeg = 2 * Math.PI * GLOBE_RADIUS / 360;
 
-    const circleGeometry = new THREE.CircleGeometry(1, 16);
 
     threeDigest(state.labelsData, state.scene, {
       createObj: () => {
@@ -93,7 +94,7 @@ export default Kapsule({
 
         const obj = new THREE.Group(); // container
 
-        obj.add(new THREE.Mesh(circleGeometry, material)); // dot
+        obj.add(new THREE.Mesh(undefined, material)); // dot
         obj.add(new THREE.Mesh(undefined, material)); // text
 
         obj.__globeObjType = 'label'; // Add object type
@@ -102,6 +103,10 @@ export default Kapsule({
       },
       updateObj: (obj, d) => {
         const [dotObj, textObj] = obj.children;
+
+        // dot segments
+        const dotSegments = labelDotSegmentsAccessor(d);
+        dotObj.geometry = new THREE.CircleGeometry(1, dotSegments);
 
         // update color
         const color = colorAccessor(d);
