@@ -18,7 +18,7 @@ import { scaleLinear } from 'd3-scale';
 import { interpolateTurbo } from 'd3-scale-chromatic';
 import { max } from 'd3-array';
 import { color as d3Color } from 'd3-color';
-import * as TWEEN from '@tweenjs/tween.js';
+import { Tween, Easing } from '@tweenjs/tween.js';
 import yaOctree from 'yaot';
 
 import { emptyObject } from '../utils/gc';
@@ -80,12 +80,14 @@ export default Kapsule({
     heatmapsTransitionDuration: { default: 0, triggerUpdate: false } // ms
   },
 
-  init(threeObj, state) {
+  init(threeObj, state, { tweenGroup }) {
     // Clear the scene
     emptyObject(threeObj);
 
     // Main three object to manipulate
     state.scene = threeObj;
+
+    state.tweenGroup = tweenGroup;
   },
 
   update(state) {
@@ -195,11 +197,12 @@ export default Kapsule({
             applyUpdate(targetD);
           } else {
             // animate
-            new TWEEN.Tween(currentTargetD)
+            state.tweenGroup.add(new Tween(currentTargetD)
               .to(targetD, state.heatmapsTransitionDuration)
-              .easing(TWEEN.Easing.Quadratic.InOut)
+              .easing(Easing.Quadratic.InOut)
               .onUpdate(applyUpdate)
-              .start();
+              .start()
+            );
           }
         }
       },

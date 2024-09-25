@@ -18,7 +18,7 @@ const THREE = window.THREE
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
-import * as TWEEN from '@tweenjs/tween.js';
+import { Tween } from '@tweenjs/tween.js';
 import _FrameTicker from 'frame-ticker';
 const FrameTicker = _FrameTicker.default || _FrameTicker;
 
@@ -56,12 +56,14 @@ export default Kapsule({
     }
   },
 
-  init(threeObj, state) {
+  init(threeObj, state, { tweenGroup }) {
     // Clear the scene
     emptyObject(threeObj);
 
     // Main three object to manipulate
     state.scene = threeObj;
+
+    state.tweenGroup = tweenGroup;
 
     state.ticker = new FrameTicker();
     state.ticker.onTick.add((time) => {
@@ -130,7 +132,7 @@ export default Kapsule({
               obj.add(circleObj);
             } else {
               const transitionTime = Math.abs(maxRadius / propagationSpeed) * 1000;
-              new TWEEN.Tween({ t: 0 })
+              state.tweenGroup.add(new Tween({ t: 0 })
                 .to({ t: 1 }, transitionTime)
                 .onUpdate(updateFn)
                 .onStart(() => obj.add(circleObj))
@@ -138,7 +140,8 @@ export default Kapsule({
                   obj.remove(circleObj);
                   deallocate(circleObj);
                 })
-                .start();
+                .start()
+              );
             }
           }
         })

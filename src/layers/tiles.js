@@ -16,7 +16,7 @@ const THREE = window.THREE
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
-import * as TWEEN from '@tweenjs/tween.js';
+import { Tween, Easing } from '@tweenjs/tween.js';
 
 import { emptyObject } from '../utils/gc';
 import threeDigest from '../utils/digest';
@@ -38,12 +38,14 @@ export default Kapsule({
     tilesTransitionDuration: { default: 1000, triggerUpdate: false } // ms
   },
 
-  init(threeObj, state) {
+  init(threeObj, state, { tweenGroup }) {
     // Clear the scene
     emptyObject(threeObj);
 
     // Main three object to manipulate
     state.scene = threeObj;
+
+    state.tweenGroup = tweenGroup;
   },
 
   update(state) {
@@ -110,11 +112,12 @@ export default Kapsule({
             applyPosition(targetD);
           } else {
             // animate
-            new TWEEN.Tween(currentTargetD)
+            state.tweenGroup.add(new Tween(currentTargetD)
               .to(targetD, state.tilesTransitionDuration)
-              .easing(TWEEN.Easing.Quadratic.InOut)
+              .easing(Easing.Quadratic.InOut)
               .onUpdate(applyPosition)
-              .start();
+              .start()
+            );
           }
         }
       }

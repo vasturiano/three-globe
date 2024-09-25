@@ -24,7 +24,7 @@ import { Line2, LineGeometry, LineMaterial } from 'three-fatline';
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
-import * as TWEEN from '@tweenjs/tween.js';
+import { Tween, Easing } from '@tweenjs/tween.js';
 import _FrameTicker from 'frame-ticker';
 const FrameTicker = _FrameTicker.default || _FrameTicker;
 import { scaleLinear as d3ScaleLinear } from 'd3-scale';
@@ -111,12 +111,14 @@ export default Kapsule({
     }
   },
 
-  init(threeObj, state) {
+  init(threeObj, state, { tweenGroup }) {
     // Clear the scene
     emptyObject(threeObj);
 
     // Main three object to manipulate
     state.scene = threeObj;
+
+    state.tweenGroup = tweenGroup;
 
     // Kick-off dash animations
     state.ticker = new FrameTicker();
@@ -300,11 +302,12 @@ export default Kapsule({
             applyUpdate(targetD);
           } else {
             // animate
-            new TWEEN.Tween(currentTargetD)
+            state.tweenGroup.add(new Tween(currentTargetD)
               .to(targetD, state.pathTransitionDuration)
-              .easing(TWEEN.Easing.Quadratic.InOut)
+              .easing(Easing.Quadratic.InOut)
               .onUpdate(applyUpdate)
-              .start();
+              .start()
+            );
           }
         }
       }

@@ -28,7 +28,7 @@ const BufferGeometryUtils = bfg.BufferGeometryUtils || bfg;
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
-import * as TWEEN from '@tweenjs/tween.js';
+import { Tween, Easing } from '@tweenjs/tween.js';
 
 import { colorStr2Hex, colorAlpha, color2ShaderArr } from '../utils/color-utils';
 import { array2BufferAttr } from '../utils/three-utils';
@@ -52,12 +52,14 @@ export default Kapsule({
     pointsTransitionDuration: { default: 1000, triggerUpdate: false } // ms
   },
 
-  init(threeObj, state) {
+  init(threeObj, state, { tweenGroup }) {
     // Clear the scene
     emptyObject(threeObj);
 
     // Main three object to manipulate
     state.scene = threeObj;
+
+    state.tweenGroup = tweenGroup;
   },
 
   update(state) {
@@ -158,11 +160,13 @@ export default Kapsule({
           applyUpdate(targetD);
         } else {
           // animate
-          new TWEEN.Tween(currentTargetD)
-            .to(targetD, state.pointsTransitionDuration)
-            .easing(TWEEN.Easing.Quadratic.InOut)
-            .onUpdate(applyUpdate)
-            .start();
+          state.tweenGroup.add(
+            new Tween(currentTargetD)
+              .to(targetD, state.pointsTransitionDuration)
+              .easing(Easing.Quadratic.InOut)
+              .onUpdate(applyUpdate)
+              .start()
+          );
         }
       }
 

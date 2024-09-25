@@ -27,7 +27,7 @@ import { ConicPolygonGeometry } from 'three-conic-polygon-geometry';
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
 import { polygonToCells, cellToLatLng, cellToBoundary } from 'h3-js';
-import * as TWEEN from '@tweenjs/tween.js';
+import { Tween, Easing } from '@tweenjs/tween.js';
 
 import { colorStr2Hex, colorAlpha } from '../utils/color-utils';
 import { emptyObject } from '../utils/gc';
@@ -51,12 +51,14 @@ export default Kapsule({
     hexPolygonsTransitionDuration: { default: 0, triggerUpdate: false } // ms
   },
 
-  init(threeObj, state) {
+  init(threeObj, state, { tweenGroup }) {
     // Clear the scene
     emptyObject(threeObj);
 
     // Main three object to manipulate
     state.scene = threeObj;
+
+    state.tweenGroup = tweenGroup;
   },
 
   update(state) {
@@ -184,11 +186,12 @@ export default Kapsule({
             applyUpdate(targetD);
           } else {
             // animate
-            new TWEEN.Tween(currentTargetD)
+            state.tweenGroup.add(new Tween(currentTargetD)
               .to(targetD, state.hexPolygonsTransitionDuration)
-              .easing(TWEEN.Easing.Quadratic.InOut)
+              .easing(Easing.Quadratic.InOut)
               .onUpdate(applyUpdate)
-              .start();
+              .start()
+            );
           }
         }
       }

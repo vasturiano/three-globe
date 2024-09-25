@@ -13,7 +13,7 @@ const THREE = window.THREE
   };
 
 import Kapsule from 'kapsule';
-import * as TWEEN from '@tweenjs/tween.js';
+import { Tween, Group as TweenGroup, Easing } from '@tweenjs/tween.js';
 
 import { emptyObject } from './utils/gc';
 import linkKapsule from './utils/kapsule-link.js';
@@ -329,7 +329,7 @@ export default Kapsule({
     },
     _animationCycle(state) {
       state.animationFrameRequestId = requestAnimationFrame(this._animationCycle);
-      TWEEN.update(); // run tween updates
+      state.tweenGroup.update(); // run tween updates
     },
     _destructor: function(state) {
       this.pauseAnimation();
@@ -339,28 +339,32 @@ export default Kapsule({
   },
 
   stateInit: () => {
+    const tweenGroup = new TweenGroup();
+
+    const initProps = { tweenGroup };
     const layers = {
-      globeLayer: GlobeLayerKapsule(),
-      pointsLayer: PointsLayerKapsule(),
-      arcsLayer: ArcsLayerKapsule(),
-      hexBinLayer: HexBinLayerKapsule(),
-      heatmapsLayer: HeatmapsLayerKapsule(),
-      polygonsLayer: PolygonsLayerKapsule(),
-      hexedPolygonsLayer: HexedPolygonsLayerKapsule(),
-      pathsLayer: PathsLayerKapsule(),
-      tilesLayer: TilesLayerKapsule(),
-      labelsLayer: LabelsLayerKapsule(),
-      ringsLayer: RingsLayerKapsule(),
-      htmlElementsLayer: HtmlElementsLayerKapsule(),
-      objectsLayer: ObjectsLayerKapsule(),
-      customLayer: CustomLayerKapsule()
+      globeLayer: GlobeLayerKapsule(initProps),
+      pointsLayer: PointsLayerKapsule(initProps),
+      arcsLayer: ArcsLayerKapsule(initProps),
+      hexBinLayer: HexBinLayerKapsule(initProps),
+      heatmapsLayer: HeatmapsLayerKapsule(initProps),
+      polygonsLayer: PolygonsLayerKapsule(initProps),
+      hexedPolygonsLayer: HexedPolygonsLayerKapsule(initProps),
+      pathsLayer: PathsLayerKapsule(initProps),
+      tilesLayer: TilesLayerKapsule(initProps),
+      labelsLayer: LabelsLayerKapsule(initProps),
+      ringsLayer: RingsLayerKapsule(initProps),
+      htmlElementsLayer: HtmlElementsLayerKapsule(initProps),
+      objectsLayer: ObjectsLayerKapsule(initProps),
+      customLayer: CustomLayerKapsule(initProps)
     };
 
     return {
+      tweenGroup,
       ...layers,
       layersThatNeedBehindGlobeChecker: Object.values(layers).filter(l => l.hasOwnProperty('isBehindGlobe')),
       destructableLayers: Object.values(layers).filter(l => l.hasOwnProperty('_destructor')),
-      pausableLayers: Object.values(layers).filter(l => l.hasOwnProperty('pauseAnimation')),
+      pausableLayers: Object.values(layers).filter(l => l.hasOwnProperty('pauseAnimation'))
     };
   },
 
@@ -384,18 +388,22 @@ export default Kapsule({
         // Animate build-in just once
         state.scene.scale.set(1e-6, 1e-6, 1e-6);
 
-        new TWEEN.Tween({k: 1e-6})
-          .to({k: 1}, 600)
-          .easing(TWEEN.Easing.Quadratic.Out)
-          .onUpdate(({k}) => state.scene.scale.set(k, k, k))
-          .start();
+        state.tweenGroup.add(
+          new Tween({k: 1e-6})
+            .to({k: 1}, 600)
+            .easing(Easing.Quadratic.Out)
+            .onUpdate(({k}) => state.scene.scale.set(k, k, k))
+            .start()
+        );
 
         const rotAxis = new THREE.Vector3(0, 1, 0);
-        new TWEEN.Tween({rot: Math.PI * 2})
-          .to({rot: 0}, 1200)
-          .easing(TWEEN.Easing.Quintic.Out)
-          .onUpdate(({rot}) => state.scene.setRotationFromAxisAngle(rotAxis, rot))
-          .start();
+        state.tweenGroup.add(
+          new Tween({rot: Math.PI * 2})
+            .to({rot: 0}, 1200)
+            .easing(Easing.Quintic.Out)
+            .onUpdate(({rot}) => state.scene.setRotationFromAxisAngle(rotAxis, rot))
+            .start()
+        );
       }
 
       state.scene.visible = true;
