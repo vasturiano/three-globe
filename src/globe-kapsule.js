@@ -87,8 +87,10 @@ const linkedArcsLayerProps = Object.assign(...[
   'arcsData',
   'arcStartLat',
   'arcStartLng',
+  'arcStartAlt',
   'arcEndLat',
   'arcEndLng',
+  'arcEndAlt',
   'arcColor',
   'arcAltitude',
   'arcAltitudeAutoScale',
@@ -206,6 +208,7 @@ const linkedLabelsLayerProps = Object.assign(...[
   'labelResolution',
   'labelIncludeDot',
   'labelDotRadius',
+  'labelDotSegments',
   'labelDotOrientation',
   'labelsTransitionDuration'
 ].map(p => ({ [p]: bindLabelsLayer.linkProp(p)})));

@@ -78,6 +78,10 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   arcStartLng(longitudeAccessor: ObjAccessor<number>): ChainableInstance;
   arcEndLng(): ObjAccessor<number>;
   arcEndLng(longitudeAccessor: ObjAccessor<number>): ChainableInstance;
+  arcStartAlt(): ObjAccessor<number>;
+  arcStartAlt(startAltitudeAccessor: ObjAccessor<number>): ChainableInstance;
+  arcEndAlt(): ObjAccessor<number>;
+  arcEndAlt(endAltitudeAccessor: ObjAccessor<number>): ChainableInstance;
   arcColor(): ObjAccessor<string | string[] | ((t: number) => string)>;
   arcColor(colorsAccessor: ObjAccessor<string | string[] | ((t: number) => string)>): ChainableInstance;
   arcAltitude(): ObjAccessor<number | null>;
@@ -270,6 +274,8 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   labelIncludeDot(includeAccessor: ObjAccessor<boolean>): ChainableInstance;
   labelDotRadius(): ObjAccessor<number>;
   labelDotRadius(radiusAccessor: ObjAccessor<number>): ChainableInstance;
+  labelDotSegments(): ObjAccessor<number>;
+  labelDotSegments(segmentsAccessor: ObjAccessor<number>): ChainableInstance;
   labelDotOrientation(): ObjAccessor<LabelOrientation>;
   labelDotOrientation(orientationAccessor: ObjAccessor<LabelOrientation>): ChainableInstance;
   labelsTransitionDuration(): number;
