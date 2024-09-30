@@ -57,13 +57,12 @@
     "index-array-by": "1",
     "kapsule": "1",
     "three-conic-polygon-geometry": "1",
-    "three-fatline": "^0.7",
     "three-geojson-geometry": "1",
     "tinycolor2": "1",
     "yaot": "^1.1"
   },
   "peerDependencies": {
-    "three": ">=0.125"
+    "three": ">=0.154"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -73,11 +72,11 @@
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-terser": "^0.4.4",
-    "@types/three": ">=0.125.0",
+    "@types/three": ">=0.154.0",
     "rimraf": "^6.0.1",
-    "rollup": "^4.22.4",
+    "rollup": "^4.22.5",
     "rollup-plugin-dts": "^6.1.1",
-    "three": "^0.168.0",
+    "three": "^0.169.0",
     "typescript": "^5.6.2"
   },
   "engines": {

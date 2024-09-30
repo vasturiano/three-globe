@@ -20,7 +20,9 @@ const THREE = window.THREE
     Vector3
   };
 
-import { Line2, LineGeometry, LineMaterial } from 'three-fatline';
+import { Line2 } from 'three/addons/lines/Line2.js';
+import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
+import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
