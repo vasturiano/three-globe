@@ -1,4 +1,5 @@
 import {
+  BoxGeometry,
   CircleGeometry,
   DoubleSide,
   Group,
@@ -14,6 +15,7 @@ const THREE = {
   ...(window.THREE
     ? window.THREE // Prefer consumption from global THREE, if exists
     : {
+      BoxGeometry,
       CircleGeometry,
       DoubleSide,
       Group,
@@ -96,7 +98,13 @@ export default Kapsule({
         const obj = new THREE.Group(); // container
 
         obj.add(new THREE.Mesh(circleGeometry, material)); // dot
-        obj.add(new THREE.Mesh(undefined, material)); // text
+        const textObj = new THREE.Mesh(undefined, material);
+        obj.add(textObj); // text
+
+        // text invisible bounding box (raycaster trap)
+        const bbObj = new THREE.Mesh();
+        bbObj.visible = false;
+        textObj.add(bbObj);
 
         obj.__globeObjType = 'label'; // Add object type
 
@@ -104,6 +112,7 @@ export default Kapsule({
       },
       updateObj: (obj, d) => {
         const [dotObj, textObj] = obj.children;
+        const [bbObj] = textObj.children;
 
         // update color
         const color = colorAccessor(d);
@@ -131,6 +140,14 @@ export default Kapsule({
           height: 0,
           curveSegments: state.labelResolution
         });
+
+        // update text convex hull/bounding box
+        bbObj.geometry && bbObj.geometry.dispose();
+        textObj.geometry.computeBoundingBox();
+        bbObj.geometry = new THREE.BoxGeometry(...new THREE.Vector3()
+          .subVectors(textObj.geometry.boundingBox.max, textObj.geometry.boundingBox.min)
+          .toArray()
+        );
 
         // center text (otherwise anchor is on bottom-left)
         dotOrient !== 'right' && textObj.geometry.center();
