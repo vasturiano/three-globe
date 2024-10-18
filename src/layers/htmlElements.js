@@ -1,4 +1,4 @@
-import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
+import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 
 const THREE = {
   ...(window.THREE
