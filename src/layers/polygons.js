@@ -4,7 +4,8 @@ import {
   LineBasicMaterial,
   LineSegments,
   Mesh,
-  MeshBasicMaterial
+  MeshBasicMaterial,
+  ShaderMaterial
 } from 'three';
 
 const THREE = window.THREE
@@ -15,7 +16,8 @@ const THREE = window.THREE
   LineBasicMaterial,
   LineSegments,
   Mesh,
-  MeshBasicMaterial
+  MeshBasicMaterial,
+  ShaderMaterial
 };
 
 import { ConicPolygonGeometry } from 'three-conic-polygon-geometry';
@@ -25,10 +27,11 @@ import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
 import { Tween, Easing } from '@tweenjs/tween.js';
 
-import { colorStr2Hex, colorAlpha } from '../utils/color-utils';
+import { colorStr2Hex, colorAlpha, color2ShaderArr } from '../utils/color-utils';
 import { emptyObject } from '../utils/gc';
 import threeDigest from '../utils/digest';
 import { GLOBE_RADIUS } from '../constants';
+import { invisibleUndergroundShader } from '../utils/shaders';
 
 //
 
@@ -106,7 +109,11 @@ export default Kapsule({
       createObj: () => {
         const obj = new THREE.Group();
 
-        obj.__defaultSideMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, depthWrite: true });
+        obj.__defaultSideMaterial = new THREE.ShaderMaterial({
+          ...(invisibleUndergroundShader()),
+          side: THREE.DoubleSide,
+          depthWrite: true
+        });
         obj.__defaultCapMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, depthWrite: true });
 
         // conic geometry
@@ -169,9 +176,13 @@ export default Kapsule({
           // conic object
           const material = conicObj.material[materialIdx];
           const opacity = colorAlpha(color);
-          material.color.set(colorStr2Hex(color));
           material.transparent = opacity < 1;
-          material.opacity = opacity;
+          if (material.type !== 'ShaderMaterial') {
+            material.color.set(colorStr2Hex(color));
+            material.opacity = opacity;
+          } else {
+            material.uniforms.color.value = color2ShaderArr(color);
+          }
         });
 
         if (addStroke) {
@@ -189,6 +200,7 @@ export default Kapsule({
           const { alt } = obj.__currentTargetD = td;
           conicObj.scale.x = conicObj.scale.y = conicObj.scale.z = 1 + alt;
           addStroke && (strokeObj.scale.x = strokeObj.scale.y = strokeObj.scale.z = 1 + alt + 1e-4); // stroke slightly above the conic mesh
+          obj.__defaultSideMaterial.uniforms.surfaceRadius.value = GLOBE_RADIUS / (alt + 1); // update side material scale uniform
         };
 
         const currentTargetD = obj.__currentTargetD || Object.assign({}, targetD, { alt: -1e-3 });

@@ -4,7 +4,8 @@ import {
   DoubleSide,
   Mesh,
   MeshLambertMaterial,
-  Object3D
+  Object3D,
+  ShaderMaterial
 } from 'three';
 
 const THREE = window.THREE
@@ -15,7 +16,8 @@ const THREE = window.THREE
     DoubleSide,
     Mesh,
     MeshLambertMaterial,
-    Object3D
+    Object3D,
+    ShaderMaterial
   };
 
 import * as _bfg from 'three/addons/utils/BufferGeometryUtils.js';
@@ -35,6 +37,7 @@ import { array2BufferAttr } from '../utils/three-utils';
 import { emptyObject } from '../utils/gc';
 import threeDigest from '../utils/digest';
 import { GLOBE_RADIUS } from '../constants';
+import { invisibleUndergroundShader } from '../utils/shaders';
 
 //
 
@@ -84,7 +87,8 @@ export default Kapsule({
       sumWeight: points.reduce((agg, d) => agg + +weightAccessor(d), 0)
     }));
 
-    const hexMaterials = {}; // indexed by color
+    const topHexMaterials = {};  // indexed by color
+    const sideHexMaterials = {}; // indexed by color
 
     const scene = state.hexBinMerge ? new THREE.Object3D() : state.scene; // use fake scene if merging hex points
 
@@ -122,10 +126,9 @@ export default Kapsule({
             return geom;
           }));
 
-      const hexPoints = new THREE.Mesh(hexPointsGeometry, new THREE.MeshLambertMaterial({
-        color: 0xffffff,
+      const hexPoints = new THREE.Mesh(hexPointsGeometry, new THREE.ShaderMaterial({
+        ...(invisibleUndergroundShader({ vertexColors: true })),
         transparent: true,
-        vertexColors: true,
         side: THREE.DoubleSide
       }));
 
@@ -184,6 +187,12 @@ export default Kapsule({
       const applyUpdate = td => {
         const { alt } = obj.__currentTargetD = td;
         obj.scale.x = obj.scale.y = obj.scale.z = 1 + alt; // scale according to altitude
+
+        // update surfaceRadius per vertex
+        const vertexSurfaceRadius = GLOBE_RADIUS / (alt + 1);
+        obj.geometry.setAttribute('surfaceRadius', array2BufferAttr(
+          [...new Array(obj.geometry.getAttribute('position').count)].map(() => vertexSurfaceRadius), 1)
+        );
       };
 
       const currentTargetD = obj.__currentTargetD || Object.assign({}, targetD, { alt: -1e-3 });
@@ -208,19 +217,26 @@ export default Kapsule({
         const sideColor = sideColorAccessor(d);
         const topColor = topColorAccessor(d);
 
-        [sideColor, topColor].forEach(color => {
-          if (!hexMaterials.hasOwnProperty(color)) {
-            const opacity = colorAlpha(color);
-            hexMaterials[color] = new THREE.MeshLambertMaterial({
-              color: colorStr2Hex(color),
-              transparent: opacity < 1,
-              opacity: opacity,
-              side: THREE.DoubleSide
-            });
-          }
-        });
+        if (!sideHexMaterials.hasOwnProperty(sideColor)) {
+          const opacity = colorAlpha(sideColor);
+          sideHexMaterials[sideColor] = new THREE.ShaderMaterial({
+            ...(invisibleUndergroundShader()),
+            transparent: opacity < 1,
+            side: THREE.DoubleSide
+          });
+          sideHexMaterials[sideColor].uniforms.color.value = color2ShaderArr(sideColor);
+        }
+        if (!topHexMaterials.hasOwnProperty(topColor)) {
+          const opacity = colorAlpha(topColor);
+          topHexMaterials[topColor] = new THREE.MeshLambertMaterial({
+            color: colorStr2Hex(topColor),
+            opacity: opacity,
+            transparent: opacity < 1,
+            side: THREE.DoubleSide
+          });
+        }
 
-        obj.material = [sideColor, topColor].map(color => hexMaterials[color]);
+        obj.material = [sideHexMaterials[sideColor], topHexMaterials[topColor]];
       }
     }
   }
