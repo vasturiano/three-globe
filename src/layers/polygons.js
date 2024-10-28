@@ -181,7 +181,7 @@ export default Kapsule({
             material.color.set(colorStr2Hex(color));
             material.opacity = opacity;
           } else {
-            material.uniforms.color.value = color2ShaderArr(color);
+            material.uniforms.color.value = color2ShaderArr(color, true, true);
           }
         });
 

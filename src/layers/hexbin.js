@@ -113,8 +113,8 @@ export default Kapsule({
             geom.applyMatrix4(obj.matrix);
 
             // color vertices
-            const topColor = color2ShaderArr(topColorAccessor(d));
-            const sideColor = color2ShaderArr(sideColorAccessor(d));
+            const topColor = color2ShaderArr(topColorAccessor(d), true, true);
+            const sideColor = color2ShaderArr(sideColorAccessor(d), true, true);
 
             const nVertices = geom.getAttribute('position').count;
             const topFaceIdx = geom.groups[0].count; // starting vertex index of top group
@@ -224,7 +224,7 @@ export default Kapsule({
             transparent: opacity < 1,
             side: THREE.DoubleSide
           });
-          sideHexMaterials[sideColor].uniforms.color.value = color2ShaderArr(sideColor);
+          sideHexMaterials[sideColor].uniforms.color.value = color2ShaderArr(sideColor, true, true);
         }
         if (!topHexMaterials.hasOwnProperty(topColor)) {
           const opacity = colorAlpha(topColor);
