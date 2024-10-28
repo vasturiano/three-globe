@@ -37,51 +37,9 @@ import { color2ShaderArr, colorStr2Hex, colorAlpha } from '../utils/color-utils'
 import { array2BufferAttr } from "../utils/three-utils";
 import { polar2Cartesian } from '../utils/coordTranslate';
 import { interpolateVectors } from '../utils/interpolate';
+import { dashedLineShaders } from '../utils/shaders';
 
 //
-
-const gradientShaders = {
-  uniforms: {
-    // dash param defaults, all relative to full length
-    dashOffset: { value: 0 },
-    dashSize: { value: 1 },
-    gapSize: { value: 0 },
-    dashTranslate: { value: 0 } // used for animating the dash
-  },
-  vertexShader: `
-    uniform float dashTranslate;
-
-    attribute vec4 vertexColor;
-    varying vec4 vColor;
-
-    attribute float vertexRelDistance;
-    varying float vRelDistance;
-
-    void main() {
-      // pass through colors and distances
-      vColor = vertexColor;
-      vRelDistance = vertexRelDistance + dashTranslate;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }
-  `,
-  fragmentShader: `
-    uniform float dashOffset;
-    uniform float dashSize;
-    uniform float gapSize;
-
-    varying vec4 vColor;
-    varying float vRelDistance;
-
-    void main() {
-      // ignore pixels in the gap
-      if (vRelDistance < dashOffset) discard;
-      if (mod(vRelDistance - dashOffset, dashSize + gapSize) > dashSize) discard;
-
-      // set px color: [r, g, b, a], interpolated between vertices
-      gl_FragColor = vColor;
-    }
-  `
-};
 
 export default Kapsule({
   props: {
@@ -158,7 +116,7 @@ export default Kapsule({
     const dashAnimateTimeAccessor = accessorFn(state.pathDashAnimateTime);
 
     const sharedShaderMaterial = new THREE.ShaderMaterial({
-      ...gradientShaders,
+      ...(dashedLineShaders()),
       transparent: true,
       blending: THREE.NormalBlending
     });
@@ -217,8 +175,8 @@ export default Kapsule({
             true // run from end to start, to animate in the correct direction
           );
 
-          obj.geometry.setAttribute('vertexColor', vertexColorArray);
-          obj.geometry.setAttribute('vertexRelDistance', vertexRelDistanceArray);
+          obj.geometry.setAttribute('color', vertexColorArray);
+          obj.geometry.setAttribute('relDistance', vertexRelDistanceArray);
         } else { // fat lines
           obj.material.resolution = state.rendererSize;
 
