@@ -88,7 +88,7 @@ export default Kapsule({
 
     const pxPerDeg = 2 * Math.PI * GLOBE_RADIUS / 360;
 
-    const circleGeometry = new THREE.CircleGeometry(1, 16);
+    const circleGeometry = new THREE.CircleGeometry(1, 32);
 
     threeDigest(state.labelsData, state.scene, {
       createObj: () => {
