@@ -4,8 +4,7 @@ import {
   DoubleSide,
   Mesh,
   MeshLambertMaterial,
-  Object3D,
-  ShaderMaterial
+  Object3D
 } from 'three';
 
 const THREE = window.THREE
@@ -16,8 +15,7 @@ const THREE = window.THREE
     DoubleSide,
     Mesh,
     MeshLambertMaterial,
-    Object3D,
-    ShaderMaterial
+    Object3D
   };
 
 import * as _bfg from 'three/addons/utils/BufferGeometryUtils.js';
@@ -34,10 +32,10 @@ import { Tween, Easing } from '@tweenjs/tween.js';
 
 import { colorStr2Hex, colorAlpha, color2ShaderArr } from '../utils/color-utils';
 import { array2BufferAttr } from '../utils/three-utils';
+import { applyShaderExtensionToMaterial, invisibleUndergroundShaderExtend } from '../utils/shaders';
 import { emptyObject } from '../utils/gc';
 import threeDigest from '../utils/digest';
 import { GLOBE_RADIUS } from '../constants';
-import { invisibleUndergroundShader } from '../utils/shaders';
 
 //
 
@@ -87,8 +85,7 @@ export default Kapsule({
       sumWeight: points.reduce((agg, d) => agg + +weightAccessor(d), 0)
     }));
 
-    const topHexMaterials = {};  // indexed by color
-    const sideHexMaterials = {}; // indexed by color
+    const hexMaterials = {};  // indexed by color
 
     const scene = state.hexBinMerge ? new THREE.Object3D() : state.scene; // use fake scene if merging hex points
 
@@ -113,8 +110,8 @@ export default Kapsule({
             geom.applyMatrix4(obj.matrix);
 
             // color vertices
-            const topColor = color2ShaderArr(topColorAccessor(d), true, true);
-            const sideColor = color2ShaderArr(sideColorAccessor(d), true, true);
+            const topColor = color2ShaderArr(topColorAccessor(d));
+            const sideColor = color2ShaderArr(sideColorAccessor(d));
 
             const nVertices = geom.getAttribute('position').count;
             const topFaceIdx = geom.groups[0].count; // starting vertex index of top group
@@ -126,11 +123,18 @@ export default Kapsule({
             return geom;
           }));
 
-      const hexPoints = new THREE.Mesh(hexPointsGeometry, new THREE.ShaderMaterial({
-        ...(invisibleUndergroundShader({ vertexColors: true })),
-        transparent: true,
-        side: THREE.DoubleSide
-      }));
+      const hexPoints = new THREE.Mesh(
+        hexPointsGeometry,
+        applyShaderExtensionToMaterial(
+          new THREE.MeshLambertMaterial({
+            color: 0xffffff,
+            transparent: true,
+            vertexColors: true,
+            side: THREE.DoubleSide
+          }),
+          invisibleUndergroundShaderExtend
+        )
+      );
 
       hexPoints.__globeObjType = 'hexBinPoints'; // Add object type
       hexPoints.__data = hexBins; // Attach obj data
@@ -217,26 +221,21 @@ export default Kapsule({
         const sideColor = sideColorAccessor(d);
         const topColor = topColorAccessor(d);
 
-        if (!sideHexMaterials.hasOwnProperty(sideColor)) {
-          const opacity = colorAlpha(sideColor);
-          sideHexMaterials[sideColor] = new THREE.ShaderMaterial({
-            ...(invisibleUndergroundShader()),
-            transparent: opacity < 1,
-            side: THREE.DoubleSide
-          });
-          sideHexMaterials[sideColor].uniforms.color.value = color2ShaderArr(sideColor, true, true);
-        }
-        if (!topHexMaterials.hasOwnProperty(topColor)) {
-          const opacity = colorAlpha(topColor);
-          topHexMaterials[topColor] = new THREE.MeshLambertMaterial({
-            color: colorStr2Hex(topColor),
-            opacity: opacity,
-            transparent: opacity < 1,
-            side: THREE.DoubleSide
-          });
-        }
-
-        obj.material = [sideHexMaterials[sideColor], topHexMaterials[topColor]];
+        [sideColor, topColor].forEach(color => {
+          if (!hexMaterials.hasOwnProperty(color)) {
+            const opacity = colorAlpha(color);
+            hexMaterials[color] = applyShaderExtensionToMaterial(
+              new THREE.MeshLambertMaterial({
+                color: colorStr2Hex(color),
+                transparent: opacity < 1,
+                opacity: opacity,
+                side: THREE.DoubleSide
+              }),
+              invisibleUndergroundShaderExtend
+            );
+          }
+        });
+        obj.material = [sideColor, topColor].map(color => hexMaterials[color]);
       }
     }
   }

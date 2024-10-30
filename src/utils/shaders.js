@@ -78,3 +78,28 @@ export const invisibleUndergroundShader = ({ vertexColors = false } = {}) => ({
     }
   `
 });
+
+export const invisibleUndergroundShaderExtend = shader => {
+  shader.uniforms.surfaceRadius = { type: 'float', value: 0 };
+  shader.vertexShader = ('attribute float surfaceRadius;\nvarying float vSurfaceRadius;\nvarying vec3 vPos;\n' + shader.vertexShader)
+    .replace('void main() {', [
+      'void main() {',
+      'vSurfaceRadius = surfaceRadius;',
+      'vPos = position;'
+    ].join('\n'));
+
+  shader.fragmentShader = ('uniform float surfaceRadius;\nvarying float vSurfaceRadius;\nvarying vec3 vPos;\n' + shader.fragmentShader)
+    .replace('void main() {', [
+      'void main() {',
+      'if (length(vPos) < max(surfaceRadius, vSurfaceRadius)) discard;'
+    ].join('\n'));
+
+  return shader;
+};
+
+export const applyShaderExtensionToMaterial = (material, extensionFn) => {
+  material.onBeforeCompile = shader => {
+    material.userData.shader = extensionFn(shader);
+  };
+  return material;
+};
