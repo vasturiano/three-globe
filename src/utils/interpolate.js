@@ -8,7 +8,7 @@ const THREE = window.THREE
 export function interpolateVectors(fromPnts, toPnts) {
   const extendArr = (arr, length) => {
     const repeatItem = arr[arr.length-1];
-    return [...arr, ...[...new Array(length - arr.length)].map(() => repeatItem)];
+    return [...arr, ...Array(length - arr.length).fill(repeatItem)];
   };
 
   const arrLength = Math.max(fromPnts.length, toPnts.length);

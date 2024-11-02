@@ -98,7 +98,7 @@ export default Kapsule({
             // color vertices
             const color = color2ShaderArr(colorAccessor(d));
             geom.setAttribute('color', array2BufferAttr(
-              [...new Array(geom.getAttribute('position').count)].map(() => color),
+              Array(geom.getAttribute('position').count).fill(color),
               4
             ));
 

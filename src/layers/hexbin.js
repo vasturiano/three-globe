@@ -195,8 +195,9 @@ export default Kapsule({
         // update surfaceRadius per vertex
         const vertexSurfaceRadius = GLOBE_RADIUS / (alt + 1);
         obj.geometry.setAttribute('surfaceRadius', array2BufferAttr(
-          [...new Array(obj.geometry.getAttribute('position').count)].map(() => vertexSurfaceRadius), 1)
-        );
+          Array(obj.geometry.getAttribute('position').count).fill(vertexSurfaceRadius),
+          1
+        ));
       };
 
       const currentTargetD = obj.__currentTargetD || Object.assign({}, targetD, { alt: -1e-3 });
