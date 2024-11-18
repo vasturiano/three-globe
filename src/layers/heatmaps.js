@@ -14,7 +14,7 @@ const THREE = window.THREE
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
-import { scaleLinear } from 'd3-scale';
+import { scaleLinear, scaleQuantize } from 'd3-scale';
 import { interpolateTurbo } from 'd3-scale-chromatic';
 import { max } from 'd3-array';
 import { color as d3Color } from 'd3-color';
@@ -169,15 +169,12 @@ export default Kapsule({
           const maxVal = max(kdeVals.map(Math.abs)) || 1e-15;
 
           // Set vertex colors
-          obj.geometry.setAttribute('color', array2BufferAttr(
-            // normalization between [0, saturation]
-            kdeVals.map(val => colors[Math.min(NUM_COLORS - 1, Math.round(val / maxVal * saturation * NUM_COLORS))]),
-            4
-          ));
+          const colorScale = scaleQuantize([0, maxVal / saturation], colors);
+          obj.geometry.setAttribute('color', array2BufferAttr(kdeVals.map(colorScale), 4));
 
           // Set altitudes
-          const altScale = scaleLinear([0, maxVal], [baseAlt, topAlt || baseAlt]);
-          obj.geometry.setAttribute('r', array2BufferAttr(kdeVals.map(v => GLOBE_RADIUS * (1 + altScale(Math.abs(v))))));
+          const rScale = scaleLinear([0, maxVal], [GLOBE_RADIUS * (1 + baseAlt), GLOBE_RADIUS * (1 + (topAlt || baseAlt))]);
+          obj.geometry.setAttribute('r', array2BufferAttr(kdeVals.map(rScale)));
         };
 
         const targetD = { kdeVals, topAlt, saturation };
