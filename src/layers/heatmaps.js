@@ -170,7 +170,7 @@ export default Kapsule({
 
           // Set vertex colors
           const colorScale = scaleQuantize([0, maxVal / saturation], colors);
-          obj.geometry.setAttribute('color', array2BufferAttr(kdeVals.map(colorScale), 4));
+          obj.geometry.setAttribute('color', array2BufferAttr(kdeVals.map(v => colorScale(Math.abs(v))), 4));
 
           // Set altitudes
           const rScale = scaleLinear([0, maxVal], [GLOBE_RADIUS * (1 + baseAlt), GLOBE_RADIUS * (1 + (topAlt || baseAlt))]);
