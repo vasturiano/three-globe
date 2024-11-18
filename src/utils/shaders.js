@@ -97,9 +97,62 @@ export const invisibleUndergroundShaderExtend = shader => {
   return shader;
 };
 
+export const setRadiusShaderExtend = shader => {
+  shader.vertexShader = `
+    attribute float r;
+    
+    const float PI = 3.1415926535897932384626433832795;
+    float toRad(in float a) {
+      return a * PI / 180.0;
+    }
+    
+    vec3 Polar2Cartesian(in vec3 c) { // [lat, lng, r]
+      float phi = toRad(90.0 - c.x);
+      float theta = toRad(90.0 - c.y);
+      float r = c.z;
+      return vec3( // x,y,z
+        r * sin(phi) * cos(theta),
+        r * cos(phi),
+        r * sin(phi) * sin(theta)
+      );
+    }
+    
+    vec2 Cartesian2Polar(in vec3 p) {
+      float r = sqrt(p.x * p.x + p.y * p.y + p.z * p.z);
+      float phi = acos(p.y / r);
+      float theta = atan(p.z, p.x);
+      return vec2( // lat,lng
+        90.0 - phi * 180.0 / PI,
+        90.0 - theta * 180.0 / PI - (theta < -PI / 2.0 ? 360.0 : 0.0)
+      );
+    }
+    ${shader.vertexShader.replace('}', `                  
+        vec3 pos = Polar2Cartesian(vec3(Cartesian2Polar(position), r));
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+      }
+    `)}
+  `;
+
+  return shader;
+}
+
+//
+
 export const applyShaderExtensionToMaterial = (material, extensionFn) => {
   material.onBeforeCompile = shader => {
     material.userData.shader = extensionFn(shader);
   };
   return material;
 };
+
+export const setExtendedMaterialUniforms = (material, uniformsFn = u => u) => {
+  if (material.userData.shader) {
+    uniformsFn(material.userData.shader.uniforms);
+  } else {
+    const curFn = material.onBeforeCompile;
+    material.onBeforeCompile = shader => {
+      curFn(shader);
+      uniformsFn(shader.uniforms);
+    };
+  }
+}

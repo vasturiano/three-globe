@@ -4,11 +4,15 @@ const THREE = window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
   : { Float32BufferAttribute };
 
-function array2BufferAttr(data, itemSize, BufferAttributeClass = THREE.Float32BufferAttribute) {
-  const ba = new BufferAttributeClass(data.length * itemSize, itemSize);
-  itemSize === 1
-    ? data.forEach((val, idx) => ba.setX(idx, val))
-    : data.forEach((val, idx) => ba.set(val, idx * itemSize));
+function array2BufferAttr(data, itemSize = 1, ArrayClass = Float32Array) {
+  if (itemSize === 1) { // edge case handle for improved performance
+    return new THREE.BufferAttribute(new ArrayClass(data), itemSize);
+  }
+
+  const ba = new THREE.BufferAttribute(new ArrayClass(data.length * itemSize), itemSize);
+  for (let idx = 0, l = data.length; idx < l; idx++) {
+    ba.set(data[idx], idx * itemSize);
+  }
   return ba;
 }
 

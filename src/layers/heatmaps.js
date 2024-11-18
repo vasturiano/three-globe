@@ -24,6 +24,7 @@ import yaOctree from 'yaot';
 import { emptyObject } from '../utils/gc';
 import threeDigest from '../utils/digest';
 import { array2BufferAttr, bufferAttr2Array } from '../utils/three-utils';
+import { applyShaderExtensionToMaterial, setRadiusShaderExtend } from '../utils/shaders.js';
 import { color2ShaderArr } from '../utils/color-utils';
 import { cartesian2Polar, polar2Cartesian } from '../utils/coordTranslate';
 import { getGeoKDE } from '../utils/kde';
@@ -34,6 +35,7 @@ import { GLOBE_RADIUS } from '../constants';
 const RES_BW_FACTOR = 3.5; // divider of bandwidth to use in geometry resolution
 const MIN_RESOLUTION = 0.1; // degrees
 const BW_RADIUS_INFLUENCE = 3.5; // multiplier of bandwidth to use in octree for max radius of point influence
+const NUM_COLORS = 100; // to sample in shader
 
 class PointsOctree {
   constructor(points, neighborhoodAngularDistance) {
@@ -103,10 +105,13 @@ export default Kapsule({
     const topAltitudeAccessor = accessorFn(state.heatmapTopAltitude);
 
     threeDigest(state.heatmapsData, state.scene, {
-      createObj: d => {
+      createObj: () => {
         const obj = new THREE.Mesh(
           new THREE.SphereGeometry(GLOBE_RADIUS),
-          new THREE.MeshLambertMaterial({ vertexColors: true, transparent: true })
+          applyShaderExtensionToMaterial(
+            new THREE.MeshLambertMaterial({ vertexColors: true, transparent: true }),
+            setRadiusShaderExtend
+          )
         );
 
         obj.__globeObjType = 'heatmap'; // Add object type
@@ -158,6 +163,7 @@ export default Kapsule({
         });
 
         // Animations
+        const colors = [...new Array(NUM_COLORS)].map((_, idx) => color2ShaderArr(colorFn(idx / (NUM_COLORS - 1))));
         const applyUpdate = td => {
           const { kdeVals, topAlt, saturation } = obj.__currentTargetD = td;
           const maxVal = max(kdeVals.map(Math.abs)) || 1e-15;
@@ -165,21 +171,13 @@ export default Kapsule({
           // Set vertex colors
           obj.geometry.setAttribute('color', array2BufferAttr(
             // normalization between [0, saturation]
-            kdeVals.map(val => color2ShaderArr(colorFn(val / maxVal * saturation))),
+            kdeVals.map(val => colors[Math.min(NUM_COLORS - 1, Math.round(val / maxVal * saturation * NUM_COLORS))]),
             4
           ));
 
           // Set altitudes
           const altScale = scaleLinear([0, maxVal], [baseAlt, topAlt || baseAlt]);
-          obj.geometry.setAttribute('position', array2BufferAttr(
-            kdeVals.map((val, idx) => {
-              const [lng, lat] = vertexGeoCoords[idx];
-              const alt = altScale(Math.abs(val));
-              const p = polar2Cartesian(lat, lng, alt);
-              return [p.x, p.y, p.z];
-            }),
-            3
-          ));
+          obj.geometry.setAttribute('r', array2BufferAttr(kdeVals.map(v => GLOBE_RADIUS * (1 + altScale(Math.abs(v))))));
         };
 
         const targetD = { kdeVals, topAlt, saturation };
