@@ -74,7 +74,7 @@ export default Kapsule({
     heatmapPointLat: { default: d => d[0] },
     heatmapPointLng: { default: d => d[1] },
     heatmapPointWeight: { default: 1 },
-    heatmapBandwidth: { default: 4 }, // Gaussian kernel bandwidth, in angular degrees
+    heatmapBandwidth: { default: 2.5 }, // Gaussian kernel bandwidth, in angular degrees
     heatmapColorFn: { default: () => defaultColorInterpolator },
     heatmapColorSaturation: { default: 1.5 }, // multiplier for color scale max
     heatmapBaseAltitude: { default: 0.01 }, // in units of globe radius
