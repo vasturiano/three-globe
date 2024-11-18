@@ -1,8 +1,8 @@
-import { Float32BufferAttribute } from 'three';
+import { BufferAttribute } from 'three';
 
 const THREE = window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
-  : { Float32BufferAttribute };
+  : { BufferAttribute };
 
 function array2BufferAttr(data, itemSize = 1, ArrayClass = Float32Array) {
   if (itemSize === 1) { // edge case handle for improved performance
