@@ -11,7 +11,7 @@ ThreeJS Globe Visualization
 
 Largely inspired by [WebGL Globe](https://experiments.withgoogle.com/chrome/globe), this is a [ThreeJS](https://threejs.org/) WebGL class to represent data visualization layers on a globe, using a spherical projection.
 
-See also the [standalone version](https://github.com/vasturiano/globe.gl).
+See also the [standalone version](https://github.com/vasturiano/globe.gl), and the [react-three-fiber bindings](https://github.com/vasturiano/r3f-globe).
 
 #### Check out the examples:
 * [Basic](https://vasturiano.github.io/three-globe/example/basic/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/basic/index.html))
