@@ -123,18 +123,17 @@ export default Kapsule({
             return geom;
           }));
 
-      const hexPoints = new THREE.Mesh(
-        hexPointsGeometry,
-        applyShaderExtensionToMaterial(
-          new THREE.MeshLambertMaterial({
-            color: 0xffffff,
-            transparent: true,
-            vertexColors: true,
-            side: THREE.DoubleSide
-          }),
-          invisibleUndergroundShaderExtend
-        )
-      );
+      const hexMaterial = new THREE.MeshLambertMaterial({
+        color: 0xffffff,
+        transparent: true,
+        vertexColors: true,
+        side: THREE.DoubleSide
+      });
+      hexMaterial.onBeforeCompile = shader => {
+        hexMaterial.userData.shader = invisibleUndergroundShaderExtend(shader);
+      };
+
+      const hexPoints = new THREE.Mesh(hexPointsGeometry, hexMaterial);
 
       hexPoints.__globeObjType = 'hexBinPoints'; // Add object type
       hexPoints.__data = hexBins; // Attach obj data
