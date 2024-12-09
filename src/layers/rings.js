@@ -154,7 +154,7 @@ export default Kapsule({
     const lngAccessor = accessorFn(state.ringLng);
     const altitudeAccessor = accessorFn(state.ringAltitude);
 
-    const globeCenter = state.scene.localToWorld(new THREE.Vector3(0, 0, 0)); // translate from local to world coords
+    const globeCenter = new THREE.Vector3(0, 0, 0);
 
     threeDigest(state.ringsData, state.scene,
       {
