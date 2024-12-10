@@ -73,21 +73,29 @@ export default Kapsule({
       state.ticker?.resume();
     },
     _destructor: function(state) {
+      state.sharedMaterial.dispose();
       state.ticker?.dispose();
     }
   },
 
-  init(threeObj, state, { tweenGroup }) {
+  stateInit: ({ tweenGroup }) => ({
+    tweenGroup,
+    ticker: new FrameTicker(),
+    sharedMaterial: new THREE.ShaderMaterial({
+      ...(dashedLineShaders()),
+      transparent: true,
+      blending: THREE.NormalBlending
+    })
+  }),
+
+  init(threeObj, state) {
     // Clear the scene
     emptyObject(threeObj);
 
     // Main three object to manipulate
     state.scene = threeObj;
 
-    state.tweenGroup = tweenGroup;
-
     // Kick-off dash animations
-    state.ticker = new FrameTicker();
     state.ticker.onTick.add((_, timeDelta) => {
       state.arcsData
         .filter(d => d.__threeObj && d.__threeObj.children.length && d.__threeObj.children[0].material && d.__threeObj.children[0].__dashAnimateStep)
@@ -115,12 +123,6 @@ export default Kapsule({
     const dashInitialGapAccessor = accessorFn(state.arcDashInitialGap);
     const dashAnimateTimeAccessor = accessorFn(state.arcDashAnimateTime);
 
-    const sharedMaterial = new THREE.ShaderMaterial({
-      ...(dashedLineShaders()),
-      transparent: true,
-      blending: THREE.NormalBlending
-    });
-
     threeDigest(state.arcsData, state.scene, {
       createObj: () => {
         const obj = new THREE.Group(); // populated in updateObj
@@ -140,7 +142,7 @@ export default Kapsule({
             ? new THREE.Mesh()
             : new THREE.Line(new THREE.BufferGeometry());
 
-          obj.material = sharedMaterial.clone(); // Separate material instance per object to have dedicated uniforms (but shared shaders)
+          obj.material = state.sharedMaterial.clone(); // Separate material instance per object to have dedicated uniforms (but shared shaders)
 
           group.add(obj);
         }
