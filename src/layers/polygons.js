@@ -18,8 +18,8 @@ const THREE = window.THREE
   MeshBasicMaterial
 };
 
-import { ConicPolygonGeometry } from 'three-conic-polygon-geometry';
-import { GeoJsonGeometry } from 'three-geojson-geometry';
+import ConicPolygonGeometry from 'three-conic-polygon-geometry';
+import GeoJsonGeometry from 'three-geojson-geometry';
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';

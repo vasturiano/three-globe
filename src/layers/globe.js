@@ -22,7 +22,7 @@ const THREE = window.THREE
     TextureLoader
   };
 
-import { GeoJsonGeometry } from 'three-geojson-geometry';
+import GeoJsonGeometry from 'three-geojson-geometry';
 import { createGlowMesh } from '../utils/three-glow-mesh';
 
 import Kapsule from 'kapsule';

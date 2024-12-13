@@ -22,7 +22,7 @@ import * as _bfg from 'three/addons/utils/BufferGeometryUtils.js';
 const bfg = Object.assign({}, _bfg);
 const BufferGeometryUtils = bfg.BufferGeometryUtils || bfg;
 
-import { ConicPolygonGeometry } from 'three-conic-polygon-geometry';
+import ConicPolygonGeometry from 'three-conic-polygon-geometry';
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';

@@ -56,8 +56,8 @@
     "h3-js": "4",
     "index-array-by": "1",
     "kapsule": "^1.16",
-    "three-conic-polygon-geometry": "1",
-    "three-geojson-geometry": "1",
+    "three-conic-polygon-geometry": "2",
+    "three-geojson-geometry": "2",
     "tinycolor2": "1",
     "yaot": "^1.1"
   },
