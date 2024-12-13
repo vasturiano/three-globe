@@ -1,4 +1,12 @@
 <head>
+  <script type="importmap">{ "imports": {
+    "three": "https://esm.sh/three",
+    "three/addons/": "https://esm.sh/three/examples/jsm/"
+  }}</script>
+
+<!--  <script type="module"> import * as THREE from 'three'; window.THREE = THREE;</script>-->
+<!--  <script src="../../dist/three-globe.js" defer></script>-->
+
   <style>
     body { margin: 0; }
 
@@ -14,18 +22,6 @@
       right: 10px;
     }
   </style>
-
-  <script type="importmap">{ "imports": {
-    "three": "https://esm.sh/three",
-    "three/addons/": "https://esm.sh/three/examples/jsm/"
-  }}</script>
-  <script type="module">
-    import * as THREE from 'three';
-    window.THREE = THREE;
-  </script>
-
-  <script src="//unpkg.com/three-globe" defer></script>
-  <!--  <script src="../../dist/three-globe.js" defer></script>-->
 </head>
 
 <body>
@@ -33,6 +29,8 @@
   <div id="time-log"></div>
 
   <script type="module">
+    import ThreeGlobe from 'https://esm.sh/three-globe?external=three';
+    import * as THREE from 'https://esm.sh/three';
     import { TrackballControls } from 'three/addons/controls/TrackballControls.js';
     import * as satellite from 'https://esm.sh/satellite.js';
 
