@@ -1,4 +1,16 @@
 <head>
+  <script type="importmap">{ "imports": {
+    "three": "https://esm.sh/three",
+    "three/addons/": "https://esm.sh/three/examples/jsm/"
+  }}</script>
+  <script type="module">
+    import * as THREE from 'three';
+    window.THREE = THREE;
+  </script>
+
+  <script src="//unpkg.com/three-globe" defer></script>
+  <!--  <script src="../../dist/three-globe.js" defer></script>-->
+
   <style>
     body {
       margin: 0;
@@ -12,20 +24,6 @@
       color: lightblue;
     }
   </style>
-
-  <script type="importmap">{ "imports": {
-    "three": "https://esm.sh/three",
-    "three/addons/": "https://esm.sh/three/examples/jsm/"
-  }}</script>
-  <script type="module">
-    import * as THREE from 'three';
-    window.THREE = THREE;
-  </script>
-
-  <script src="//unpkg.com/three-globe" defer></script>
-  <!--  <script src="../../dist/three-globe.js" defer></script>-->
-
-  <script src="//unpkg.com/solar-calculator"></script>
 </head>
 
 <body>
@@ -35,6 +33,7 @@
 
   <script type="module">
     import { TrackballControls } from 'three/addons/controls/TrackballControls.js';
+    import * as solar from 'https://esm.sh/solar-calculator';
 
     const VELOCITY = 9; // minutes per frame
 
