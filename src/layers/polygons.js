@@ -103,6 +103,7 @@ export default Kapsule({
     });
 
     threeDigest(singlePolygons, state.scene, {
+      objBindAttr: '__threeObjPolygon',
       idAccessor: d => d.id,
       createObj: () => {
         const obj = new THREE.Group();

@@ -90,6 +90,7 @@ export default Kapsule({
     const scene = state.hexBinMerge ? new THREE.Object3D() : state.scene; // use fake scene if merging hex points
 
     threeDigest(hexBins, scene, {
+      objBindAttr: '__threeObjHexbin',
       createObj,
       updateObj,
       idAccessor: d => d.h3Idx

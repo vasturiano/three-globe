@@ -123,6 +123,7 @@ export default Kapsule({
     const dashAnimateTimeAccessor = accessorFn(state.pathDashAnimateTime);
 
     threeDigest(state.pathsData, state.scene, {
+      objBindAttr: '__threeObjPath',
       createObj: () => {
         const obj = new THREE.Group(); // populated in updateObj
 

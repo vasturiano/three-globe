@@ -73,6 +73,7 @@ export default Kapsule({
     const dotResolutionAccessor = accessorFn(state.hexPolygonDotResolution);
 
     threeDigest(state.hexPolygonsData, state.scene, {
+      objBindAttr: '__threeObjHexPolygon',
       createObj: d => {
         const obj = new THREE.Mesh(
           undefined,

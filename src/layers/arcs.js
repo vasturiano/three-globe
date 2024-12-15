@@ -124,6 +124,7 @@ export default Kapsule({
     const dashAnimateTimeAccessor = accessorFn(state.arcDashAnimateTime);
 
     threeDigest(state.arcsData, state.scene, {
+      objBindAttr: '__threeObjArc',
       createObj: () => {
         const obj = new THREE.Group(); // populated in updateObj
 

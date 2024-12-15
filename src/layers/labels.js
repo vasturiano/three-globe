@@ -91,6 +91,7 @@ export default Kapsule({
     const circleGeometry = new THREE.CircleGeometry(1, 32);
 
     threeDigest(state.labelsData, state.scene, {
+      objBindAttr: '__threeObjLabel',
       createObj: () => {
         const material = new THREE.MeshLambertMaterial();
         material.side = DoubleSide;

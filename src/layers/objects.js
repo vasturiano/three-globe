@@ -58,6 +58,7 @@ export default Kapsule({
     const threeObjAccessor = accessorFn(state.objectThreeObject);
 
     threeDigest(state.objectsData, state.scene, {
+      objBindAttr: '__threeObjObject',
       // objs need to be recreated if this prop has changed
       purge: changedProps.hasOwnProperty('objectThreeObject'),
       createObj: d => {

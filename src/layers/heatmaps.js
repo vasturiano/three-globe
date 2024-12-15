@@ -105,6 +105,7 @@ export default Kapsule({
     const topAltitudeAccessor = accessorFn(state.heatmapTopAltitude);
 
     threeDigest(state.heatmapsData, state.scene, {
+      objBindAttr: '__threeObjHeatmap',
       createObj: () => {
         const obj = new THREE.Mesh(
           new THREE.SphereGeometry(GLOBE_RADIUS),

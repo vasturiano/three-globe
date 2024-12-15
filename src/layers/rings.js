@@ -158,6 +158,7 @@ export default Kapsule({
 
     threeDigest(state.ringsData, state.scene,
       {
+        objBindAttr: '__threeObjRing',
         createObj: () => {
           const obj = new THREE.Group();
 

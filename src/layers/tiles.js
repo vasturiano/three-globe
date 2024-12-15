@@ -60,6 +60,7 @@ export default Kapsule({
     const curvatureResolutionAccessor = accessorFn(state.tileCurvatureResolution);
 
     threeDigest(state.tilesData, state.scene, {
+      objBindAttr: '__threeObjTile',
       createObj: () => {
         const obj = new THREE.Mesh();
 

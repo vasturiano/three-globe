@@ -56,6 +56,7 @@ export default Kapsule({
     const elemAccessor = accessorFn(state.htmlElement);
 
     threeDigest(state.htmlElementsData, state.scene, {
+      objBindAttr: '__threeObHtml',
       // objs need to be recreated if this prop has changed
       purge: changedProps.hasOwnProperty('htmlElement'),
       createObj: d => {
