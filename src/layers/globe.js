@@ -23,7 +23,7 @@ const THREE = window.THREE
   };
 
 import GeoJsonGeometry from 'three-geojson-geometry';
-import { createGlowMesh } from '../utils/three-glow-mesh';
+import GlowMesh from '../utils/GlowMesh.js';
 
 import Kapsule from 'kapsule';
 import { geoGraticule10 } from 'd3-geo';
@@ -132,12 +132,12 @@ export default Kapsule({
       }
 
       if (state.atmosphereColor && state.atmosphereAltitude) {
-        const obj = state.atmosphereObj = createGlowMesh(state.globeObj.geometry, {
-          backside: true,
+        const obj = state.atmosphereObj = new GlowMesh(state.globeObj.geometry, {
           color: state.atmosphereColor,
           size: GLOBE_RADIUS * state.atmosphereAltitude,
+          hollowRadius: GLOBE_RADIUS,
+          coefficient: 0.1,
           power: 3.5, // dispersion
-          coefficient: 0.1
         });
         obj.visible = !!state.showAtmosphere;
         obj.__globeObjType = 'atmosphere'; // Add object type
