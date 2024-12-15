@@ -24,7 +24,7 @@ const FrameTicker = _FrameTicker.default || _FrameTicker;
 
 import { scaleLinear as d3ScaleLinear } from 'd3-scale';
 
-import threeDigest from '../utils/digest';
+import ThreeDigest from '../utils/digest';
 import { deallocate, emptyObject } from '../utils/gc';
 import { polar2Cartesian } from '../utils/coordTranslate';
 import { colorStr2Hex, colorAlpha, setMaterialOpacity } from '../utils/color-utils';
@@ -65,6 +65,17 @@ export default Kapsule({
 
     state.tweenGroup = tweenGroup;
 
+    state.dataMapper = new ThreeDigest(threeObj, {
+      objBindAttr: '__threeObjRing',
+      removeDelay: 30000 // wait until all rings are gone
+    })
+      .onCreateObj(() => {
+        const obj = new THREE.Group();
+
+        obj.__globeObjType = 'ring'; // Add object type
+        return obj;
+      });
+
     state.ticker = new FrameTicker();
     state.ticker.onTick.add((time) => {
       if (!state.ringsData.length) return;
@@ -76,10 +87,9 @@ export default Kapsule({
       const propagationSpeedAccessor = accessorFn(state.ringPropagationSpeed);
       const repeatPeriodAccessor = accessorFn(state.ringRepeatPeriod);
 
-      state.ringsData
-        .filter(d => d.__threeObj)
-        .forEach(d => {
-          const obj = d.__threeObj;
+      state.dataMapper.entries()
+        .filter(([, o]) => o)
+        .forEach(([d, obj]) => {
           if ((obj.__nextRingTime || 0) <= time) {
             // time to add a new ring
             const periodSecs = repeatPeriodAccessor(d) / 1000;
@@ -156,26 +166,16 @@ export default Kapsule({
 
     const globeCenter = new THREE.Vector3(0, 0, 0);
 
-    threeDigest(state.ringsData, state.scene,
-      {
-        objBindAttr: '__threeObjRing',
-        createObj: () => {
-          const obj = new THREE.Group();
+    state.dataMapper
+      .onUpdateObj((obj, d) => {
+        const lat = latAccessor(d);
+        const lng = lngAccessor(d);
+        const alt = altitudeAccessor(d);
 
-          obj.__globeObjType = 'ring'; // Add object type
-          return obj;
-        },
-        updateObj: (obj, d) => {
-          const lat = latAccessor(d);
-          const lng = lngAccessor(d);
-          const alt = altitudeAccessor(d);
-
-          // position & orientate inwards
-          Object.assign(obj.position, polar2Cartesian(lat, lng, alt));
-          obj.lookAt(globeCenter);
-        }
-      },
-      { removeDelay: 30000 } // wait until all rings are gone
-    )
+        // position & orientate inwards
+        Object.assign(obj.position, polar2Cartesian(lat, lng, alt));
+        obj.lookAt(globeCenter);
+      })
+      .digest(state.ringsData);
   }
 });

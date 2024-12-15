@@ -36,7 +36,7 @@ const FrameTicker = _FrameTicker.default || _FrameTicker;
 import { geoDistance, geoInterpolate } from 'd3-geo';
 import { scaleLinear as d3ScaleLinear } from 'd3-scale';
 
-import threeDigest from '../utils/digest';
+import ThreeDigest from '../utils/digest';
 import { emptyObject } from '../utils/gc';
 import { color2ShaderArr } from '../utils/color-utils';
 import { array2BufferAttr } from '../utils/three-utils';
@@ -95,12 +95,21 @@ export default Kapsule({
     // Main three object to manipulate
     state.scene = threeObj;
 
+    state.dataMapper = new ThreeDigest(threeObj, { objBindAttr: '__threeObjArc' })
+      .onCreateObj(() => {
+        const obj = new THREE.Group(); // populated in updateObj
+
+        obj.__globeObjType = 'arc'; // Add object type
+        return obj;
+      });
+
     // Kick-off dash animations
     state.ticker.onTick.add((_, timeDelta) => {
-      state.arcsData
-        .filter(d => d.__threeObj && d.__threeObj.children.length && d.__threeObj.children[0].material && d.__threeObj.children[0].__dashAnimateStep)
-        .forEach(d => {
-          const obj = d.__threeObj.children[0];
+      state.dataMapper.entries()
+        .map(([, obj]) => obj)
+        .filter(o => o.children.length && o.children[0].material && o.children[0].__dashAnimateStep)
+        .forEach(o => {
+          const obj = o.children[0];
           const step = obj.__dashAnimateStep * timeDelta;
           const curTranslate = obj.material.uniforms.dashTranslate.value % 1e9; // reset after 1B loops
           obj.material.uniforms.dashTranslate.value = curTranslate + step;
@@ -123,15 +132,8 @@ export default Kapsule({
     const dashInitialGapAccessor = accessorFn(state.arcDashInitialGap);
     const dashAnimateTimeAccessor = accessorFn(state.arcDashAnimateTime);
 
-    threeDigest(state.arcsData, state.scene, {
-      objBindAttr: '__threeObjArc',
-      createObj: () => {
-        const obj = new THREE.Group(); // populated in updateObj
-
-        obj.__globeObjType = 'arc'; // Add object type
-        return obj;
-      },
-      updateObj: (group, arc) => {
+    state.dataMapper
+      .onUpdateObj((group, arc) => {
         const stroke = strokeAccessor(arc);
         const useTube = stroke !== null && stroke !== undefined;
 
@@ -219,8 +221,8 @@ export default Kapsule({
             );
           }
         }
-      }
-    });
+      })
+      .digest(state.arcsData);
 
     //
 

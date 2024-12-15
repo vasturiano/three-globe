@@ -31,7 +31,7 @@ import _FrameTicker from 'frame-ticker';
 const FrameTicker = _FrameTicker.default || _FrameTicker;
 import { scaleLinear as d3ScaleLinear } from 'd3-scale';
 
-import threeDigest from '../utils/digest';
+import ThreeDigest from '../utils/digest';
 import { emptyObject } from '../utils/gc';
 import { color2ShaderArr, colorStr2Hex, colorAlpha } from '../utils/color-utils';
 import { array2BufferAttr } from "../utils/three-utils";
@@ -88,12 +88,21 @@ export default Kapsule({
     // Main three object to manipulate
     state.scene = threeObj;
 
+    state.dataMapper = new ThreeDigest(threeObj, { objBindAttr: '__threeObjPath' })
+      .onCreateObj(() => {
+        const obj = new THREE.Group(); // populated in updateObj
+
+        obj.__globeObjType = 'path'; // Add object type
+        return obj;
+      });
+
     // Kick-off dash animations
     state.ticker.onTick.add((_, timeDelta) => {
-      state.pathsData
-        .filter(d => d.__threeObj && d.__threeObj.children.length && d.__threeObj.children[0].material && d.__threeObj.children[0].__dashAnimateStep)
-        .forEach(d => {
-          const obj = d.__threeObj.children[0];
+      state.dataMapper.entries()
+        .map(([, obj]) => obj)
+        .filter(o => o.children.length && o.children[0].material && o.children[0].__dashAnimateStep)
+        .forEach(o => {
+          const obj = o.children[0];
           const step = obj.__dashAnimateStep * timeDelta;
 
           if (obj.type === 'Line') {
@@ -122,15 +131,8 @@ export default Kapsule({
     const dashInitialGapAccessor = accessorFn(state.pathDashInitialGap);
     const dashAnimateTimeAccessor = accessorFn(state.pathDashAnimateTime);
 
-    threeDigest(state.pathsData, state.scene, {
-      objBindAttr: '__threeObjPath',
-      createObj: () => {
-        const obj = new THREE.Group(); // populated in updateObj
-
-        obj.__globeObjType = 'path'; // Add object type
-        return obj;
-      },
-      updateObj: (group, path) => {
+    state.dataMapper
+      .onUpdateObj((group, path) => {
         const stroke = strokeAccessor(path);
         const useFatLine = stroke !== null && stroke !== undefined;
 
@@ -272,8 +274,8 @@ export default Kapsule({
             );
           }
         }
-      }
-    });
+      })
+      .digest(state.pathsData);
 
     //
 

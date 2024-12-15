@@ -13,7 +13,7 @@ import accessorFn from 'accessor-fn';
 import { Tween, Easing } from '@tweenjs/tween.js';
 
 import { emptyObject } from '../utils/gc';
-import threeDigest from '../utils/digest';
+import ThreeDigest from '../utils/digest';
 import { polar2Cartesian } from '../utils/coordTranslate';
 
 //
@@ -31,8 +31,9 @@ export default Kapsule({
 
   methods: {
     updateObjVisibility(state, obj) {
+      if (!state.dataMapper) return;
       // default to all if no obj specified
-      const objs = obj ? [obj] : state.htmlElementsData.map(d => d.__threeObj).filter(d => d);
+      const objs = obj ? [obj] : state.dataMapper.entries().map(([, o]) => o).filter(d => d);
       // Hide elements on the far side of the globe
       objs.forEach(obj => (obj.visible = !state.isBehindGlobe || !state.isBehindGlobe(obj.position)));
     }
@@ -46,6 +47,17 @@ export default Kapsule({
     state.scene = threeObj;
 
     state.tweenGroup = tweenGroup;
+
+    state.dataMapper = new ThreeDigest(threeObj, { objBindAttr: '__threeObjHtml' })
+      .onCreateObj(d => {
+        let elem = accessorFn(state.htmlElement)(d);
+
+        const obj = new THREE.CSS2DObject(elem);
+
+        obj.__globeObjType = 'html'; // Add object type
+
+        return obj;
+      });
   },
 
   update(state, changedProps) {
@@ -53,22 +65,12 @@ export default Kapsule({
     const latAccessor = accessorFn(state.htmlLat);
     const lngAccessor = accessorFn(state.htmlLng);
     const altitudeAccessor = accessorFn(state.htmlAltitude);
-    const elemAccessor = accessorFn(state.htmlElement);
 
-    threeDigest(state.htmlElementsData, state.scene, {
-      objBindAttr: '__threeObHtml',
-      // objs need to be recreated if this prop has changed
-      purge: changedProps.hasOwnProperty('htmlElement'),
-      createObj: d => {
-        let elem = elemAccessor(d);
+    // objs need to be recreated if this prop has changed
+    changedProps.hasOwnProperty('htmlElement') && state.dataMapper.clear();
 
-        const obj = new THREE.CSS2DObject(elem);
-
-        obj.__globeObjType = 'html'; // Add object type
-
-        return obj;
-      },
-      updateObj: (obj, d) => {
+    state.dataMapper
+      .onUpdateObj((obj, d) => {
         const applyUpdate = td => {
           const { alt, lat, lng } = obj.__currentTargetD = td;
           Object.assign(obj.position, polar2Cartesian(lat, lng, alt));
@@ -93,7 +95,7 @@ export default Kapsule({
             .start()
           );
         }
-      }
-    });
+      })
+      .digest(state.htmlElementsData);
   }
 });

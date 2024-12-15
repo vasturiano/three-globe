@@ -1,25 +1,57 @@
-import dataJoint from 'data-joint';
+import DataBindMapper from 'data-bind-mapper';
 
 import { emptyObject } from './gc';
 
-function threeDigest(data, scene, options = {}, { removeDelay = 0 } = {}) {
-  return dataJoint(
-    data,
-    scene.children,
-    obj => scene.add(obj),
-    obj => {
+class ThreeDigest extends DataBindMapper {
+  constructor(scene, {
+    dataBindAttr = '__data',
+    objBindAttr = '__threeObj',
+    removeDelay = 0
+  } = {}) {
+    super();
+
+    this.scene = scene;
+    this.#dataBindAttr = dataBindAttr;
+    this.#objBindAttr = objBindAttr;
+    this.#removeDelay = removeDelay;
+
+    this.onRemoveObj(() => {});
+  }
+
+  onCreateObj(fn) {
+    super.onCreateObj(d => {
+      const obj = fn(d);
+      d[this.#objBindAttr] = obj;
+      obj[this.#dataBindAttr] = d;
+      this.scene.add(obj);
+
+      return obj;
+    });
+    return this;
+  }
+
+  onRemoveObj(fn) {
+    super.onRemoveObj((obj, dId) => {
+      const d = super.getData(obj);
+      fn(obj, dId);
+
       const removeFn = () => {
-        scene.remove(obj);
+        this.scene.remove(obj);
         emptyObject(obj);
-        obj && obj.hasOwnProperty('__data') && delete obj.__data.__currentTargetD;
+
+        delete d[this.#objBindAttr];
+        delete d.__currentTargetD;
       };
-      removeDelay ? setTimeout(removeFn, removeDelay) : removeFn();
-    },
-    {
-      objBindAttr: '__threeObj',
-      ...options
-    }
-  );
+
+      this.#removeDelay ? setTimeout(removeFn, this.#removeDelay) : removeFn();
+    });
+    return this;
+  }
+
+  scene;
+  #dataBindAttr;
+  #objBindAttr;
+  #removeDelay;
 }
 
-export default threeDigest;
+export default ThreeDigest;

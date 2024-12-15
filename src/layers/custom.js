@@ -3,7 +3,7 @@ import accessorFn from 'accessor-fn';
 
 import { emptyObject } from '../utils/gc';
 import { GLOBE_RADIUS } from '../constants';
-import threeDigest from '../utils/digest';
+import ThreeDigest from '../utils/digest';
 
 //
 
@@ -20,20 +20,10 @@ export default Kapsule({
 
     // Main three object to manipulate
     state.scene = threeObj;
-  },
 
-  update(state, changedProps) {
-    if (!state.customThreeObjectUpdate) { emptyObject(state.scene); } // Clear the existing objects to create all new, if there's no update method (brute-force)
-
-    const customObjectAccessor = accessorFn(state.customThreeObject);
-    const customObjectUpdateAccessor = accessorFn(state.customThreeObjectUpdate);
-
-    threeDigest(state.customLayerData, state.scene, {
-      objBindAttr: '__threeObjCustom',
-      // objs need to be recreated if this prop has changed
-      purge: changedProps.hasOwnProperty('customThreeObject'),
-      createObj: d => {
-        let obj = customObjectAccessor(d, GLOBE_RADIUS);
+    state.dataMapper = new ThreeDigest(threeObj, { objBindAttr: '__threeObjCustom' })
+      .onCreateObj(d => {
+        let obj = accessorFn(state.customThreeObject)(d, GLOBE_RADIUS);
 
         if (obj) {
           if (state.customThreeObject === obj) {
@@ -45,8 +35,19 @@ export default Kapsule({
         }
 
         return obj;
-      },
-      updateObj: (obj, d) => customObjectUpdateAccessor(obj, d, GLOBE_RADIUS)
-    });
+      });
+  },
+
+  update(state, changedProps) {
+    if (!state.customThreeObjectUpdate) { emptyObject(state.scene); } // Clear the existing objects to create all new, if there's no update method (brute-force)
+
+    const customObjectUpdateAccessor = accessorFn(state.customThreeObjectUpdate);
+
+    // objs need to be recreated if this prop has changed
+    changedProps.hasOwnProperty('customThreeObject') && state.dataMapper.clear();
+
+    state.dataMapper
+      .onUpdateObj((obj, d) => customObjectUpdateAccessor(obj, d, GLOBE_RADIUS))
+      .digest(state.customLayerData);
   }
 });

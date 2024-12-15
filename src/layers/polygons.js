@@ -28,7 +28,7 @@ import { Tween, Easing } from '@tweenjs/tween.js';
 import { colorStr2Hex, colorAlpha } from '../utils/color-utils';
 import { invisibleUndergroundShaderExtend, applyShaderExtensionToMaterial, setExtendedMaterialUniforms } from '../utils/shaders';
 import { emptyObject } from '../utils/gc';
-import threeDigest from '../utils/digest';
+import ThreeDigest from '../utils/digest';
 import { GLOBE_RADIUS } from '../constants';
 
 //
@@ -55,6 +55,38 @@ export default Kapsule({
     state.scene = threeObj;
 
     state.tweenGroup = tweenGroup;
+
+    state.dataMapper = new ThreeDigest(threeObj, { objBindAttr: '__threeObjPolygon' })
+      .id(d => d.id)
+      .onCreateObj(() => {
+        const obj = new THREE.Group();
+
+        obj.__defaultSideMaterial = applyShaderExtensionToMaterial(
+          new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, depthWrite: true }),
+          invisibleUndergroundShaderExtend
+        );
+
+        obj.__defaultCapMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, depthWrite: true });
+
+        // conic geometry
+        obj.add(new THREE.Mesh(
+          undefined,
+          [
+            obj.__defaultSideMaterial, // side material
+            obj.__defaultCapMaterial // cap material
+          ]
+        ));
+
+        // polygon stroke
+        obj.add(new THREE.LineSegments(
+          undefined,
+          new THREE.LineBasicMaterial()
+        ));
+
+        obj.__globeObjType = 'polygon'; // Add object type
+
+        return obj;
+      });
   },
 
   update(state) {
@@ -102,39 +134,8 @@ export default Kapsule({
       }
     });
 
-    threeDigest(singlePolygons, state.scene, {
-      objBindAttr: '__threeObjPolygon',
-      idAccessor: d => d.id,
-      createObj: () => {
-        const obj = new THREE.Group();
-
-        obj.__defaultSideMaterial = applyShaderExtensionToMaterial(
-          new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, depthWrite: true }),
-          invisibleUndergroundShaderExtend
-        );
-
-        obj.__defaultCapMaterial = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, depthWrite: true });
-
-        // conic geometry
-        obj.add(new THREE.Mesh(
-          undefined,
-          [
-            obj.__defaultSideMaterial, // side material
-            obj.__defaultCapMaterial // cap material
-          ]
-        ));
-
-        // polygon stroke
-        obj.add(new THREE.LineSegments(
-          undefined,
-          new THREE.LineBasicMaterial()
-        ));
-
-        obj.__globeObjType = 'polygon'; // Add object type
-
-        return obj;
-      },
-      updateObj: (obj, { coords, capColor, capMaterial, sideColor, sideMaterial, strokeColor, altitude, capCurvatureResolution }) => {
+    state.dataMapper
+      .onUpdateObj((obj, { coords, capColor, capMaterial, sideColor, sideMaterial, strokeColor, altitude, capCurvatureResolution }) => {
         const [conicObj, strokeObj] = obj.children;
 
         // hide stroke if no color set
@@ -214,8 +215,8 @@ export default Kapsule({
             );
           }
         }
-      }
-    });
+      })
+      .digest(singlePolygons);
   }
 });
 

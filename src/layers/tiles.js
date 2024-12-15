@@ -19,7 +19,7 @@ import accessorFn from 'accessor-fn';
 import { Tween, Easing } from '@tweenjs/tween.js';
 
 import { emptyObject } from '../utils/gc';
-import threeDigest from '../utils/digest';
+import ThreeDigest from '../utils/digest';
 import { GLOBE_RADIUS } from '../constants';
 
 //
@@ -46,6 +46,15 @@ export default Kapsule({
     state.scene = threeObj;
 
     state.tweenGroup = tweenGroup;
+
+    state.dataMapper = new ThreeDigest(threeObj, { objBindAttr: '__threeObjTile' })
+      .onCreateObj(() => {
+        const obj = new THREE.Mesh();
+
+        obj.__globeObjType = 'tile'; // Add object type
+
+        return obj;
+      });
   },
 
   update(state) {
@@ -59,16 +68,8 @@ export default Kapsule({
     const materialAccessor = accessorFn(state.tileMaterial);
     const curvatureResolutionAccessor = accessorFn(state.tileCurvatureResolution);
 
-    threeDigest(state.tilesData, state.scene, {
-      objBindAttr: '__threeObjTile',
-      createObj: () => {
-        const obj = new THREE.Mesh();
-
-        obj.__globeObjType = 'tile'; // Add object type
-
-        return obj;
-      },
-      updateObj: (obj, d) => {
+    state.dataMapper
+      .onUpdateObj((obj, d) => {
         obj.material = materialAccessor(d); // set material
 
         const useGlobeProjection = useGlobeProjectionAccessor(d);
@@ -121,8 +122,8 @@ export default Kapsule({
             );
           }
         }
-      }
-    });
+      })
+      .digest(state.tilesData);
   }
 });
 

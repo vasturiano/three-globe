@@ -22,7 +22,7 @@ import { Tween, Easing } from '@tweenjs/tween.js';
 import yaOctree from 'yaot';
 
 import { emptyObject } from '../utils/gc';
-import threeDigest from '../utils/digest';
+import ThreeDigest from '../utils/digest';
 import { array2BufferAttr, bufferAttr2Array } from '../utils/three-utils';
 import { applyShaderExtensionToMaterial, setRadiusShaderExtend } from '../utils/shaders.js';
 import { color2ShaderArr } from '../utils/color-utils';
@@ -90,6 +90,20 @@ export default Kapsule({
     state.scene = threeObj;
 
     state.tweenGroup = tweenGroup;
+
+    state.dataMapper = new ThreeDigest(threeObj, { objBindAttr: '__threeObjHeatmap' })
+      .onCreateObj(() => {
+        const obj = new THREE.Mesh(
+          new THREE.SphereGeometry(GLOBE_RADIUS),
+          applyShaderExtensionToMaterial(
+            new THREE.MeshLambertMaterial({ vertexColors: true, transparent: true }),
+            setRadiusShaderExtend
+          )
+        );
+
+        obj.__globeObjType = 'heatmap'; // Add object type
+        return obj;
+      });
   },
 
   update(state) {
@@ -104,21 +118,8 @@ export default Kapsule({
     const baseAltitudeAccessor = accessorFn(state.heatmapBaseAltitude);
     const topAltitudeAccessor = accessorFn(state.heatmapTopAltitude);
 
-    threeDigest(state.heatmapsData, state.scene, {
-      objBindAttr: '__threeObjHeatmap',
-      createObj: () => {
-        const obj = new THREE.Mesh(
-          new THREE.SphereGeometry(GLOBE_RADIUS),
-          applyShaderExtensionToMaterial(
-            new THREE.MeshLambertMaterial({ vertexColors: true, transparent: true }),
-            setRadiusShaderExtend
-          )
-        );
-
-        obj.__globeObjType = 'heatmap'; // Add object type
-        return obj;
-      },
-      updateObj: (obj, d) => {
+    state.dataMapper
+      .onUpdateObj((obj, d) => {
         // Accessors
         const bandwidth = bandwidthAccessor(d);
         const colorFn = colorFnAccessor(d);
@@ -201,7 +202,7 @@ export default Kapsule({
             );
           }
         }
-      },
-    });
+      })
+      .digest(state.heatmapsData);
   }
 });

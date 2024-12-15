@@ -36,7 +36,7 @@ import { Tween, Easing } from '@tweenjs/tween.js';
 import { colorStr2Hex, colorAlpha } from '../utils/color-utils';
 import { emptyObject } from '../utils/gc';
 import { GLOBE_RADIUS } from '../constants';
-import threeDigest from '../utils/digest';
+import ThreeDigest from '../utils/digest';
 import { polar2Cartesian } from '../utils/coordTranslate';
 
 import defaultTypeFace from '../utils/fonts/helvetiker_regular.typeface.json';
@@ -69,6 +69,28 @@ export default Kapsule({
     state.scene = threeObj;
 
     state.tweenGroup = tweenGroup;
+
+    const circleGeometry = new THREE.CircleGeometry(1, 32);
+    state.dataMapper = new ThreeDigest(threeObj, { objBindAttr: '__threeObjLabel' })
+      .onCreateObj(() => {
+        const material = new THREE.MeshLambertMaterial();
+        material.side = DoubleSide;
+
+        const obj = new THREE.Group(); // container
+
+        obj.add(new THREE.Mesh(circleGeometry, material)); // dot
+        const textObj = new THREE.Mesh(undefined, material);
+        obj.add(textObj); // text
+
+        // text invisible bounding box (raycaster trap)
+        const bbObj = new THREE.Mesh();
+        bbObj.visible = false;
+        textObj.add(bbObj);
+
+        obj.__globeObjType = 'label'; // Add object type
+
+        return obj;
+      });
   },
 
   update(state) {
@@ -88,30 +110,8 @@ export default Kapsule({
 
     const pxPerDeg = 2 * Math.PI * GLOBE_RADIUS / 360;
 
-    const circleGeometry = new THREE.CircleGeometry(1, 32);
-
-    threeDigest(state.labelsData, state.scene, {
-      objBindAttr: '__threeObjLabel',
-      createObj: () => {
-        const material = new THREE.MeshLambertMaterial();
-        material.side = DoubleSide;
-
-        const obj = new THREE.Group(); // container
-
-        obj.add(new THREE.Mesh(circleGeometry, material)); // dot
-        const textObj = new THREE.Mesh(undefined, material);
-        obj.add(textObj); // text
-
-        // text invisible bounding box (raycaster trap)
-        const bbObj = new THREE.Mesh();
-        bbObj.visible = false;
-        textObj.add(bbObj);
-
-        obj.__globeObjType = 'label'; // Add object type
-
-        return obj;
-      },
-      updateObj: (obj, d) => {
+    state.dataMapper
+      .onUpdateObj((obj, d) => {
         const [dotObj, textObj] = obj.children;
         const [bbObj] = textObj.children;
 
@@ -207,7 +207,7 @@ export default Kapsule({
             );
           }
         }
-      }
-    });
+      })
+      .digest(state.labelsData);
   }
 });

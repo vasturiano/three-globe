@@ -31,7 +31,7 @@ import { Tween, Easing } from '@tweenjs/tween.js';
 
 import { colorStr2Hex, colorAlpha } from '../utils/color-utils';
 import { emptyObject } from '../utils/gc';
-import threeDigest from '../utils/digest';
+import ThreeDigest from '../utils/digest';
 import { polar2Cartesian, deg2Rad } from "../utils/coordTranslate";
 import { GLOBE_RADIUS } from '../constants';
 
@@ -59,6 +59,18 @@ export default Kapsule({
     state.scene = threeObj;
 
     state.tweenGroup = tweenGroup;
+
+    state.dataMapper = new ThreeDigest(threeObj, { objBindAttr: '__threeObjHexPolygon' })
+      .onCreateObj(() => {
+        const obj = new THREE.Mesh(
+          undefined,
+          new THREE.MeshLambertMaterial({ side: THREE.DoubleSide })
+        );
+
+        obj.__globeObjType = 'hexPolygon'; // Add object type
+
+        return obj;
+      });
   },
 
   update(state) {
@@ -72,19 +84,8 @@ export default Kapsule({
     const curvatureResolutionAccessor = accessorFn(state.hexPolygonCurvatureResolution);
     const dotResolutionAccessor = accessorFn(state.hexPolygonDotResolution);
 
-    threeDigest(state.hexPolygonsData, state.scene, {
-      objBindAttr: '__threeObjHexPolygon',
-      createObj: d => {
-        const obj = new THREE.Mesh(
-          undefined,
-          new THREE.MeshLambertMaterial({ side: THREE.DoubleSide })
-        );
-
-        obj.__globeObjType = 'hexPolygon'; // Add object type
-
-        return obj;
-      },
-      updateObj: (obj, d) => {
+    state.dataMapper
+      .onUpdateObj((obj, d) => {
         const geoJson = geoJsonAccessor(d);
         const h3Res = resolutionAccessor(d);
         const alt = altitudeAccessor(d);
@@ -195,7 +196,7 @@ export default Kapsule({
             );
           }
         }
-      }
-    });
+      })
+      .digest(state.hexPolygonsData);
   }
 });

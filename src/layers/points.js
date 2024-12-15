@@ -28,12 +28,12 @@ const BufferGeometryUtils = bfg.BufferGeometryUtils || bfg;
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
-import { Tween, Easing } from '@tweenjs/tween.js';
+import {Tween, Easing, update} from '@tweenjs/tween.js';
 
 import { colorStr2Hex, colorAlpha, color2ShaderArr } from '../utils/color-utils';
 import { array2BufferAttr } from '../utils/three-utils';
 import { emptyObject } from '../utils/gc';
-import threeDigest from '../utils/digest';
+import ThreeDigest from '../utils/digest';
 import { polar2Cartesian } from '../utils/coordTranslate';
 import { GLOBE_RADIUS } from '../constants';
 
@@ -60,9 +60,11 @@ export default Kapsule({
     state.scene = threeObj;
 
     state.tweenGroup = tweenGroup;
+
+    state.dataMapper = new ThreeDigest(threeObj, { objBindAttr: '__threeObjPoint' });
   },
 
-  update(state) {
+  update(state, changedProps) {
     // Data accessors
     const latAccessor = accessorFn(state.pointLat);
     const lngAccessor = accessorFn(state.pointLng);
@@ -78,20 +80,22 @@ export default Kapsule({
     const pxPerDeg = 2 * Math.PI * GLOBE_RADIUS / 360;
     const pointMaterials = {}; // indexed by color
 
-    const scene = state.pointsMerge ? new THREE.Object3D() : state.scene; // use fake scene if merging points
+    if(!state.pointsMerge && changedProps.hasOwnProperty('pointsMerge')) {
+      emptyObject(state.scene); // Empty trailing merged objects
+    }
 
-    threeDigest(state.pointsData, scene, {
-      objBindAttr: '__threeObjPoint',
-      createObj,
-      updateObj
-    });
+    state.dataMapper.scene = state.pointsMerge ? new THREE.Object3D() : state.scene; // use fake scene if merging points
+
+    state.dataMapper
+      .onCreateObj(createObj)
+      .onUpdateObj(updateObj)
+      .digest(state.pointsData);
 
     if (state.pointsMerge) { // merge points into a single mesh
       const pointsGeometry = !state.pointsData.length
         ? new THREE.BufferGeometry()
         : (BufferGeometryUtils.mergeGeometries || BufferGeometryUtils.mergeBufferGeometries)(state.pointsData.map(d => {
-            const obj = d.__threeObj;
-            d.__threeObj = undefined; // unbind merged points
+            const obj = state.dataMapper.getObj(d);
 
             const geom = obj.geometry.clone();
 
@@ -118,6 +122,7 @@ export default Kapsule({
       points.__globeObjType = 'points'; // Add object type
       points.__data = state.pointsData; // Attach obj data
 
+      state.dataMapper.clear(); // Unbind merged points
       emptyObject(state.scene);
       state.scene.add(points);
     }

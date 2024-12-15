@@ -20,7 +20,7 @@ import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
 
 import { emptyObject } from '../utils/gc';
-import threeDigest from '../utils/digest';
+import ThreeDigest from '../utils/digest';
 import { polar2Cartesian, deg2Rad } from '../utils/coordTranslate';
 
 //
@@ -46,23 +46,10 @@ export default Kapsule({
 
     // Main three object to manipulate
     state.scene = threeObj;
-  },
 
-  update(state, changedProps) {
-    // Data accessors
-    const latAccessor = accessorFn(state.objectLat);
-    const lngAccessor = accessorFn(state.objectLng);
-    const altitudeAccessor = accessorFn(state.objectAltitude);
-    const parallelAccessor = accessorFn(state.objectFacesSurface);
-    const rotationAccessor = accessorFn(state.objectRotation);
-    const threeObjAccessor = accessorFn(state.objectThreeObject);
-
-    threeDigest(state.objectsData, state.scene, {
-      objBindAttr: '__threeObjObject',
-      // objs need to be recreated if this prop has changed
-      purge: changedProps.hasOwnProperty('objectThreeObject'),
-      createObj: d => {
-        let obj = threeObjAccessor(d);
+    state.dataMapper = new ThreeDigest(threeObj, { objBindAttr: '__threeObjObject' })
+      .onCreateObj(d => {
+        let obj = accessorFn(state.objectThreeObject)(d);
 
         if (state.objectThreeObject === obj) {
           // clone object if it's a shared object among all points
@@ -74,8 +61,22 @@ export default Kapsule({
         g.__globeObjType = 'object'; // Add object type
 
         return g;
-      },
-      updateObj: (objG, d) => {
+      });
+  },
+
+  update(state, changedProps) {
+    // Data accessors
+    const latAccessor = accessorFn(state.objectLat);
+    const lngAccessor = accessorFn(state.objectLng);
+    const altitudeAccessor = accessorFn(state.objectAltitude);
+    const parallelAccessor = accessorFn(state.objectFacesSurface);
+    const rotationAccessor = accessorFn(state.objectRotation);
+
+    // objs need to be recreated if this prop has changed
+    changedProps.hasOwnProperty('objectThreeObject') && state.dataMapper.clear();
+
+    state.dataMapper
+      .onUpdateObj((objG, d) => {
         const lat = +latAccessor(d);
         const lng = +lngAccessor(d);
         const alt = +altitudeAccessor(d);
@@ -90,7 +91,7 @@ export default Kapsule({
         rot && obj.setRotationFromEuler(new Euler(
           deg2Rad(rot.x || 0), deg2Rad(rot.y || 0), deg2Rad(rot.z || 0)
         ));
-      }
-    });
+      })
+      .digest(state.objectsData);
   }
 });

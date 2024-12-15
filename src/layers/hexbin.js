@@ -34,7 +34,7 @@ import { colorStr2Hex, colorAlpha, color2ShaderArr } from '../utils/color-utils'
 import { array2BufferAttr } from '../utils/three-utils';
 import { applyShaderExtensionToMaterial, invisibleUndergroundShaderExtend } from '../utils/shaders';
 import { emptyObject } from '../utils/gc';
-import threeDigest from '../utils/digest';
+import ThreeDigest from '../utils/digest';
 import { GLOBE_RADIUS } from '../constants';
 
 //
@@ -63,9 +63,11 @@ export default Kapsule({
     state.scene = threeObj;
 
     state.tweenGroup = tweenGroup;
+
+    state.dataMapper = new ThreeDigest(threeObj, { objBindAttr: '__threeObjHexbin' });
   },
 
-  update(state) {
+  update(state, changedProps) {
     // Accessors
     const latAccessor = accessorFn(state.hexBinPointLat);
     const lngAccessor = accessorFn(state.hexBinPointLng);
@@ -87,21 +89,23 @@ export default Kapsule({
 
     const hexMaterials = {};  // indexed by color
 
-    const scene = state.hexBinMerge ? new THREE.Object3D() : state.scene; // use fake scene if merging hex points
+    if(!state.hexBinMerge && changedProps.hasOwnProperty('hexBinMerge')) {
+      emptyObject(state.scene); // Empty trailing merged objects
+    }
 
-    threeDigest(hexBins, scene, {
-      objBindAttr: '__threeObjHexbin',
-      createObj,
-      updateObj,
-      idAccessor: d => d.h3Idx
-    });
+    state.dataMapper.scene = state.hexBinMerge ? new THREE.Object3D() : state.scene; // use fake scene if merging hex points
+
+    state.dataMapper
+      .id(d => d.h3Idx)
+      .onCreateObj(createObj)
+      .onUpdateObj(updateObj)
+      .digest(hexBins);
 
     if (state.hexBinMerge) { // merge points into a single mesh
       const hexPointsGeometry = !hexBins.length
         ? new THREE.BufferGeometry()
         : (BufferGeometryUtils.mergeGeometries || BufferGeometryUtils.mergeBufferGeometries)(hexBins.map(d => {
-            const obj = d.__threeObj;
-            d.__threeObj = undefined; // unbind merged points
+            const obj = state.dataMapper.getObj(d);
 
             // use non-indexed geometry so that groups can be colored separately, otherwise different groups share vertices
             const geom = obj.geometry.toNonIndexed();
@@ -139,6 +143,7 @@ export default Kapsule({
       hexPoints.__globeObjType = 'hexBinPoints'; // Add object type
       hexPoints.__data = hexBins; // Attach obj data
 
+      state.dataMapper.clear(); // Unbind merged points
       emptyObject(state.scene);
       state.scene.add(hexPoints);
     }
