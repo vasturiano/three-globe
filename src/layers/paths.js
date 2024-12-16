@@ -237,12 +237,12 @@ export default Kapsule({
         }
 
         // animate from start to finish by default
-        const pointsInterpolator = interpolateVectors((path.__currentTargetD && path.__currentTargetD.points) || [points[0]], points);
+        const pointsInterpolator = interpolateVectors((group.__currentTargetD && group.__currentTargetD.points) || [points[0]], points);
 
         const applyUpdate = td => {
-          const { stroke, interpolK } = path.__currentTargetD = td;
+          const { stroke, interpolK } = group.__currentTargetD = td;
 
-          const kPoints = path.__currentTargetD.points = pointsInterpolator(interpolK);
+          const kPoints = group.__currentTargetD.points = pointsInterpolator(interpolK);
 
           if (useFatLine) {
             obj.geometry.setPositions([].concat(...kPoints.map(({ x, y, z }) => [x, y, z])));
@@ -258,7 +258,7 @@ export default Kapsule({
 
         const targetD = { stroke, interpolK: 1 };
 
-        const currentTargetD = Object.assign({}, path.__currentTargetD || targetD, { interpolK: 0 });
+        const currentTargetD = Object.assign({}, group.__currentTargetD || targetD, { interpolK: 0 });
 
         if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD[k])) {
           if (!state.pathTransitionDuration || state.pathTransitionDuration < 0) {

@@ -181,7 +181,7 @@ export default Kapsule({
         obj.geometry.setAttribute('relDistance', vertexRelDistanceArray);
 
         const applyUpdate = td => {
-          const { stroke, ...curveD } = arc.__currentTargetD = td;
+          const { stroke, ...curveD } = group.__currentTargetD = td;
 
           const curve = calcCurve(curveD);
 
@@ -205,7 +205,7 @@ export default Kapsule({
           endLng: +endLngAccessor(arc)
         };
 
-        const currentTargetD = arc.__currentTargetD || Object.assign({}, targetD, { altAutoScale: -1e-3 });
+        const currentTargetD = group.__currentTargetD || Object.assign({}, targetD, { altAutoScale: -1e-3 });
 
         if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD[k])) {
           if (!state.arcsTransitionDuration || state.arcsTransitionDuration < 0) {

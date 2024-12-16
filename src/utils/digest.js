@@ -40,7 +40,6 @@ class ThreeDigest extends DataBindMapper {
         emptyObject(obj);
 
         delete d[this.#objBindAttr];
-        delete d.__currentTargetD;
       };
 
       this.#removeDelay ? setTimeout(removeFn, this.#removeDelay) : removeFn();
