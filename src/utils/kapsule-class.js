@@ -1,6 +1,6 @@
 export default function(kapsule, baseClass = Object, initKapsuleWithSelf = false) {
 
-  class FromKapsule extends baseClass {
+  class Globe extends baseClass {
     constructor(...args) {
       super(...args);
       this.__kapsuleInstance = new kapsule(...[...(initKapsuleWithSelf ? [this] : []), ...args]);
@@ -9,7 +9,7 @@ export default function(kapsule, baseClass = Object, initKapsuleWithSelf = false
 
   // attach kapsule props/methods to class prototype
   Object.keys(kapsule())
-    .forEach(m => FromKapsule.prototype[m] = function(...args) {
+    .forEach(m => Globe.prototype[m] = function(...args) {
       const returnVal = this.__kapsuleInstance[m](...args);
 
       return returnVal === this.__kapsuleInstance
@@ -17,6 +17,6 @@ export default function(kapsule, baseClass = Object, initKapsuleWithSelf = false
         : returnVal;
     });
 
-  return FromKapsule;
+  return Globe;
 
 }
