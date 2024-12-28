@@ -1,6 +1,8 @@
 import {
   Camera,
+  Frustum,
   Group,
+  Matrix4,
   Vector2,
   Vector3
 } from 'three';
@@ -9,7 +11,9 @@ const THREE = window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
   : {
     Camera,
+    Frustum,
     Group,
+    Matrix4,
     Vector2,
     Vector3
   };
@@ -286,16 +290,15 @@ export default Kapsule({
     getCoords: (state, ...args) => polar2Cartesian(...args),
     toGeoCoords: (state, ...args) => cartesian2Polar(...args),
     setPointOfView: (state, camera) => {
-      let isBehindGlobe = undefined;
-      if (state.scene && camera) {
-        const globalPov = camera instanceof THREE.Camera ? camera.position : camera; // for backwards compatibility
-        const globeRadius = getGlobeRadius();
-        const globePos = new THREE.Vector3();
-        state.scene.getWorldPosition(globePos);
-        const pov = globePos ? globalPov.clone().sub(globePos) : globalPov; // convert to local vector
+      const globalPov = camera instanceof THREE.Camera ? camera.position : camera; // for backwards compatibility
 
-        let povDist, povEdgeDist, povEdgeAngle, maxSurfacePosAngle;
+      let isBehindGlobe = undefined;
+      if (state.scene && globalPov) {
+        const globeRadius = getGlobeRadius();
+
+        let pov, povDist, povEdgeDist, povEdgeAngle, maxSurfacePosAngle;
         isBehindGlobe = pos => {
+          pov === undefined && (pov = globalPov.clone().applyMatrix4(state.scene.matrixWorld.clone().invert())); // camera position in local space
           povDist === undefined && (povDist = pov.length());
 
           // check if it's behind plane of globe's visible area
@@ -314,8 +317,34 @@ export default Kapsule({
         };
       }
 
-      // pass behind globe checker for layers that need it
+      let isInView = undefined;
+      if (state.scene && camera instanceof THREE.Camera) {
+        let frustum, globeCenter;
+        isInView = pos => {
+          const wPos = pos.clone().applyMatrix4(state.scene.matrixWorld);
+
+          if (!frustum) {
+            camera.updateMatrix();
+            camera.updateMatrixWorld();
+            frustum = new THREE.Frustum();
+            frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+          }
+
+          if (!frustum.containsPoint(wPos)) return false; // point out of view
+
+          if(!globeCenter) {
+            globeCenter = state.scene.getWorldPosition(new THREE.Vector3());
+          }
+
+          // simplistic way to check if it's behind globe: if it's farther than the center of the globe
+          const pov = camera.position;
+          return pov.distanceTo(wPos) < pov.distanceTo(globeCenter);
+        }
+      }
+
+      // pass pov-related checker fns for layers that need it
       state.layersThatNeedBehindGlobeChecker.forEach(l => l.isBehindGlobe(isBehindGlobe));
+      state.layersThatNeedInViewChecker.forEach(l => l.isInView(isInView));
     },
     pauseAnimation: function(state) {
       if (state.animationFrameRequestId !== null) {
@@ -368,6 +397,7 @@ export default Kapsule({
       tweenGroup,
       ...layers,
       layersThatNeedBehindGlobeChecker: Object.values(layers).filter(l => l.hasOwnProperty('isBehindGlobe')),
+      layersThatNeedInViewChecker: Object.values(layers).filter(l => l.hasOwnProperty('isInView')),
       destructableLayers: Object.values(layers).filter(l => l.hasOwnProperty('_destructor')),
       pausableLayers: Object.values(layers).filter(l => l.hasOwnProperty('pauseAnimation'))
     };
