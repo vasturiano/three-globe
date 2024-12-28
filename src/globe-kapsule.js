@@ -1,4 +1,5 @@
 import {
+  Camera,
   Group,
   Vector2,
   Vector3
@@ -7,6 +8,7 @@ import {
 const THREE = window.THREE
   ? window.THREE // Prefer consumption from global THREE, if exists
   : {
+    Camera,
     Group,
     Vector2,
     Vector3
@@ -283,9 +285,10 @@ export default Kapsule({
     getGlobeRadius,
     getCoords: (state, ...args) => polar2Cartesian(...args),
     toGeoCoords: (state, ...args) => cartesian2Polar(...args),
-    setPointOfView: (state, globalPov) => {
+    setPointOfView: (state, camera) => {
       let isBehindGlobe = undefined;
-      if (state.scene && globalPov) {
+      if (state.scene && camera) {
+        const globalPov = camera instanceof THREE.Camera ? camera.position : camera; // for backwards compatibility
         const globeRadius = getGlobeRadius();
         const globePos = new THREE.Vector3();
         state.scene.getWorldPosition(globePos);
