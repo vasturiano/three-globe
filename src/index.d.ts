@@ -337,7 +337,7 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   getGlobeRadius(): number;
   getCoords(lat: number, lng: number, altitude?: number): { x: number, y: number, z: number };
   toGeoCoords(coords: { x: number, y: number, z: number }): { lat: number, lng: number, altitude: number };
-  setPointOfView(pov: Vector3, globePos?: Vector3): void;
+  setPointOfView(pov: Vector3): void;
 
   // Render options
   rendererSize(): Vector2;

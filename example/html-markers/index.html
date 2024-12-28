@@ -77,8 +77,8 @@
     tbControls.zoomSpeed = 0.8;
 
     // Update pov when camera moves
-    Globe.setPointOfView(camera.position, Globe.position);
-    tbControls.addEventListener('change', () => Globe.setPointOfView(camera.position, Globe.position));
+    Globe.setPointOfView(camera.position);
+    tbControls.addEventListener('change', () => Globe.setPointOfView(camera.position));
 
     // Kick-off renderers
     (function animate() { // IIFE

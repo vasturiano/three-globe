@@ -283,10 +283,12 @@ export default Kapsule({
     getGlobeRadius,
     getCoords: (state, ...args) => polar2Cartesian(...args),
     toGeoCoords: (state, ...args) => cartesian2Polar(...args),
-    setPointOfView: (state, globalPov, globePos) => {
+    setPointOfView: (state, globalPov) => {
       let isBehindGlobe = undefined;
-      if (globalPov) {
+      if (state.scene && globalPov) {
         const globeRadius = getGlobeRadius();
+        const globePos = new THREE.Vector3();
+        state.scene.getWorldPosition(globePos);
         const pov = globePos ? globalPov.clone().sub(globePos) : globalPov; // convert to local vector
 
         let povDist, povEdgeDist, povEdgeAngle, maxSurfacePosAngle;
