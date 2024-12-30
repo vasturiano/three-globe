@@ -291,11 +291,10 @@ export default Kapsule({
     toGeoCoords: (state, ...args) => cartesian2Polar(...args),
     setPointOfView: (state, camera) => {
       const globalPov = camera instanceof THREE.Camera ? camera.position : camera; // for backwards compatibility
+      const globeRadius = getGlobeRadius();
 
       let isBehindGlobe = undefined;
       if (state.scene && globalPov) {
-        const globeRadius = getGlobeRadius();
-
         let pov, povDist, povEdgeDist, povEdgeAngle, maxSurfacePosAngle;
         isBehindGlobe = pos => {
           pov === undefined && (pov = globalPov.clone().applyMatrix4(state.scene.matrixWorld.clone().invert())); // camera position in local space
@@ -317,9 +316,14 @@ export default Kapsule({
         };
       }
 
+      let cameraDistance = undefined;
       let isInView = undefined;
       if (state.scene && camera instanceof THREE.Camera) {
-        let frustum, globeCenter;
+        const pov = camera.position;
+        const distToGlobeCenter = pov.distanceTo(state.scene.getWorldPosition(new THREE.Vector3()));
+        cameraDistance = (distToGlobeCenter - globeRadius) / globeRadius; // in units of globe radius
+
+        let frustum;
         isInView = pos => {
           const wPos = pos.clone().applyMatrix4(state.scene.matrixWorld);
 
@@ -332,19 +336,15 @@ export default Kapsule({
 
           if (!frustum.containsPoint(wPos)) return false; // point out of view
 
-          if(!globeCenter) {
-            globeCenter = state.scene.getWorldPosition(new THREE.Vector3());
-          }
-
           // simplistic way to check if it's behind globe: if it's farther than the center of the globe
-          const pov = camera.position;
-          return pov.distanceTo(wPos) < pov.distanceTo(globeCenter);
+          return pov.distanceTo(wPos) < distToGlobeCenter;
         }
       }
 
       // pass pov-related checker fns for layers that need it
       state.layersThatNeedBehindGlobeChecker.forEach(l => l.isBehindGlobe(isBehindGlobe));
       state.layersThatNeedInViewChecker.forEach(l => l.isInView(isInView));
+      state.layersThatNeedCameraDistance.forEach(l => l.cameraDistance(cameraDistance));
     },
     pauseAnimation: function(state) {
       if (state.animationFrameRequestId !== null) {
@@ -398,6 +398,7 @@ export default Kapsule({
       ...layers,
       layersThatNeedBehindGlobeChecker: Object.values(layers).filter(l => l.hasOwnProperty('isBehindGlobe')),
       layersThatNeedInViewChecker: Object.values(layers).filter(l => l.hasOwnProperty('isInView')),
+      layersThatNeedCameraDistance: Object.values(layers).filter(l => l.hasOwnProperty('cameraDistance')),
       destructableLayers: Object.values(layers).filter(l => l.hasOwnProperty('_destructor')),
       pausableLayers: Object.values(layers).filter(l => l.hasOwnProperty('pauseAnimation'))
     };
