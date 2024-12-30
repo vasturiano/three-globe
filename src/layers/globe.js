@@ -28,6 +28,7 @@ import GlowMesh from '../utils/GlowMesh.js';
 import Kapsule from 'kapsule';
 import { geoGraticule10 } from 'd3-geo';
 
+import TileEngine, { convertMercatorUV } from '../utils/tile-engine';
 import { emptyObject } from '../utils/gc';
 import { GLOBE_RADIUS } from '../constants';
 
@@ -42,6 +43,24 @@ export default Kapsule({
     showAtmosphere: { default: true, onChange(showAtmosphere, state) { state.atmosphereObj && (state.atmosphereObj.visible = !!showAtmosphere) }, triggerUpdate: false },
     atmosphereColor: { default: 'lightskyblue' },
     atmosphereAltitude: { default: 0.15 },
+    globeTileEngineUrl: { onChange(v, state, prevV) {
+        // Distort or reset globe UVs as tile engine is being enabled/disabled
+        const uvs = state.globeObj.geometry.attributes.uv;
+        if (v && !prevV) {
+          state.linearUVs = uvs.array.slice(); // in case they need to be put back
+          convertMercatorUV(uvs);
+        }
+        if (!v && prevV) {
+          uvs.array = state.linearUVs;
+          uvs.needsUpdate = true;
+        }
+
+        state.tileEngine.url(v);
+      }},
+    globeTileEngineImgSize: { default: 256, onChange(v, state) { state.tileEngine.imgSize(v) }, triggerUpdate: false },
+    globeTileEngineThresholds: { default: [5, 2, 3/4, 1/4, 1/8, 1/16], onChange(v, state) { state.tileEngine.thresholds(v) }, triggerUpdate: false },
+    cameraDistance: { onChange(v, state) { state.tileEngine.cameraDistance(v) }, triggerUpdate: false },
+    isInView: { onChange(v, state) { state.tileEngine.isInView(v) }, triggerUpdate: false },
     onReady: { default: () => {}, triggerUpdate: false }
   },
   methods: {
@@ -53,6 +72,7 @@ export default Kapsule({
       return state.globeObj.material;
     },
     _destructor: function(state) {
+      state.tileEngine._destructor();
       emptyObject(state.globeObj);
       emptyObject(state.graticulesObj);
     }
@@ -72,10 +92,14 @@ export default Kapsule({
       new THREE.LineBasicMaterial({ color: 'lightgrey', transparent: true, opacity: 0.1 })
     );
 
+    // Bind tile engine to material
+    const tileEngine = new TileEngine(globeObj.material);
+
     return {
       globeObj,
       graticulesObj,
-      defaultGlobeMaterial
+      defaultGlobeMaterial,
+      tileEngine
     }
   },
 
@@ -95,9 +119,9 @@ export default Kapsule({
   update(state, changedProps) {
     const globeMaterial = state.globeObj.material;
 
-    if (changedProps.hasOwnProperty('globeImageUrl')) {
+    if (!state.globeTileEngineUrl && ['globeImageUrl', 'globeTileEngineUrl'].some(p => changedProps.hasOwnProperty(p))) {
       if (!state.globeImageUrl) {
-        // Black globe if no image
+        // Black globe if no image nor tiles
         !globeMaterial.color && (globeMaterial.color = new THREE.Color(0x000000));
       } else {
         new THREE.TextureLoader().load(state.globeImageUrl, texture => {
@@ -145,7 +169,7 @@ export default Kapsule({
       }
     }
 
-    if (!state.ready && !state.globeImageUrl) {
+    if (!state.ready && (!state.globeImageUrl || state.globeTileEngineUrl)) {
       // ready immediately if there's no globe image
       state.ready = true;
       state.onReady();
