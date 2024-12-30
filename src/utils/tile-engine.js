@@ -1,7 +1,8 @@
 import {
   CanvasTexture,
   SRGBColorSpace,
-  Vector3
+  Vector3,
+  WebGLRenderer
 } from 'three';
 
 const THREE = window.THREE
@@ -9,13 +10,16 @@ const THREE = window.THREE
   : {
     CanvasTexture,
     SRGBColorSpace,
-    Vector3
+    Vector3,
+    WebGLRenderer
   };
 
 import Kapsule from 'kapsule';
 import { geoMercatorRaw } from 'd3-geo';
 
 import { polar2Cartesian } from './coordTranslate.js';
+
+const MAX_TEXTURE_SIZE = new THREE.WebGLRenderer().capabilities.maxTextureSize;
 
 export const yMercatorScale = y => 1 - (geoMercatorRaw(0, (0.5 - y) * Math.PI)[1] / Math.PI + 1) / 2;
 export const yMercatorScaleInvert = y => 0.5 - geoMercatorRaw.invert(0, (2 * (1 - y) - 1) * Math.PI)[1] / Math.PI;
@@ -39,12 +43,12 @@ export default Kapsule({
 
   methods: {
     fetchNeededTiles(state) {
-      if (!state.url) return;
+      if (!state.url || !state.canvas) return;
 
       // Safety if can't check in view tiles for higher levels
       if (!state.isInView && state.level > 3) return;
 
-      let ctx;
+      let ctx, drawImgSize;
       state.tilesMeta
         .filter(d => !d.fetched)
         .forEach((d) => {
@@ -61,7 +65,9 @@ export default Kapsule({
             img.height = imgSize;
             img.onload = () => {
               !ctx && (ctx = state.canvas.getContext('2d'));
-              ctx.drawImage(img, x * imgSize, y * imgSize, imgSize, imgSize);
+              !drawImgSize && (drawImgSize = state.canvas.width / (2**state.level));
+
+              ctx.drawImage(img, x * drawImgSize, y * drawImgSize, drawImgSize, drawImgSize);
               state.texture.needsUpdate = true;
             };
           }
@@ -77,7 +83,7 @@ export default Kapsule({
     level: 0
   }),
 
-  init(material, state, { mercatorProjection = true }= {}) {
+  init(material, state, { mercatorProjection = true } = {}) {
     // Globe wrapping material to manipulate
     state.material = material;
     state.isMercator = mercatorProjection;
@@ -104,7 +110,7 @@ export default Kapsule({
 
     if (levelChanged || ['url', 'imgSize'].some(p => changedProps.hasOwnProperty(p))) {
       const gridSize = 2**state.level;
-      const canvasSize = state.imgSize * gridSize;
+      const canvasSize = Math.min(state.imgSize * gridSize, MAX_TEXTURE_SIZE);
 
       // Rebuild canvas
       const newCanvas = new OffscreenCanvas(canvasSize, canvasSize);
