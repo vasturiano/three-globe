@@ -65,8 +65,7 @@ const linkedGlobeLayerProps = Object.assign(...[
   'globeImageUrl',
   'bumpImageUrl',
   'globeTileEngineUrl',
-  'globeTileEngineImgSize',
-  'globeTileEngineThresholds',
+  'globeTileEngineMaxLevel',
   'showGlobe',
   'showGraticules',
   'showAtmosphere',
@@ -319,35 +318,9 @@ export default Kapsule({
         };
       }
 
-      let cameraDistance = undefined;
-      let isInView = undefined;
-      if (state.scene && camera instanceof THREE.Camera) {
-        const pov = camera.position;
-        const distToGlobeCenter = pov.distanceTo(state.scene.getWorldPosition(new THREE.Vector3()));
-        cameraDistance = (distToGlobeCenter - globeRadius) / globeRadius; // in units of globe radius
-
-        let frustum;
-        isInView = pos => {
-          const wPos = pos.clone().applyMatrix4(state.scene.matrixWorld);
-
-          if (!frustum) {
-            camera.updateMatrix();
-            camera.updateMatrixWorld();
-            frustum = new THREE.Frustum();
-            frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
-          }
-
-          if (!frustum.containsPoint(wPos)) return false; // point out of view
-
-          // simplistic way to check if it's behind globe: if it's farther than the center of the globe
-          return pov.distanceTo(wPos) < distToGlobeCenter;
-        }
-      }
-
       // pass pov-related checker fns for layers that need it
+      state.layersThatNeedUpdatePov.forEach(l => l.updatePov(camera));
       state.layersThatNeedBehindGlobeChecker.forEach(l => l.isBehindGlobe(isBehindGlobe));
-      state.layersThatNeedInViewChecker.forEach(l => l.isInView(isInView));
-      state.layersThatNeedCameraDistance.forEach(l => l.cameraDistance(cameraDistance));
     },
     pauseAnimation: function(state) {
       if (state.animationFrameRequestId !== null) {
@@ -399,9 +372,8 @@ export default Kapsule({
     return {
       tweenGroup,
       ...layers,
+      layersThatNeedUpdatePov: Object.values(layers).filter(l => l.hasOwnProperty('updatePov')),
       layersThatNeedBehindGlobeChecker: Object.values(layers).filter(l => l.hasOwnProperty('isBehindGlobe')),
-      layersThatNeedInViewChecker: Object.values(layers).filter(l => l.hasOwnProperty('isInView')),
-      layersThatNeedCameraDistance: Object.values(layers).filter(l => l.hasOwnProperty('cameraDistance')),
       destructableLayers: Object.values(layers).filter(l => l.hasOwnProperty('_destructor')),
       pausableLayers: Object.values(layers).filter(l => l.hasOwnProperty('pauseAnimation'))
     };

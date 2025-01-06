@@ -58,6 +58,7 @@
     "kapsule": "^1.16",
     "three-conic-polygon-geometry": "2",
     "three-geojson-geometry": "2",
+    "three-slippy-map-globe": "^0.7.1",
     "tinycolor2": "1",
     "yaot": "^1.1"
   },
