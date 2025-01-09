@@ -46,7 +46,7 @@ export default Kapsule({
     atmosphereColor: { default: 'lightskyblue' },
     atmosphereAltitude: { default: 0.15 },
     globeTileEngineUrl: { onChange(v, state) { state.tileEngine.tileUrl = v }, triggerUpdate: false },
-    globeTileEngineMaxLevel: { default: 20, onChange(v, state) { state.tileEngine.maxLevel = v }, triggerUpdate: false },
+    globeTileEngineMaxLevel: { default: 17, onChange(v, state) { state.tileEngine.maxLevel = v }, triggerUpdate: false },
     updatePov: { onChange(v, state) { state.tileEngine.updatePov(v) }, triggerUpdate: false },
     onReady: { default: () => {}, triggerUpdate: false }
   },
