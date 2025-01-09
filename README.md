@@ -28,6 +28,7 @@ See also the [standalone version](https://github.com/vasturiano/globe.gl), and t
 * [Labels](https://vasturiano.github.io/three-globe/example/labels/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/labels/index.html))
 * [HTML Markers](https://vasturiano.github.io/three-globe/example/html-markers/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/html-markers/index.html))
 * [Satellites](https://vasturiano.github.io/three-globe/example/satellites/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/satellites/index.html))
+* [Tiled Map Engine](https://vasturiano.github.io/three-globe/example/tile-engine/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/tile-engine/index.html))
 * [Custom Globe Material](https://vasturiano.github.io/three-globe/example/custom-material/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/custom-material/index.html))
 * [Custom Layer](https://vasturiano.github.io/three-globe/example/custom/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/custom/index.html))
 
@@ -91,6 +92,8 @@ new ThreeGlobe({ configOptions })
 | <b>showAtmosphere</b>([<i>boolean</i>]) | Getter/setter for whether to show a bright halo surrounding the globe, representing the atmosphere. | `true` |
 | <b>atmosphereColor</b>([<i>str</i>]) | Getter/setter for the color of the atmosphere. | `lightskyblue` |
 | <b>atmosphereAltitude</b>([<i>str</i>]) | Getter/setter for the max altitude of the atmosphere, in terms of globe radius units. | 0.15 |
+| <b>globeTileEngineUrl</b>([<i>fn(x, y, l)</i>]) | Getter/setter for the function that defines the URL of the [slippy map](https://en.wikipedia.org/wiki/Tiled_web_map) tile engine to cover the globe surface. The slippy map coordinates `x`, `y` and `l` (zoom level) are passed as arguments and the function is expected to return a URL string. A falsy value will disable the tiling engine. | - |
+| <b>globeTileEngineMaxZoom</b>([<i>num</i>]) | Getter/setter for the maximum zoom level of the tile engine. | `17` |
 | <b>globeMaterial</b>([<i>material</i>]) | Getter/setter of the ThreeJS material used to wrap the globe. Can be used for more advanced styling of the globe, like in [this example](https://github.com/vasturiano/three-globe/blob/master/example/custom-material/index.html). | [MeshPhongMaterial](https://threejs.org/docs/#api/en/materials/MeshPhongMaterial) |
 | <b>onGlobeReady</b>(<i>fn</i>) | Callback function to invoke immediately after the globe has been initialized and visible on the scene. | - |
 

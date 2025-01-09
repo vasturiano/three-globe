@@ -1,0 +1,69 @@
+<head>
+  <style> body { margin: 0; } </style>
+
+  <script type="importmap">{ "imports": {
+    "three": "https://esm.sh/three",
+    "three/addons/": "https://esm.sh/three/examples/jsm/"
+  }}</script>
+
+<!--  <script type="module"> import * as THREE from 'three'; window.THREE = THREE;</script>-->
+<!--  <script src="../../dist/three-globe.js" defer></script>-->
+</head>
+
+<body>
+  <div id="globeViz"></div>
+
+  <script type="module">
+    import ThreeGlobe from 'https://esm.sh/three-globe?external=three';
+    import * as THREE from 'https://esm.sh/three';
+    import { TrackballControls } from 'three/addons/controls/TrackballControls.js?external=three';
+
+    const Globe = new ThreeGlobe()
+      .globeTileEngineUrl((x, y, l) => `https://tile.openstreetmap.org/${l}/${x}/${y}.png`);
+
+    const R = Globe.getGlobeRadius();
+
+    // Setup renderer
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById('globeViz').appendChild(renderer.domElement);
+
+    // Setup scene
+    const scene = new THREE.Scene();
+    scene.add(Globe);
+    scene.add(new THREE.AmbientLight(0xcccccc, Math.PI));
+    scene.add(new THREE.DirectionalLight(0xffffff, 0.6 * Math.PI));
+
+    // Setup camera
+    const camera = new THREE.PerspectiveCamera();
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.near = 1e-3;
+    camera.far = R * 100;
+    camera.updateProjectionMatrix();
+    camera.position.z = 600;
+
+    // Add camera controls
+    const tbControls = new TrackballControls(camera, renderer.domElement);
+    tbControls.minDistance = R * (1 + 5 / 2**Globe.globeTileEngineMaxLevel()); // Just above surface, adjusted resolution to max level
+    tbControls.maxDistance = camera.far - R;
+    tbControls.rotateSpeed = 5;
+    tbControls.zoomSpeed = 0.8;
+
+    // Update pov when camera moves
+    Globe.setPointOfView(camera);
+    tbControls.addEventListener('change', () => {
+      Globe.setPointOfView(camera);
+      const distToSurface = camera.position.distanceTo(Globe.position) - R;
+      tbControls.rotateSpeed = distToSurface / R * 2.5;
+      tbControls.zoomSpeed = Math.sqrt(distToSurface / R) * 0.5;
+    });
+
+    // Kick-off renderer
+    (function animate() { // IIFE
+      // Frame cycle
+      tbControls.update();
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    })();
+  </script>
+</body>
