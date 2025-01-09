@@ -45,7 +45,7 @@ export default Kapsule({
     showAtmosphere: { default: true, onChange(showAtmosphere, state) { state.atmosphereObj && (state.atmosphereObj.visible = !!showAtmosphere) }, triggerUpdate: false },
     atmosphereColor: { default: 'lightskyblue' },
     atmosphereAltitude: { default: 0.15 },
-    globeTileEngineUrl: { onChange(v, state) { state.tileEngine.tileUrl = v }, triggerUpdate: false },
+    globeTileEngineUrl: { onChange(v, state) { state.tileEngine.tileUrl = v } },
     globeTileEngineMaxLevel: { default: 17, onChange(v, state) { state.tileEngine.maxLevel = v }, triggerUpdate: false },
     updatePov: { onChange(v, state) { state.tileEngine.updatePov(v) }, triggerUpdate: false },
     onReady: { default: () => {}, triggerUpdate: false }
@@ -113,7 +113,7 @@ export default Kapsule({
     const globeMaterial = state.globeObj.material;
 
     // Hide globeObj if it's representing tiles
-    state.globeObj.visible = !state.globeTileEngineUrl;
+    state.tileEngine.visible = !(state.globeObj.visible = !state.globeTileEngineUrl);
 
     if (changedProps.hasOwnProperty('globeImageUrl')) {
       if (!state.globeImageUrl) {
