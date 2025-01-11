@@ -304,6 +304,7 @@ new ThreeGlobe({ configOptions })
 | Method | Description | Default |
 | --- | --- | :--: |
 | <b>rendererSize</b>(<i>Vector2</i>) | It's recommended to inject the current [renderer size](https://threejs.org/docs/#api/en/renderers/WebGLRenderer.getSize) to ensure the object proportions remain constant. This is specially necessary when using path FatLines. | Fallback to the full browser window size (`THREE.Vector2(window.innerWidth, window.innerHeight)`) |
+| <b>setPointOfView</b>(camera) | Some layers require knowledge about the location and view direction of the camera in order to behave correctly. Every time the camera position changes (f.e. on the controls `change` event) it's recommended to invoke this function, passing the current camera as sole argument, in order to keep the layers running optimally and synchronized with the view. | |
 | <b>pauseAnimation</b>() | Pauses the animation on all globe layers. | |
 | <b>resumeAnimation</b>() | Resumes the animation on all globe layers. | |
 

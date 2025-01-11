@@ -341,11 +341,11 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   getGlobeRadius(): number;
   getCoords(lat: number, lng: number, altitude?: number): { x: number, y: number, z: number };
   toGeoCoords(coords: { x: number, y: number, z: number }): { lat: number, lng: number, altitude: number };
-  setPointOfView(camera: Camera): void;
 
   // Render options
   rendererSize(): Vector2;
   rendererSize(size: Vector2): ChainableInstance;
+  setPointOfView(camera: Camera): void;
   pauseAnimation(): ChainableInstance;
   resumeAnimation(): ChainableInstance;
   _destructor(): void;
