@@ -1,23 +1,32 @@
 <head>
-  <style> body { margin: 0; } </style>
+  <style>
+    body {
+      margin: 0;
+    }
+  </style>
 
-  <script type="importmap">{ "imports": {
-    "three": "https://esm.sh/three",
-    "three/addons/": "https://esm.sh/three/examples/jsm/"
-  }}</script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://esm.sh/three",
+        "three/": "https://esm.sh/three/",
+        "three-globe": "https://esm.sh/three-globe?external=three"
+      }
+    }
+  </script>
 
-<!--  <script type="module"> import * as THREE from 'three'; window.THREE = THREE;</script>-->
-<!--  <script src="../../dist/three-globe.js" defer></script>-->
+  <!--  <script type="module"> import * as THREE from 'three'; window.THREE = THREE;</script>-->
+  <!--  <script src="../../dist/three-globe.js" defer></script>-->
 </head>
 
 <body>
   <div id="globeViz"></div>
 
   <script type="module">
-    import ThreeGlobe from 'https://esm.sh/three-globe?external=three';
-    import * as THREE from 'https://esm.sh/three';
-    import { TrackballControls } from 'three/addons/controls/TrackballControls.js?external=three';
-    import { CSS2DRenderer } from 'three/addons/renderers/CSS2DRenderer.js?external=three';
+    import ThreeGlobe from "three-globe";
+    import * as THREE from "three";
+    import { TrackballControls } from "three/examples/jsm/controls/TrackballControls.js?external=three";
+    import { CSS2DRenderer } from "three/examples/jsm/renderers/CSS2DRenderer.js?external=three";
 
     const markerSvg = `<svg viewBox="-4 0 36 36">
       <path fill="currentColor" d="M14,0 C21.732,0 28,5.641 28,12.6 C28,23.963 14,36 14,36 C14,36 0,24.064 0,12.6 C0,5.641 6.268,0 14,0 Z"></path>
@@ -30,15 +39,15 @@
       lat: (Math.random() - 0.5) * 180,
       lng: (Math.random() - 0.5) * 360,
       size: 7 + Math.random() * 30,
-      color: ['red', 'white', 'blue', 'green'][Math.round(Math.random() * 3)]
+      color: ["red", "white", "blue", "green"][Math.round(Math.random() * 3)],
     }));
 
     const Globe = new ThreeGlobe()
-      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
-      .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
+      .globeImageUrl("//unpkg.com/three-globe/example/img/earth-dark.jpg")
+      .bumpImageUrl("//unpkg.com/three-globe/example/img/earth-topology.png")
       .htmlElementsData(gData)
-      .htmlElement(d => {
-        const el = document.createElement('div');
+      .htmlElement((d) => {
+        const el = document.createElement("div");
         el.innerHTML = markerSvg;
         el.style.color = d.color;
         el.style.width = `${d.size}px`;
@@ -51,11 +60,11 @@
       r.setSize(window.innerWidth, window.innerHeight);
       if (idx > 0) {
         // overlay additional on top of main renderer
-        r.domElement.style.position = 'absolute';
-        r.domElement.style.top = '0px';
-        r.domElement.style.pointerEvents = 'none';
+        r.domElement.style.position = "absolute";
+        r.domElement.style.top = "0px";
+        r.domElement.style.pointerEvents = "none";
       }
-      document.getElementById('globeViz').appendChild(r.domElement);
+      document.getElementById("globeViz").appendChild(r.domElement);
     });
 
     // Setup scene
@@ -66,7 +75,7 @@
 
     // Setup camera
     const camera = new THREE.PerspectiveCamera();
-    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     camera.position.z = 500;
 
@@ -78,13 +87,14 @@
 
     // Update pov when camera moves
     Globe.setPointOfView(camera);
-    tbControls.addEventListener('change', () => Globe.setPointOfView(camera));
+    tbControls.addEventListener("change", () => Globe.setPointOfView(camera));
 
     // Kick-off renderers
-    (function animate() { // IIFE
+    (function animate() {
+      // IIFE
       // Frame cycle
       tbControls.update();
-      renderers.forEach(r => r.render(scene, camera));
+      renderers.forEach((r) => r.render(scene, camera));
       requestAnimationFrame(animate);
     })();
   </script>

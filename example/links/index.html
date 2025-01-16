@@ -1,22 +1,31 @@
 <head>
-  <style> body { margin: 0; } </style>
+  <style>
+    body {
+      margin: 0;
+    }
+  </style>
 
-  <script type="importmap">{ "imports": {
-    "three": "https://esm.sh/three",
-    "three/addons/": "https://esm.sh/three/examples/jsm/"
-  }}</script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://esm.sh/three",
+        "three/": "https://esm.sh/three/",
+        "three-globe": "https://esm.sh/three-globe?external=three"
+      }
+    }
+  </script>
 
-<!--  <script type="module"> import * as THREE from 'three'; window.THREE = THREE;</script>-->
-<!--  <script src="../../dist/three-globe.js" defer></script>-->
+  <!--  <script type="module"> import * as THREE from 'three'; window.THREE = THREE;</script>-->
+  <!--  <script src="../../dist/three-globe.js" defer></script>-->
 </head>
 
 <body>
   <div id="globeViz"></div>
 
   <script type="module">
-    import ThreeGlobe from 'https://esm.sh/three-globe?external=three';
-    import * as THREE from 'https://esm.sh/three';
-    import { TrackballControls } from 'three/addons/controls/TrackballControls.js?external=three';
+    import ThreeGlobe from "three-globe";
+    import * as THREE from "three";
+    import { TrackballControls } from "three/examples/jsm/controls/TrackballControls.js?external=three";
 
     // Gen random data
     const N = 20;
@@ -26,13 +35,13 @@
       startLng: (Math.random() - 0.5) * 360,
       endLat: (Math.random() - 0.5) * 180,
       endLng: (Math.random() - 0.5) * 360,
-      color: ['red', 'white', 'blue', 'green'][Math.round(Math.random() * 3)]
+      color: ["red", "white", "blue", "green"][Math.round(Math.random() * 3)],
     }));
 
     const Globe = new ThreeGlobe()
-      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
+      .globeImageUrl("//unpkg.com/three-globe/example/img/earth-night.jpg")
       .arcsData(arcsData)
-      .arcColor('color')
+      .arcColor("color")
       .arcDashLength(0.4)
       .arcDashGap(4)
       .arcDashInitialGap(() => Math.random() * 5)
@@ -41,7 +50,7 @@
     // Setup renderer
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    document.getElementById('globeViz').appendChild(renderer.domElement);
+    document.getElementById("globeViz").appendChild(renderer.domElement);
 
     // Setup scene
     const scene = new THREE.Scene();
@@ -51,7 +60,7 @@
 
     // Setup camera
     const camera = new THREE.PerspectiveCamera();
-    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     camera.position.z = 500;
 
@@ -62,7 +71,8 @@
     tbControls.zoomSpeed = 0.8;
 
     // Kick-off renderer
-    (function animate() { // IIFE
+    (function animate() {
+      // IIFE
       // Frame cycle
       tbControls.update();
       renderer.render(scene, camera);

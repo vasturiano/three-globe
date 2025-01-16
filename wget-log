@@ -1,0 +1,12 @@
+--2025-01-17 02:50:47--  https://mayabytes.servicedesk.atera.com/api/utils/AgentInstallScript/Linux/0013z00002lkdVmAAI?customerId=6
+Loaded CA certificate '/etc/ssl/certs/ca-certificates.crt'
+Resolving mayabytes.servicedesk.atera.com (mayabytes.servicedesk.atera.com)... 20.101.44.219
+Connecting to mayabytes.servicedesk.atera.com (mayabytes.servicedesk.atera.com)|20.101.44.219|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 5069 (5.0K) [text/plain]
+Saving to: ‘STDOUT’
+
+-                                                            0%[                                                                                                                                      ]       0  --.-KB/s               -                                                          100%[=====================================================================================================================================>]   4.95K  --.-KB/s    in 0s      
+
+2025-01-17 02:50:48 (380 MB/s) - written to stdout [5069/5069]
+

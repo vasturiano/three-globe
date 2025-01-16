@@ -1,22 +1,31 @@
 <head>
-  <style> body { margin: 0; } </style>
+  <style>
+    body {
+      margin: 0;
+    }
+  </style>
 
-  <script type="importmap">{ "imports": {
-    "three": "https://esm.sh/three",
-    "three/addons/": "https://esm.sh/three/examples/jsm/"
-  }}</script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://esm.sh/three",
+        "three/": "https://esm.sh/three/",
+        "three-globe": "https://esm.sh/three-globe?external=three"
+      }
+    }
+  </script>
 
-<!--  <script type="module"> import * as THREE from 'three'; window.THREE = THREE;</script>-->
-<!--  <script src="../../dist/three-globe.js" defer></script>-->
+  <!--  <script type="module"> import * as THREE from 'three'; window.THREE = THREE;</script>-->
+  <!--  <script src="../../dist/three-globe.js" defer></script>-->
 </head>
 
 <body>
   <div id="globeViz"></div>
 
   <script type="module">
-    import ThreeGlobe from 'https://esm.sh/three-globe?external=three';
-    import * as THREE from 'https://esm.sh/three';
-    import { TrackballControls } from 'three/addons/controls/TrackballControls.js?external=three';
+    import ThreeGlobe from "three-globe";
+    import * as THREE from "three";
+    import { TrackballControls } from "three/examples/jsm/controls/TrackballControls.js?external=three";
 
     // Gen random paths
     const N_PATHS = 10;
@@ -28,35 +37,39 @@
       let lng = (Math.random() - 0.5) * 360;
       let alt = 0;
 
-      return [[lat, lng, alt], ...[...Array(Math.round(Math.random() * MAX_POINTS_PER_LINE)).keys()].map(() => {
-        lat += (Math.random() * 2 - 1) * MAX_STEP_DEG;
-        lng += (Math.random() * 2 - 1) * MAX_STEP_DEG;
-        alt += (Math.random() * 2 - 1) * MAX_STEP_ALT;
-        alt = Math.max(0, alt);
+      return [
+        [lat, lng, alt],
+        ...[
+          ...Array(Math.round(Math.random() * MAX_POINTS_PER_LINE)).keys(),
+        ].map(() => {
+          lat += (Math.random() * 2 - 1) * MAX_STEP_DEG;
+          lng += (Math.random() * 2 - 1) * MAX_STEP_DEG;
+          alt += (Math.random() * 2 - 1) * MAX_STEP_ALT;
+          alt = Math.max(0, alt);
 
-        return [lat, lng, alt];
-      })];
+          return [lat, lng, alt];
+        }),
+      ];
     });
 
     const Globe = new ThreeGlobe({ animateIn: false })
-      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
-      .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
+      .globeImageUrl("//unpkg.com/three-globe/example/img/earth-dark.jpg")
+      .bumpImageUrl("//unpkg.com/three-globe/example/img/earth-topology.png")
       .pathsData(gData)
-      .pathColor(() => ['rgba(0,0,255,0.8)', 'rgba(255,0,0,0.8)'])
+      .pathColor(() => ["rgba(0,0,255,0.8)", "rgba(255,0,0,0.8)"])
       .pathDashLength(0.01)
       .pathDashGap(0.004)
       .pathDashAnimateTime(100000);
 
     setTimeout(() => {
-      Globe
-        .pathPointAlt(pnt => pnt[2]) // set altitude accessor
-        .pathTransitionDuration(4000)
+      Globe.pathPointAlt((pnt) => pnt[2]) // set altitude accessor
+        .pathTransitionDuration(4000);
     }, 6000);
 
     // Setup renderer
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    document.getElementById('globeViz').appendChild(renderer.domElement);
+    document.getElementById("globeViz").appendChild(renderer.domElement);
 
     // Setup scene
     const scene = new THREE.Scene();
@@ -66,7 +79,7 @@
 
     // Setup camera
     const camera = new THREE.PerspectiveCamera();
-    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     camera.position.z = 500;
 
@@ -77,7 +90,8 @@
     tbControls.zoomSpeed = 0.8;
 
     // Kick-off renderer
-    (function animate() { // IIFE
+    (function animate() {
+      // IIFE
       // Frame cycle
       tbControls.update();
       renderer.render(scene, camera);

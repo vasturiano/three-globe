@@ -1,47 +1,67 @@
 <head>
-  <style> body { margin: 0; } </style>
+  <style>
+    body {
+      margin: 0;
+    }
+  </style>
 
-  <script type="importmap">{ "imports": {
-    "three": "https://esm.sh/three",
-    "three/addons/": "https://esm.sh/three/examples/jsm/"
-  }}</script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://esm.sh/three",
+        "three/": "https://esm.sh/three/",
+        "three-globe": "https://esm.sh/three-globe?external=three"
+      }
+    }
+  </script>
 
-<!--  <script type="module"> import * as THREE from 'three'; window.THREE = THREE;</script>-->
-<!--  <script src="../../dist/three-globe.js" defer></script>-->
+  <!--  <script type="module"> import * as THREE from 'three'; window.THREE = THREE;</script>-->
+  <!--  <script src="../../dist/three-globe.js" defer></script>-->
 </head>
 
 <body>
   <div id="globeViz"></div>
 
   <script type="module">
-    import ThreeGlobe from 'https://esm.sh/three-globe?external=three';
-    import * as THREE from 'https://esm.sh/three';
-    import { TrackballControls } from 'three/addons/controls/TrackballControls.js?external=three';
+    import ThreeGlobe from "three-globe";
+    import * as THREE from "three";
+    import { TrackballControls } from "three/examples/jsm/controls/TrackballControls.js?external=three";
 
     const Globe = new ThreeGlobe()
-      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
-      .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png');
+      .globeImageUrl(
+        "//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
+      )
+      .bumpImageUrl("//unpkg.com/three-globe/example/img/earth-topology.png");
 
-    const CLOUDS_IMG_URL = './clouds.png'; // from https://github.com/turban/webgl-earth
+    const CLOUDS_IMG_URL = "./clouds.png"; // from https://github.com/turban/webgl-earth
     const CLOUDS_ALT = 0.004;
     const CLOUDS_ROTATION_SPEED = -0.006; // deg/frame
 
-    const Clouds = new THREE.Mesh(new THREE.SphereGeometry(Globe.getGlobeRadius() * (1 + CLOUDS_ALT), 75, 75));
-    new THREE.TextureLoader().load(CLOUDS_IMG_URL, cloudsTexture => {
-      Clouds.material = new THREE.MeshPhongMaterial({ map: cloudsTexture, transparent: true });
+    const Clouds = new THREE.Mesh(
+      new THREE.SphereGeometry(
+        Globe.getGlobeRadius() * (1 + CLOUDS_ALT),
+        75,
+        75
+      )
+    );
+    new THREE.TextureLoader().load(CLOUDS_IMG_URL, (cloudsTexture) => {
+      Clouds.material = new THREE.MeshPhongMaterial({
+        map: cloudsTexture,
+        transparent: true,
+      });
     });
 
     Globe.add(Clouds);
 
     (function rotateClouds() {
-      Clouds.rotation.y += CLOUDS_ROTATION_SPEED * Math.PI / 180;
+      Clouds.rotation.y += (CLOUDS_ROTATION_SPEED * Math.PI) / 180;
       requestAnimationFrame(rotateClouds);
     })();
 
     // Setup renderer
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    document.getElementById('globeViz').appendChild(renderer.domElement);
+    document.getElementById("globeViz").appendChild(renderer.domElement);
 
     // Setup scene
     const scene = new THREE.Scene();
@@ -51,7 +71,7 @@
 
     // Setup camera
     const camera = new THREE.PerspectiveCamera();
-    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     camera.position.z = 500;
 
@@ -62,7 +82,8 @@
     tbControls.zoomSpeed = 0.8;
 
     // Kick-off renderer
-    (function animate() { // IIFE
+    (function animate() {
+      // IIFE
       // Frame cycle
       tbControls.update();
       renderer.render(scene, camera);

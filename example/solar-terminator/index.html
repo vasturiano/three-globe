@@ -1,12 +1,4 @@
 <head>
-  <script type="importmap">{ "imports": {
-    "three": "https://esm.sh/three",
-    "three/addons/": "https://esm.sh/three/examples/jsm/"
-  }}</script>
-
-<!--  <script type="module"> import * as THREE from 'three'; window.THREE = THREE;</script>-->
-<!--  <script src="../../dist/three-globe.js" defer></script>-->
-
   <style>
     body {
       margin: 0;
@@ -20,6 +12,19 @@
       color: lightblue;
     }
   </style>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://esm.sh/three",
+        "three/": "https://esm.sh/three/",
+        "three-globe": "https://esm.sh/three-globe?external=three"
+      }
+    }
+  </script>
+
+  <!--  <script type="module"> import * as THREE from 'three'; window.THREE = THREE;</script>-->
+  <!--  <script src="../../dist/three-globe.js" defer></script>-->
 </head>
 
 <body>
@@ -28,34 +33,41 @@
   <div id="time"></div>
 
   <script type="module">
-    import ThreeGlobe from 'https://esm.sh/three-globe?external=three';
-    import * as THREE from 'https://esm.sh/three';
-    import { TrackballControls } from 'three/addons/controls/TrackballControls.js?external=three';
-    import * as solar from 'https://esm.sh/solar-calculator';
+    import ThreeGlobe from "three-globe";
+    import * as THREE from "three";
+    import { TrackballControls } from "three/examples/jsm/controls/TrackballControls.js?external=three";
+    import * as solar from "https://esm.sh/solar-calculator";
 
     const VELOCITY = 9; // minutes per frame
 
-    const sunPosAt = dt => {
+    const sunPosAt = (dt) => {
       const day = new Date(+dt).setUTCHours(0, 0, 0, 0);
       const t = solar.century(dt);
-      const longitude = (day - dt) / 864e5 * 360 - 180;
+      const longitude = ((day - dt) / 864e5) * 360 - 180;
       return [longitude - solar.equationOfTime(t) / 4, solar.declination(t)];
     };
 
     let dt = +new Date();
     const solarTile = { pos: sunPosAt(dt) };
-    const timeEl = document.getElementById('time');
+    const timeEl = document.getElementById("time");
 
     const Globe = new ThreeGlobe()
-      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
+      .globeImageUrl("//unpkg.com/three-globe/example/img/earth-dark.jpg")
       .tilesData([solarTile])
-      .tileLng(d => d.pos[0])
-      .tileLat(d => d.pos[1])
+      .tileLng((d) => d.pos[0])
+      .tileLat((d) => d.pos[1])
       .tileAltitude(0.005)
       .tileWidth(180)
       .tileHeight(180)
       .tileUseGlobeProjection(false)
-      .tileMaterial(() => new THREE.MeshLambertMaterial({ color: '#ffff00', opacity: 0.3, transparent: true }))
+      .tileMaterial(
+        () =>
+          new THREE.MeshLambertMaterial({
+            color: "#ffff00",
+            opacity: 0.3,
+            transparent: true,
+          })
+      )
       .tilesTransitionDuration(0);
 
     // animate time of day
@@ -72,7 +84,7 @@
     // Setup renderer
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    document.getElementById('globeViz').appendChild(renderer.domElement);
+    document.getElementById("globeViz").appendChild(renderer.domElement);
 
     // Setup scene
     const scene = new THREE.Scene();
@@ -82,7 +94,7 @@
 
     // Setup camera
     const camera = new THREE.PerspectiveCamera();
-    camera.aspect = window.innerWidth/ window.innerHeight;
+    camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     camera.position.z = 500;
 
@@ -93,7 +105,8 @@
     tbControls.zoomSpeed = 0.8;
 
     // Kick-off renderer
-    (function animate() { // IIFE
+    (function animate() {
+      // IIFE
       // Frame cycle
       tbControls.update();
       renderer.render(scene, camera);
