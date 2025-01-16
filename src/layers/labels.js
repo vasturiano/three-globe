@@ -8,8 +8,8 @@ import {
   Vector3
 } from 'three';
 
-import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { Font } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
+import { Font } from 'three/examples/jsm/loaders/FontLoader.js';
 
 const THREE = {
   ...(window.THREE
