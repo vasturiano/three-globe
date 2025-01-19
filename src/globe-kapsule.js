@@ -34,8 +34,9 @@ import PolygonsLayerKapsule from './layers/polygons';
 import HexedPolygonsLayerKapsule from './layers/hexedPolygons';
 import PathsLayerKapsule from './layers/paths';
 import TilesLayerKapsule from './layers/tiles';
-import LabelsLayerKapsule from './layers/labels';
+import ParticlesLayerKapsule from './layers/particles';
 import RingsLayerKapsule from './layers/rings';
+import LabelsLayerKapsule from './layers/labels';
 import HtmlElementsLayerKapsule from './layers/htmlElements';
 import ObjectsLayerKapsule from './layers/objects';
 import CustomLayerKapsule from './layers/custom';
@@ -52,8 +53,9 @@ const layers = [
   'hexedPolygonsLayer',
   'pathsLayer',
   'tilesLayer',
-  'labelsLayer',
+  'particlesLayer',
   'ringsLayer',
+  'labelsLayer',
   'htmlElementsLayer',
   'objectsLayer',
   'customLayer'
@@ -200,6 +202,32 @@ const linkedTilesLayerProps = Object.assign(...[
   'tilesTransitionDuration'
 ].map(p => ({ [p]: bindTilesLayer.linkProp(p)})));
 
+const bindParticlesLayer = linkKapsule('particlesLayer', ParticlesLayerKapsule);
+const linkedParticlesLayerProps = Object.assign(...[
+  'particlesData',
+  'particlesList',
+  'particleLat',
+  'particleLng',
+  'particleAltitude',
+  'particlesSize',
+  'particlesSizeAttenuation',
+  'particlesColor',
+  'particlesTexture'
+].map(p => ({ [p]: bindParticlesLayer.linkProp(p)})));
+
+const bindRingsLayer = linkKapsule('ringsLayer', RingsLayerKapsule);
+const linkedRingsLayerProps = Object.assign(...[
+  'ringsData',
+  'ringLat',
+  'ringLng',
+  'ringAltitude',
+  'ringColor',
+  'ringResolution',
+  'ringMaxRadius',
+  'ringPropagationSpeed',
+  'ringRepeatPeriod'
+].map(p => ({ [p]: bindRingsLayer.linkProp(p)})));
+
 const bindLabelsLayer = linkKapsule('labelsLayer', LabelsLayerKapsule);
 const linkedLabelsLayerProps = Object.assign(...[
   'labelsData',
@@ -217,19 +245,6 @@ const linkedLabelsLayerProps = Object.assign(...[
   'labelDotOrientation',
   'labelsTransitionDuration'
 ].map(p => ({ [p]: bindLabelsLayer.linkProp(p)})));
-
-const bindRingsLayer = linkKapsule('ringsLayer', RingsLayerKapsule);
-const linkedRingsLayerProps = Object.assign(...[
-  'ringsData',
-  'ringLat',
-  'ringLng',
-  'ringAltitude',
-  'ringColor',
-  'ringResolution',
-  'ringMaxRadius',
-  'ringPropagationSpeed',
-  'ringRepeatPeriod'
-].map(p => ({ [p]: bindRingsLayer.linkProp(p)})));
 
 const bindHtmlElementsLayer = linkKapsule('htmlElementsLayer', HtmlElementsLayerKapsule);
 const linkedHtmlElementsLayerProps = Object.assign(...[
@@ -280,8 +295,9 @@ export default Kapsule({
     ...linkedHexedPolygonsLayerProps,
     ...linkedPathsLayerProps,
     ...linkedTilesLayerProps,
-    ...linkedLabelsLayerProps,
+    ...linkedParticlesLayerProps,
     ...linkedRingsLayerProps,
+    ...linkedLabelsLayerProps,
     ...linkedHtmlElementsLayerProps,
     ...linkedObjectsLayerProps,
     ...linkedCustomLayerProps
@@ -362,8 +378,9 @@ export default Kapsule({
       hexedPolygonsLayer: HexedPolygonsLayerKapsule(initProps),
       pathsLayer: PathsLayerKapsule(initProps),
       tilesLayer: TilesLayerKapsule(initProps),
-      labelsLayer: LabelsLayerKapsule(initProps),
+      particlesLayer: ParticlesLayerKapsule(initProps),
       ringsLayer: RingsLayerKapsule(initProps),
+      labelsLayer: LabelsLayerKapsule(initProps),
       htmlElementsLayer: HtmlElementsLayerKapsule(initProps),
       objectsLayer: ObjectsLayerKapsule(initProps),
       customLayer: CustomLayerKapsule(initProps)

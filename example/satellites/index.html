@@ -36,21 +36,16 @@
     import * as satellite from 'https://esm.sh/satellite.js';
 
     const EARTH_RADIUS_KM = 6371; // km
-    const SAT_SIZE = 80; // km
     const TIME_STEP = 3 * 1000; // per frame
 
     const timeLogger = document.getElementById('time-log');
 
     const Globe = new ThreeGlobe()
       .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
-      .objectLat('lat')
-      .objectLng('lng')
-      .objectAltitude('alt')
-      .objectFacesSurface(false);
-
-    const satGeometry = new THREE.OctahedronGeometry(SAT_SIZE * Globe.getGlobeRadius() / EARTH_RADIUS_KM / 2, 0);
-    const satMaterial = new THREE.MeshLambertMaterial({ color: 'palegreen', transparent: true, opacity: 0.7 });
-    Globe.objectThreeObject(() => new THREE.Mesh(satGeometry, satMaterial));
+      .particleLat('lat')
+      .particleLng('lng')
+      .particleAltitude('alt')
+      .particlesColor(() => 'palegreen');
 
     fetch('./space-track-leo.txt').then(r => r.text()).then(rawData => {
       const tleData = rawData.replace(/\r/g, '').split(/\n(?=[^12])/).map(tle => tle.split('\n'));
@@ -79,7 +74,7 @@
           }
         });
 
-        Globe.objectsData(satData);
+        Globe.particlesData([satData.filter(d => !isNaN(d.lat) && !isNaN(d.lng) && !isNaN(d.alt))]);
       })();
     });
 

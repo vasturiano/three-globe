@@ -1,4 +1,4 @@
-import { Object3D, Vector2, Material, Camera } from 'three';
+import { Object3D, Vector2, Material, Camera, Texture } from 'three';
 
 type Accessor<In, Out> = Out | string | ((obj: In) => Out);
 type ObjAccessor<T> = Accessor<object, T>;
@@ -249,6 +249,46 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   tilesTransitionDuration(): number;
   tilesTransitionDuration(durationMs: number): ChainableInstance;
 
+  // Particles Layer
+  particlesData(): object[];
+  particlesData(data: object[]): ChainableInstance;
+  particlesList(): ObjAccessor<object[]>;
+  particlesList(listAccessor: ObjAccessor<object[]>): ChainableInstance;
+  particleLat(): ObjAccessor<number>;
+  particleLat(latAccessor: ObjAccessor<number>): ChainableInstance;
+  particleLng(): ObjAccessor<number>;
+  particleLng(lngAccessor: ObjAccessor<number>): ChainableInstance;
+  particleAltitude(): ObjAccessor<number>;
+  particleAltitude(altitudeAccessor: ObjAccessor<number>): ChainableInstance;
+  particlesSize(): ObjAccessor<number>;
+  particlesSize(sizeAccessor: ObjAccessor<number>): ChainableInstance;
+  particlesSizeAttenuation(): ObjAccessor<boolean>;
+  particlesSizeAttenuation(sizeAttenuationAccessor: ObjAccessor<boolean>): ChainableInstance;
+  particlesColor(): ObjAccessor<string>;
+  particlesColor(colorAccessor: ObjAccessor<string>): ChainableInstance;
+  particlesTexture(): ObjAccessor<Texture>;
+  particlesTexture(textureAccessor: ObjAccessor<Texture>): ChainableInstance;
+
+  // Rings Layer
+  ringsData(): object[];
+  ringsData(data: object[]): ChainableInstance;
+  ringLat(): ObjAccessor<number>;
+  ringLat(latitudeAccessor: ObjAccessor<number>): ChainableInstance;
+  ringLng(): ObjAccessor<number>;
+  ringLng(longitudeAccessor: ObjAccessor<number>): ChainableInstance;
+  ringAltitude(): ObjAccessor<number>;
+  ringAltitude(altitudeAccessor: ObjAccessor<number>): ChainableInstance;
+  ringColor(): ObjAccessor<string | string[] | ((t: number) => string)>;
+  ringColor(colorAccessor: ObjAccessor<string | string[] | ((t: number) => string)>): ChainableInstance;
+  ringResolution(): number;
+  ringResolution(resolution: number): ChainableInstance;
+  ringMaxRadius(): ObjAccessor<number>;
+  ringMaxRadius(radiusAccessor: ObjAccessor<number>): ChainableInstance;
+  ringPropagationSpeed(): ObjAccessor<number>;
+  ringPropagationSpeed(speedAccessor: ObjAccessor<number>): ChainableInstance;
+  ringRepeatPeriod(): ObjAccessor<number>;
+  ringRepeatPeriod(msAccessor: ObjAccessor<number>): ChainableInstance;
+
   // Labels layer
   labelsData(): object[];
   labelsData(data: object[]): ChainableInstance;
@@ -278,26 +318,6 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   labelDotOrientation(orientationAccessor: ObjAccessor<LabelOrientation>): ChainableInstance;
   labelsTransitionDuration(): number;
   labelsTransitionDuration(durationMs: number): ChainableInstance;
-
-  // Rings Layer
-  ringsData(): object[];
-  ringsData(data: object[]): ChainableInstance;
-  ringLat(): ObjAccessor<number>;
-  ringLat(latitudeAccessor: ObjAccessor<number>): ChainableInstance;
-  ringLng(): ObjAccessor<number>;
-  ringLng(longitudeAccessor: ObjAccessor<number>): ChainableInstance;
-  ringAltitude(): ObjAccessor<number>;
-  ringAltitude(altitudeAccessor: ObjAccessor<number>): ChainableInstance;
-  ringColor(): ObjAccessor<string | string[] | ((t: number) => string)>;
-  ringColor(colorAccessor: ObjAccessor<string | string[] | ((t: number) => string)>): ChainableInstance;
-  ringResolution(): number;
-  ringResolution(resolution: number): ChainableInstance;
-  ringMaxRadius(): ObjAccessor<number>;
-  ringMaxRadius(radiusAccessor: ObjAccessor<number>): ChainableInstance;
-  ringPropagationSpeed(): ObjAccessor<number>;
-  ringPropagationSpeed(speedAccessor: ObjAccessor<number>): ChainableInstance;
-  ringRepeatPeriod(): ObjAccessor<number>;
-  ringRepeatPeriod(msAccessor: ObjAccessor<number>): ChainableInstance;
 
   // HTML Elements layer
   htmlElementsData(): object[];
