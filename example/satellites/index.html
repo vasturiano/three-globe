@@ -45,7 +45,12 @@
       .particleLat('lat')
       .particleLng('lng')
       .particleAltitude('alt')
-      .particlesColor(() => 'palegreen');
+      .particlesSize(2);
+
+    new THREE.TextureLoader().load('./sat-icon.png', texture => {
+      texture.colorSpace = THREE.SRGBColorSpace;
+      Globe.particlesTexture(texture);
+    });
 
     fetch('./space-track-leo.txt').then(r => r.text()).then(rawData => {
       const tleData = rawData.replace(/\r/g, '').split(/\n(?=[^12])/).map(tle => tle.split('\n'));
