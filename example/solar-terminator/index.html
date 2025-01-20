@@ -1,8 +1,7 @@
 <head>
   <script type="importmap">{ "imports": {
     "three": "https://esm.sh/three",
-    "three/": "https://esm.sh/three/",
-    "three/addons/": "https://esm.sh/three/examples/jsm/"
+    "three/": "https://esm.sh/three/"
   }}</script>
 
 <!--  <script type="module"> import * as THREE from 'three'; window.THREE = THREE;</script>-->
@@ -31,7 +30,7 @@
   <script type="module">
     import ThreeGlobe from 'https://esm.sh/three-globe?external=three';
     import * as THREE from 'https://esm.sh/three';
-    import { TrackballControls } from 'three/addons/controls/TrackballControls.js?external=three';
+    import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js?external=three';
     import * as solar from 'https://esm.sh/solar-calculator';
 
     const VELOCITY = 9; // minutes per frame
