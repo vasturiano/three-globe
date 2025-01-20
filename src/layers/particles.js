@@ -92,11 +92,12 @@ export default Kapsule({
         obj.material.color = new THREE.Color(colorStr2Hex(color));
         obj.material.transparent = opacity < 1;
         obj.material.opacity = opacity;
+        obj.material.alphaTest = 0;
       } else {
+        obj.material.color = new THREE.Color(0xffffff);
+        obj.material.transparent = false;
+        obj.material.alphaTest = 0.5;
         obj.material.map = textureAccessor(d);
-        obj.material.color = null;
-        obj.material.opacity = 1;
-        obj.material.needsUpdate = true;
       }
     });
   }
