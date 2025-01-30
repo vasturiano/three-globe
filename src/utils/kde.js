@@ -85,16 +85,17 @@ export const computeGeoKde = async (vertexGeoCoords, data = [], {
       return ti.exp(-sq(x / bw) / 2) / (bw * sqrt2PI);
     }
 
-    const bwRad = bandwidth * PI / 180;
+    const bwRad = toRad(bandwidth);
+    const maxR = bandwidth * BW_RADIUS_INFLUENCE;
+    const maxRRad = toRad(maxR);
 
     for (let v of ti.range(vertices.dimensions[0])) {
       for (let i of ti.range(dataPnts.dimensions[0])) {
         const weight = dataPnts[i].z;
         if (weight) {
           const dist = geoDistance(dataPnts[i].xy, vertices[v]);
-          if (dist < bwRad * BW_RADIUS_INFLUENCE) { // max degree of influence, beyond is negligible
-            const val = gaussianKernel(dist, bwRad) * weight;
-            res[v] += val;
+          if (dist < maxRRad) { // max degree of influence, beyond is negligible
+            res[v] += gaussianKernel(dist, bwRad) * weight;
           }
         }
       }
