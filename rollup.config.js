@@ -4,7 +4,6 @@ import babel from '@rollup/plugin-babel';
 import json from '@rollup/plugin-json';
 import terser from "@rollup/plugin-terser";
 import dts from 'rollup-plugin-dts';
-import taichi from "rollup-plugin-taichi"
 
 import pkg from './package.json' with { type: 'json' };
 const { name, homepage, version, dependencies, peerDependencies } = pkg;
@@ -34,7 +33,6 @@ export default [
       }
     ],
     plugins: [
-      taichi(),
       json({ compact: true }),
       resolve(),
       commonJs(),
@@ -51,7 +49,6 @@ export default [
     ],
     external: [...Object.keys(dependencies), ...Object.keys(peerDependencies)],
     plugins: [
-      taichi(),
       json({ compact: true }),
       babel({ babelHelpers: "bundled" })
     ]

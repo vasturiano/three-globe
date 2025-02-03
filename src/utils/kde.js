@@ -1,5 +1,4 @@
 import { sum } from 'd3-array';
-import * as ti from 'taichi-esm';
 
 const sq = x => x * x;
 
@@ -45,6 +44,7 @@ export const getGeoKDE = ([lng, lat], data = [], {
 };
 
 // use WebGPU to accelerate computation of kde vals per every coord pair
+/*
 export const computeGeoKde = async (vertexGeoCoords, data = [], {
   lngAccessor = d => d[0],
   latAccessor = d => d[1],
@@ -104,3 +104,4 @@ export const computeGeoKde = async (vertexGeoCoords, data = [], {
 
   return await res.toArray();
 }
+*/
