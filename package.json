@@ -56,7 +56,7 @@
     "h3-js": "4",
     "index-array-by": "1",
     "kapsule": "^1.16",
-    "taichi-esm": "^0.1.0",
+    "taichi-esm": "1",
     "three-conic-polygon-geometry": "2",
     "three-geojson-geometry": "2",
     "three-slippy-map-globe": "1",
