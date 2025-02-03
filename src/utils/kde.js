@@ -1,5 +1,5 @@
 import { sum } from 'd3-array';
-import * as ti from 'taichi.js';
+import * as ti from 'taichi-esm';
 
 const sq = x => x * x;
 
