@@ -1,8 +1,7 @@
 <head>
   <script type="importmap">{ "imports": {
     "three": "https://esm.sh/three",
-    "three/": "https://esm.sh/three/",
-    "taichi.js": "https://dev.jspm.io/taichi.js"
+    "three/": "https://esm.sh/three/"
   }}</script>
 
 <!--  <script type="module"> import * as THREE from 'three'; window.THREE = THREE;</script>-->
@@ -30,7 +29,7 @@
   <div id="time-log"></div>
 
   <script type="module">
-    import ThreeGlobe from 'https://esm.sh/three-globe?external=three,taichi.js';
+    import ThreeGlobe from 'https://esm.sh/three-globe?external=three';
     import * as THREE from 'https://esm.sh/three';
     import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js?external=three';
     import * as satellite from 'https://esm.sh/satellite.js';
