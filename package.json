@@ -59,8 +59,7 @@
     "three-conic-polygon-geometry": "2",
     "three-geojson-geometry": "2",
     "three-slippy-map-globe": "1",
-    "tinycolor2": "1",
-    "yaot": "^1.1"
+    "tinycolor2": "1"
   },
   "peerDependencies": {
     "three": ">=0.154"
@@ -75,7 +74,7 @@
     "@rollup/plugin-terser": "^0.4.4",
     "@types/three": ">=0.154.0",
     "rimraf": "^6.0.1",
-    "rollup": "^4.34.1",
+    "rollup": "^4.34.3",
     "rollup-plugin-dts": "^6.1.1",
     "three": "^0.173.0",
     "typescript": "^5.7.3"

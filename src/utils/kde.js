@@ -1,11 +1,13 @@
 import { sum } from 'd3-array';
+import { WebGPURenderer, StorageInstancedBufferAttribute } from 'three/webgpu';
+import * as tsl from 'three/tsl';
 
 const sq = x => x * x;
+const toRad = x => x * Math.PI / 180;
 
 function geoDistance(a, b) { // on sphere surface, in radians
   const sqrt = Math.sqrt;
   const cos = Math.cos;
-  const toRad = x => x * Math.PI / 180;
   const hav = x => sq(Math.sin(x / 2));
 
   const latA = toRad(a[1]);
@@ -44,64 +46,98 @@ export const getGeoKDE = ([lng, lat], data = [], {
 };
 
 // use WebGPU to accelerate computation of kde vals per every coord pair
-/*
 export const computeGeoKde = async (vertexGeoCoords, data = [], {
   lngAccessor = d => d[0],
   latAccessor = d => d[1],
   weightAccessor = () => 1,
   bandwidth // in degrees
 } = {}) => {
-  await ti.init();
+  const BW_RADIUS_INFLUENCE = 4; // multiplier of bandwidth to set max radius of point influence (exclude points to improve performance)
 
-  const dataPnts = ti.field(ti.types.vector(ti.f32, 3), data.length); // 3rd position is weight
-  const vertices = ti.field(ti.types.vector(ti.f32, 2), vertexGeoCoords.length);
-  const res = ti.field(ti.f32, vertexGeoCoords.length);
+  const { Fn, If, uniform, storage, float, instanceIndex, Loop, sqrt, sin, cos, asin, exp, negate } = tsl;
 
-  await dataPnts.fromArray(data.map(d => ([lngAccessor(d), latAccessor(d), weightAccessor(d)])));
-  await vertices.fromArray(vertexGeoCoords);
-  await res.fromArray(new Array(vertexGeoCoords.length).fill(0));
+  const sCoords = storage(
+    new StorageInstancedBufferAttribute(new Float32Array(vertexGeoCoords.flat().map(toRad)), 2),
+    'vec2',
+    vertexGeoCoords.length
+  );
 
-  ti.addToKernelScope({ dataPnts, vertices, res, bandwidth });
+  const sData = storage(
+    new StorageInstancedBufferAttribute(new Float32Array(data.map(d => [
+      toRad(lngAccessor(d)),
+      toRad(latAccessor(d)),
+      weightAccessor(d)
+    ]).flat()), 3),
+    'vec3',
+    data.length
+  );
 
-  await ti.kernel(() => {
-    const BW_RADIUS_INFLUENCE = 4; // multiplier of bandwidth to set max radius of point influence (exclude points to improve performance)
-    const PI = 3.141592653589;
-    const sqrt2PI = ti.sqrt(2.0 * PI);
-    const sq = x => x * x;
-    const toRad = x => x * PI / 180;
-    const hav = x => sq(ti.sin(x / 2));
+  const res = new StorageInstancedBufferAttribute(vertexGeoCoords.length, 1);
+  const sRes = storage(res, 'float', vertexGeoCoords.length);
 
-    const geoDistance = (a, b) => { // on sphere surface, in radians
-      const latA = toRad(a[1]);
-      const latB = toRad(b[1]);
-      const lngA = toRad(a[0]);
-      const lngB = toRad(b[0]);
+  const PI = float(Math.PI);
+  const sqrt2PI = sqrt(PI.mul(2));
+  const sq = x => x.mul(x);
+  const hav = x => sq(sin(x.div(2)));
 
-      // Haversine formula
-      return 2 * ti.asin(ti.sqrt(hav(latB - latA) + ti.cos(latA) * ti.cos(latB) * hav(lngB - lngA)));
-    }
+  const geoDistance = (a, b) => { // on sphere surface, in radians
+    const latA = float(a[1]);
+    const latB = float(b[1]);
+    const lngA = float(a[0]);
+    const lngB = float(b[0]);
 
-    const gaussianKernel = (x, bw) => {
-      return ti.exp(-sq(x / bw) / 2) / (bw * sqrt2PI);
-    }
+    // Haversine formula
+    return float(2).mul(asin(sqrt(hav(latB.sub(latA)).add(cos(latA).mul(cos(latB)).mul(hav(lngB.sub(lngA)))))));
+  }
 
-    const bwRad = toRad(bandwidth);
-    const maxR = bandwidth * BW_RADIUS_INFLUENCE;
-    const maxRRad = toRad(maxR);
+  const gaussianKernel = (x, bw) =>
+    exp(negate(sq(x.div(bw)).div(2))).div((bw.mul(sqrt2PI)));
 
-    for (let v of ti.range(vertices.dimensions[0])) {
-      for (let i of ti.range(dataPnts.dimensions[0])) {
-        const weight = dataPnts[i].z;
-        if (weight) {
-          const dist = geoDistance(dataPnts[i].xy, vertices[v]);
-          if (dist < maxRRad) { // max degree of influence, beyond is negligible
-            res[v] += gaussianKernel(dist, bwRad) * weight;
-          }
-        }
-      }
-    }
-  })();
+  const bwRad = uniform(toRad(bandwidth));
+  const maxRRad = uniform(toRad(bandwidth * BW_RADIUS_INFLUENCE));
+  const n = uniform(data.length);
 
-  return await res.toArray();
+  const computeShaderFn = Fn(() => {
+    const coords = sCoords.element(instanceIndex);
+    const res = sRes.element(instanceIndex);
+    res.assign(0);
+
+    Loop(n, ({ i }) => {
+      const d = sData.element(i);
+      const weight = d.z;
+      If(weight, () => {
+        const dist = geoDistance(d.xy, coords.xy);
+        If(dist && dist.lessThan(maxRRad), () => { // max degree of influence, beyond is negligible
+          res.addAssign(gaussianKernel(dist, bwRad).mul(weight));
+        });
+      });
+    });
+  });
+
+  const computeNode = computeShaderFn().compute(vertexGeoCoords.length);
+
+  const renderer = new WebGPURenderer();
+  await renderer.computeAsync(computeNode);
+
+  return Array.from(new Float32Array(await renderer.getArrayBufferAsync(res)));
+}
+
+/*
+const basicGpuCompute = async (n = 1000) => {
+  const res = new StorageInstancedBufferAttribute(n, 1);
+  const sRes = storage(res, 'float', n);
+
+  const computeShaderFn = Fn(() => {
+    const uN = uniform(n);
+    const r = sRes.element(instanceIndex);
+    r.assign(float(instanceIndex).div(uN));
+  });
+
+  const computeNode = computeShaderFn().compute(n);
+
+  const renderer = new WebGPURenderer();
+  await renderer.computeAsync(computeNode);
+
+  return Array.from(new Float32Array(await renderer.getArrayBufferAsync(res)));
 }
 */
