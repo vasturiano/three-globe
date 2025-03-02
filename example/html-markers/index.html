@@ -6,15 +6,15 @@
     "three/": "https://esm.sh/three/"
   }}</script>
 
-<!--  <script type="module"> import * as THREE from 'three'; window.THREE = THREE;</script>-->
-<!--  <script src="../../dist/three-globe.js" defer></script>-->
+  <script type="module"> import * as THREE from 'three'; window.THREE = THREE;</script>
+  <script src="../../dist/three-globe.js" defer></script>
 </head>
 
 <body>
   <div id="globeViz"></div>
 
   <script type="module">
-    import ThreeGlobe from 'https://esm.sh/three-globe?external=three';
+    // import ThreeGlobe from 'https://esm.sh/three-globe?external=three';
     import * as THREE from 'https://esm.sh/three';
     import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js?external=three';
     import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js?external=three';
@@ -42,8 +42,10 @@
         el.innerHTML = markerSvg;
         el.style.color = d.color;
         el.style.width = `${d.size}px`;
+        el.style.transition = 'opacity 250ms';
         return el;
-      });
+      })
+      .htmlElementVisibilityModifier((el, isVisible) => el.style.opacity = isVisible ? 1 : 0);
 
     // Setup renderers
     const renderers = [new THREE.WebGLRenderer(), new CSS2DRenderer()];

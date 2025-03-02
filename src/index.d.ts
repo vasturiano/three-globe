@@ -330,6 +330,8 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   htmlAltitude(altitudeAccessor: ObjAccessor<number>): ChainableInstance;
   htmlElement(): HTMLElement | string | ((d: object) => HTMLElement);
   htmlElement(htmlElementAccessor: HTMLElement | string | ((d: object) => HTMLElement)): ChainableInstance;
+  htmlElementVisibilityModifier(): (el: HTMLElement, isVisible: boolean) => void;
+  htmlElementVisibilityModifier(modifierFn: (el: HTMLElement, isVisible: boolean) => void): ChainableInstance;
   htmlTransitionDuration(): number;
   htmlTransitionDuration(durationMs: number): ChainableInstance;
 
