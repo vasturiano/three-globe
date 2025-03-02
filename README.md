@@ -24,6 +24,7 @@ See also the [standalone version](https://github.com/vasturiano/globe.gl), and t
 * [Tiles](https://vasturiano.github.io/three-globe/example/tiles/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/tiles/index.html))
 * [Ripple Rings](https://vasturiano.github.io/three-globe/example/ripples/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/ripples/index.html))
 * [Clouds](https://vasturiano.github.io/three-globe/example/clouds/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/clouds/index.html))
+* [Day/Night Cycle](https://vasturiano.github.io/three-globe/example/day-night-cycle/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/day-night-cycle/index.html))
 * [Solar Terminator](https://vasturiano.github.io/three-globe/example/solar-terminator/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/solar-terminator/index.html))
 * [Labels](https://vasturiano.github.io/three-globe/example/labels/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/labels/index.html))
 * [HTML Markers](https://vasturiano.github.io/three-globe/example/html-markers/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/html-markers/index.html))
