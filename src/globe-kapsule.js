@@ -253,6 +253,7 @@ const linkedHtmlElementsLayerProps = Object.assign(...[
   'htmlLng',
   'htmlAltitude',
   'htmlElement',
+  'htmlElementVisibilityModifier',
   'htmlTransitionDuration'
 ].map(p => ({ [p]: bindHtmlElementsLayer.linkProp(p)})));
 
