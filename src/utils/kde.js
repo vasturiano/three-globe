@@ -52,6 +52,16 @@ export const computeGeoKde = async (vertexGeoCoords, data = [], {
   weightAccessor = () => 1,
   bandwidth // in degrees
 } = {}) => {
+  if (!navigator?.gpu) {
+    console.warn('WebGPU not enabled in browser. Please consider enabling it to improve performance.');
+    return vertexGeoCoords.map(coords => getGeoKDE(coords, data, {
+      lngAccessor,
+      latAccessor,
+      weightAccessor,
+      bandwidth
+    }));
+  }
+
   const BW_RADIUS_INFLUENCE = 4; // multiplier of bandwidth to set max radius of point influence (exclude points to improve performance)
 
   const { Fn, If, uniform, storage, float, instanceIndex, Loop, sqrt, sin, cos, asin, exp, negate } = tsl;
