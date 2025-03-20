@@ -103,8 +103,8 @@
 
     let globeMaterial;
     Promise.all([
-      new THREE.TextureLoader().loadAsync('//unpkg.com/three-globe/example/img/earth-day.jpg'),
-      new THREE.TextureLoader().loadAsync('//unpkg.com/three-globe/example/img/earth-night.jpg')
+      new THREE.TextureLoader().loadAsync('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-day.jpg'),
+      new THREE.TextureLoader().loadAsync('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-night.jpg')
     ]).then(([dayTexture, nightTexture]) => {
       const material = globeMaterial = new THREE.ShaderMaterial({
         uniforms: {

@@ -31,8 +31,8 @@
     const colorInterpolator = t => `rgba(255,100,50,${1-t})`;
 
     const Globe = new ThreeGlobe()
-      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
-      .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
+      .globeImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-dark.jpg')
+      .bumpImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png')
       .ringsData(gData)
       .ringColor(() => colorInterpolator)
       .ringMaxRadius('maxR')
