@@ -40,7 +40,7 @@ import ThreeGlobe from 'three-globe';
 ```
 or using a *script* tag
 ```html
-<script src="//unpkg.com/three-globe"></script>
+<script src="//cdn.jsdelivr.net/npm/three-globe"></script>
 ```
 then
 ```js
