@@ -142,16 +142,24 @@ export default Kapsule({
         const addStroke = !!strokeColor;
         strokeObj.visible = addStroke;
 
+        const hasCap = !!(capColor || capMaterial);
+        const hasSide = !!(sideColor || sideMaterial);
+
         // regenerate geometries if needed
-        if(!objMatch(conicObj.geometry.parameters || {}, { polygonGeoJson: coords, curvatureResolution: capCurvatureResolution })) {
+        if(!objMatch(conicObj.geometry.parameters || {}, {
+          polygonGeoJson: coords,
+          curvatureResolution: capCurvatureResolution,
+          closedTop: hasCap,
+          includeSides: hasSide,
+        })) {
           conicObj.geometry && conicObj.geometry.dispose();
           conicObj.geometry = new ConicPolygonGeometry(
             coords,
             0,
             GLOBE_RADIUS,
             false,
-            true,
-            true,
+            hasCap,
+            hasSide,
             capCurvatureResolution
           );
         }
@@ -165,13 +173,16 @@ export default Kapsule({
           );
         }
 
+        const sideIdx = hasSide ? 0 : -1;
+        const capIdx = !hasCap ? -1 : hasSide ? 1 : 0;
+
         // replace side/cap materials if defined
-        conicObj.material[0] = sideMaterial || obj.__defaultSideMaterial;
-        conicObj.material[1] = capMaterial || obj.__defaultCapMaterial;
+        sideIdx >= 0 && (conicObj.material[sideIdx] = sideMaterial || obj.__defaultSideMaterial);
+        capIdx >= 0 && (conicObj.material[capIdx] = capMaterial || obj.__defaultCapMaterial);
 
         // update default material colors
-        [!sideMaterial && sideColor, !capMaterial && capColor].forEach((color, materialIdx) => {
-          if (!color) return; // skip custom materials
+        [[!sideMaterial && sideColor, sideIdx], [!capMaterial && capColor, capIdx]].forEach(([color, materialIdx]) => {
+          if (!color || materialIdx < 0) return; // skip custom or hidden materials
 
           // conic object
           const material = conicObj.material[materialIdx];
