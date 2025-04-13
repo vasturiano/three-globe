@@ -138,7 +138,9 @@ export default Kapsule({
           font: state.font,
           size: textHeight,
           depth: 0,
-          height: 0,
+          bevelEnabled: true,
+          bevelThickness: 0,
+          bevelSize: 0,
           curveSegments: state.labelResolution
         });
 
