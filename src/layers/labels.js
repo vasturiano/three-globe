@@ -147,10 +147,13 @@ export default Kapsule({
         // update text convex hull/bounding box
         bbObj.geometry && bbObj.geometry.dispose();
         textObj.geometry.computeBoundingBox();
-        bbObj.geometry = new THREE.BoxGeometry(...new THREE.Vector3()
-          .subVectors(textObj.geometry.boundingBox.max, textObj.geometry.boundingBox.min)
-          .toArray()
-        );
+        const bbox = textObj.geometry.boundingBox;
+        bbObj.geometry = bbox.max.x < bbox.min.x ? undefined :
+          // skip if empty text geometry
+          new THREE.BoxGeometry(...new THREE.Vector3()
+            .subVectors(textObj.geometry.boundingBox.max, textObj.geometry.boundingBox.min)
+            .toArray()
+          );
 
         // center text (otherwise anchor is on bottom-left)
         dotOrient !== 'right' && textObj.geometry.center();
