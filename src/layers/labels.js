@@ -48,7 +48,7 @@ export default Kapsule({
     labelsData: { default: [] },
     labelLat: { default: 'lat' },
     labelLng: { default: 'lng' },
-    labelAltitude: { default: 0 }, // in units of globe radius
+    labelAltitude: { default: 0.002 }, // in units of globe radius
     labelText: { default: 'text' },
     labelSize: { default: 0.5 }, // text height in deg
     labelTypeFace: { default: defaultTypeFace, onChange(tf, state) { state.font = new THREE.Font(tf) }},
