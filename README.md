@@ -33,6 +33,10 @@ See also the [standalone version](https://github.com/vasturiano/globe.gl), and t
 * [Custom Globe Material](https://vasturiano.github.io/three-globe/example/custom-material/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/custom-material/index.html))
 * [Custom Layer](https://vasturiano.github.io/three-globe/example/custom/) ([source](https://github.com/vasturiano/three-globe/blob/master/example/custom/index.html))
 
+## Giving Back
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=L398E7PKP47E8&currency_code=USD&source=url) If this project has helped you and you'd like to contribute back, you can always [buy me a ☕](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=L398E7PKP47E8&currency_code=USD&source=url)!
+
 ## Quick start
 
 ```js
@@ -325,10 +329,6 @@ new ThreeGlobe({ configOptions })
 | <b>pauseAnimation</b>() | Pauses the animation on all globe layers. | |
 | <b>resumeAnimation</b>() | Resumes the animation on all globe layers. | |
 
-
-## Giving Back
-
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=L398E7PKP47E8&currency_code=USD&source=url) If this project has helped you and you'd like to contribute back, you can always [buy me a ☕](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=L398E7PKP47E8&currency_code=USD&source=url)!
 
 [npm-img]: https://img.shields.io/npm/v/three-globe
 [npm-url]: https://npmjs.org/package/three-globe
