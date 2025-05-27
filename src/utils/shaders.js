@@ -28,7 +28,7 @@ export const dashedLineShaders = () => ({
     }
   `,
   fragmentShader: `
-    ${ShaderChunk.logdepthbuf_fragment}
+    ${ShaderChunk.logdepthbuf_pars_fragment}
     uniform float dashOffset; 
     uniform float dashSize;
     uniform float gapSize; 
