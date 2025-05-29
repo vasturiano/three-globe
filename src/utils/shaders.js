@@ -1,3 +1,5 @@
+import { ShaderChunk } from 'three';
+
 export const dashedLineShaders = () => ({
   uniforms: {
     // dash param defaults, all relative to full length
@@ -7,6 +9,9 @@ export const dashedLineShaders = () => ({
     dashTranslate: { value: 0 } // used for animating the dash
   },
   vertexShader: `
+    ${ShaderChunk.common}
+    ${ShaderChunk.logdepthbuf_pars_vertex}
+  
     uniform float dashTranslate; 
 
     attribute vec4 color;
@@ -20,9 +25,13 @@ export const dashedLineShaders = () => ({
       vColor = color;
       vRelDistance = relDistance + dashTranslate;
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  
+      ${ShaderChunk.logdepthbuf_vertex}
     }
   `,
   fragmentShader: `
+    ${ShaderChunk.logdepthbuf_pars_fragment}
+
     uniform float dashOffset; 
     uniform float dashSize;
     uniform float gapSize; 
@@ -37,6 +46,8 @@ export const dashedLineShaders = () => ({
     
       // set px color: [r, g, b, a], interpolated between vertices 
       gl_FragColor = vColor; 
+  
+      ${ShaderChunk.logdepthbuf_fragment}
     }
   `
 });
