@@ -101,6 +101,7 @@ new ThreeGlobe({ configOptions })
 | <b>atmosphereAltitude</b>([<i>str</i>]) | Getter/setter for the max altitude of the atmosphere, in terms of globe radius units. | 0.15 |
 | <b>globeTileEngineUrl</b>([<i>fn(x, y, l)</i>]) | Getter/setter for the function that defines the URL of the [slippy map](https://en.wikipedia.org/wiki/Tiled_web_map) tile engine to cover the globe surface. The slippy map coordinates `x`, `y` and `l` (zoom level) are passed as arguments and the function is expected to return a URL string. A falsy value will disable the tiling engine. | - |
 | <b>globeTileEngineMaxZoom</b>([<i>num</i>]) | Getter/setter for the maximum zoom level of the tile engine. | `17` |
+| <b>globeCurvatureResolution</b>([<i>number</i>]) | Getter/setter of the resolution in angular degrees of the sphere curvature. The finer the resolution, the more the globe is fragmented into smaller faces to approximate the spheric surface, at the cost of performance. | `4` |
 | <b>globeMaterial</b>([<i>material</i>]) | Getter/setter of the ThreeJS material used to wrap the globe. Can be used for more advanced styling of the globe, like in [this example](https://github.com/vasturiano/three-globe/blob/master/example/custom-material/index.html). | [MeshPhongMaterial](https://threejs.org/docs/#api/en/materials/MeshPhongMaterial) |
 | <b>onGlobeReady</b>(<i>fn</i>) | Callback function to invoke immediately after the globe has been initialized and visible on the scene. | - |
 
