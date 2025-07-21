@@ -24,7 +24,7 @@ varying vec3 vVertexNormal;
 varying float vCameraDistanceToObjCenter;
 varying float vVertexAngularDistanceToHollowRadius;
 
-void main() {    
+void main() {
   vVertexNormal	= normalize(normalMatrix * normal);
   vVertexWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
   
@@ -43,11 +43,17 @@ uniform vec3 color;
 uniform float coefficient;
 uniform float power;
 uniform float hollowRadius;
+uniform float intensity;
+uniform vec3 lightDirection;
 
 varying vec3 vVertexNormal;
 varying vec3 vVertexWorldPosition;
 varying float vCameraDistanceToObjCenter;
 varying float vVertexAngularDistanceToHollowRadius;
+
+float remap(float value, float inMin, float inMax, float outMin, float outMax) {
+  return outMin + (outMax - outMin) * (value - inMin) / (inMax - inMin);
+}
 
 void main() {
   if (vCameraDistanceToObjCenter < hollowRadius) discard; // inside the hollowRadius
@@ -56,21 +62,22 @@ void main() {
   vec3 worldCameraToVertex = vVertexWorldPosition - cameraPosition;
   vec3 viewCameraToVertex	= (viewMatrix * vec4(worldCameraToVertex, 0.0)).xyz;
   viewCameraToVertex = normalize(viewCameraToVertex);
-  float intensity	= pow(
-    coefficient + dot(vVertexNormal, viewCameraToVertex),
-    power
-  );
-  gl_FragColor = vec4(color, intensity);
+  float fresnel	= smoothstep(0.0, 1.0 - coefficient, pow(dot(vVertexNormal, viewCameraToVertex), power));
+  float light = mix(1.0, clamp(dot(normalize(lightDirection), vVertexNormal), 0.05, 1.0), step(0.0000001, length(lightDirection)));
+  gl_FragColor = clamp(intensity * vec4(color, fresnel * light), 0.0, 1.0);
 }`;
 
 // Based off: http://stemkoski.blogspot.fr/2013/07/shaders-in-threejs-glow-and-halo.html
-function createGlowMaterial(coefficient, color, power, hollowRadius) {
+function createGlowMaterial(intensity, coefficient, color, power, hollowRadius, lightDirection) {
   return new THREE.ShaderMaterial({
     depthWrite: false,
     transparent: true,
     vertexShader,
     fragmentShader,
     uniforms: {
+      intensity: {
+        value: intensity
+      },
       coefficient: {
         value: coefficient,
       },
@@ -82,6 +89,9 @@ function createGlowMaterial(coefficient, color, power, hollowRadius) {
       },
       hollowRadius: {
         value: hollowRadius,
+      },
+      lightDirection: {
+        value: lightDirection,
       }
     },
   });
@@ -106,15 +116,17 @@ export default class GlowMesh extends THREE.Mesh {
   constructor(geometry, {
     color= 'gold',
     size= 2,
+    intensity= 1,
     coefficient= 0.5,
     power= 1,
     hollowRadius= 0,
+    lightDirection= [0,0,0],
     backside = true
   } = {}) {
     super();
 
     const glowGeometry = createGlowGeometry(geometry, size);
-    const glowMaterial = createGlowMaterial(coefficient, color, power, hollowRadius);
+    const glowMaterial = createGlowMaterial(intensity, coefficient, color, power, hollowRadius, lightDirection);
     backside && (glowMaterial.side = THREE.BackSide);
 
     this.geometry = glowGeometry;

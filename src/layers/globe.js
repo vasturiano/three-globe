@@ -44,7 +44,11 @@ export default Kapsule({
     showGraticules: { default: false, onChange(showGraticules, state) { state.graticulesObj.visible = !!showGraticules }, triggerUpdate: false },
     showAtmosphere: { default: true, onChange(showAtmosphere, state) { state.atmosphereObj && (state.atmosphereObj.visible = !!showAtmosphere) }, triggerUpdate: false },
     atmosphereColor: { default: 'lightskyblue' },
-    atmosphereAltitude: { default: 0.15 },
+    atmosphereAltitude: { default: 0.2 },
+    atmosphereIntensity: { default: 1 },
+    atmosphereDispersion: { default: 2 },
+    atmosphereDensity: { default: 0.25 },
+    atmosphereLightDirection: { default: [0, 0, 0] },
     globeCurvatureResolution: { default: 4 },
     globeTileEngineUrl: { onChange(v, state) { state.tileEngine.tileUrl = v } },
     globeTileEngineMaxLevel: { default: 17, onChange(v, state) { state.tileEngine.maxLevel = v }, triggerUpdate: false },
@@ -152,20 +156,22 @@ export default Kapsule({
       }
     }
 
-    if (changedProps.hasOwnProperty('atmosphereColor') || changedProps.hasOwnProperty('atmosphereAltitude')) {
+    if (['atmosphereColor', 'atmosphereAltitude', 'atmosphereIntensity', 'atmosphereDispersion', 'atmosphereDensity', 'atmosphereLightDirection'].some(prop => changedProps.hasOwnProperty(prop))) {
       if (state.atmosphereObj) {
         // recycle previous atmosphere object
         state.scene.remove(state.atmosphereObj);
         emptyObject(state.atmosphereObj);
       }
 
-      if (state.atmosphereColor && state.atmosphereAltitude) {
+      if (state.atmosphereColor && state.atmosphereAltitude && state.atmosphereIntensity && state.atmosphereDispersion && state.atmosphereDensity && state.atmosphereLightDirection) {
         const obj = state.atmosphereObj = new GlowMesh(state.globeObj.geometry, {
           color: state.atmosphereColor,
           size: GLOBE_RADIUS * state.atmosphereAltitude,
           hollowRadius: GLOBE_RADIUS,
-          coefficient: 0.1,
-          power: 3.5, // dispersion
+          intensity: state.atmosphereIntensity,
+          coefficient: state.atmosphereDensity,
+          power: state.atmosphereDispersion,
+          lightDirection: state.atmosphereLightDirection,
         });
         obj.visible = !!state.showAtmosphere;
         obj.__globeObjType = 'atmosphere'; // Add object type

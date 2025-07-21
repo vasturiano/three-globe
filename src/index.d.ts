@@ -43,6 +43,14 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   atmosphereColor(color: string): ChainableInstance;
   atmosphereAltitude(): number;
   atmosphereAltitude(alt: number): ChainableInstance;
+  atmosphereIntensity(): number;
+  atmosphereIntensity(alt: number): ChainableInstance;
+  atmosphereDispersion(): number;
+  atmosphereDispersion(alt: number): ChainableInstance;
+  atmosphereLightDirection(): number[];
+  atmosphereLightDirection(alt: number[]): ChainableInstance;
+  atmosphereDensity(): number;
+  atmosphereDensity(alt: number): ChainableInstance;
   globeCurvatureResolution(): number;
   globeCurvatureResolution(res: number): ChainableInstance;
   globeTileEngineUrl(): (x: number, y: number, level: number) => string;
