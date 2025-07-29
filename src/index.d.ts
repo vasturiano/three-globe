@@ -84,6 +84,10 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   arcStartLng(longitudeAccessor: ObjAccessor<number>): ChainableInstance;
   arcEndLng(): ObjAccessor<number>;
   arcEndLng(longitudeAccessor: ObjAccessor<number>): ChainableInstance;
+  arcStartAltitude(): ObjAccessor<number>;
+  arcStartAltitude(altitudeAccessor: ObjAccessor<number>): ChainableInstance;
+  arcEndAltitude(): ObjAccessor<number>;
+  arcEndAltitude(altitudeAccessor: ObjAccessor<number>): ChainableInstance;
   arcColor(): ObjAccessor<string | string[] | ((t: number) => string)>;
   arcColor(colorsAccessor: ObjAccessor<string | string[] | ((t: number) => string)>): ChainableInstance;
   arcAltitude(): ObjAccessor<number | null>;
