@@ -50,8 +50,10 @@ export default Kapsule({
     arcsData: { default: [] },
     arcStartLat: { default: 'startLat' },
     arcStartLng: { default: 'startLng' },
+    arcStartAltitude: { default: 0 },
     arcEndLat: { default: 'endLat' },
     arcEndLng: { default: 'endLng' },
+    arcEndAltitude: { default: 0 },
     arcColor: { default: () => '#ffffaa' }, // single color, array of colors or color interpolation fn
     arcAltitude: {}, // in units of globe radius
     arcAltitudeAutoScale: { default: 0.5 }, // scale altitude proportional to great-arc distance between the two points
@@ -121,8 +123,10 @@ export default Kapsule({
     // Data accessors
     const startLatAccessor = accessorFn(state.arcStartLat);
     const startLngAccessor = accessorFn(state.arcStartLng);
+    const startAltAccessor = accessorFn(state.arcStartAltitude);
     const endLatAccessor = accessorFn(state.arcEndLat);
     const endLngAccessor = accessorFn(state.arcEndLng);
+    const endAltAccessor = accessorFn(state.arcEndAltitude);
     const altitudeAccessor = accessorFn(state.arcAltitude);
     const altitudeAutoScaleAccessor = accessorFn(state.arcAltitudeAutoScale);
     const strokeAccessor = accessorFn(state.arcStroke);
@@ -201,8 +205,10 @@ export default Kapsule({
           altAutoScale: +altitudeAutoScaleAccessor(arc),
           startLat: +startLatAccessor(arc),
           startLng: +startLngAccessor(arc),
+          startAlt: +startAltAccessor(arc),
           endLat: +endLatAccessor(arc),
-          endLng: +endLngAccessor(arc)
+          endLng: +endLngAccessor(arc),
+          endAlt: +endAltAccessor(arc)
         };
 
         const currentTargetD = group.__currentTargetD || Object.assign({}, targetD, { altAutoScale: -1e-3 });
@@ -226,7 +232,7 @@ export default Kapsule({
 
     //
 
-    function calcCurve({ alt, altAutoScale, startLat, startLng, endLat, endLng }) {
+    function calcCurve({ alt, altAutoScale, startLat, startLng, startAlt, endLat, endLng, endAlt }) {
       const getVec = ([lng, lat, alt]) => {
         const { x, y, z } = polar2Cartesian(lat, lng, alt);
         return new THREE.Vector3(x, y, z);
@@ -239,15 +245,19 @@ export default Kapsule({
       let altitude = alt;
       (altitude === null || altitude === undefined) &&
         // by default set altitude proportional to the great-arc distance
-      (altitude = geoDistance(startPnt, endPnt) / 2 * altAutoScale);
+      (altitude = geoDistance(startPnt, endPnt) / 2 * altAutoScale + Math.max(startAlt, endAlt));
 
-      if (altitude) {
+      if (altitude || startAlt || endAlt) {
         const interpolate = geoInterpolate(startPnt, endPnt);
-        const [m1Pnt, m2Pnt] = [0.25, 0.75].map(t => [...interpolate(t), altitude * 1.5]);
-        const curve = new THREE.CubicBezierCurve3(...[startPnt, m1Pnt, m2Pnt, endPnt].map(getVec));
+        const calcAltCp = (a0, a1) => a1 + (a1 - a0) * (a0 < a1 ? 0.5 : 0.25);
 
-        //const mPnt = [...interpolate(0.5), altitude * 2];
-        //curve = new THREE.QuadraticBezierCurve3(...[startPnt, mPnt, endPnt].map(getVec));
+        const [m1Pnt, m2Pnt] = [0.25, 0.75].map(t => [...interpolate(t), calcAltCp(t < 0.5 ? startAlt : endAlt, altitude)]);
+        const curve = new THREE.CubicBezierCurve3(...[
+          [...startPnt, startAlt],
+          m1Pnt,
+          m2Pnt,
+          [...endPnt, endAlt]
+        ].map(getVec));
 
         return curve;
       } else {
