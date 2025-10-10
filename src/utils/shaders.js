@@ -54,8 +54,8 @@ export const dashedLineShaders = () => ({
 
 export const invisibleUndergroundShader = ({ vertexColors = false } = {}) => ({
   uniforms: {
-    color: { type: 'vec4' },
-    surfaceRadius: { type: 'float', value: 0 },
+    uColor: { type: 'vec4' },
+    uSurfaceRadius: { type: 'float', value: 0 },
   },
   vertexShader: `
     attribute vec4 color;
@@ -74,8 +74,8 @@ export const invisibleUndergroundShader = ({ vertexColors = false } = {}) => ({
     }
   `,
   fragmentShader: `
-    uniform vec4 color; 
-    uniform float surfaceRadius;
+    uniform vec4 uColor; 
+    uniform float uSurfaceRadius;
     
     varying vec3 vPos;
     varying vec4 vColor;
@@ -83,15 +83,15 @@ export const invisibleUndergroundShader = ({ vertexColors = false } = {}) => ({
     
     void main() {
       // ignore pixels underground
-      if (length(vPos) < max(surfaceRadius, vSurfaceRadius)) discard;
+      if (length(vPos) < max(uSurfaceRadius, vSurfaceRadius)) discard;
       
-      gl_FragColor = ${vertexColors ? 'vColor' : 'color'};
+      gl_FragColor = ${vertexColors ? 'vColor' : 'uColor'};
     }
   `
 });
 
 export const invisibleUndergroundShaderExtend = shader => {
-  shader.uniforms.surfaceRadius = { type: 'float', value: 0 };
+  shader.uniforms.uSurfaceRadius = { type: 'float', value: 0 };
   shader.vertexShader = ('attribute float surfaceRadius;\nvarying float vSurfaceRadius;\nvarying vec3 vPos;\n' + shader.vertexShader)
     .replace('void main() {', [
       'void main() {',
@@ -99,10 +99,10 @@ export const invisibleUndergroundShaderExtend = shader => {
       'vPos = position;'
     ].join('\n'));
 
-  shader.fragmentShader = ('uniform float surfaceRadius;\nvarying float vSurfaceRadius;\nvarying vec3 vPos;\n' + shader.fragmentShader)
+  shader.fragmentShader = ('uniform float uSurfaceRadius;\nvarying float vSurfaceRadius;\nvarying vec3 vPos;\n' + shader.fragmentShader)
     .replace('void main() {', [
       'void main() {',
-      'if (length(vPos) < max(surfaceRadius, vSurfaceRadius)) discard;'
+      'if (length(vPos) < max(uSurfaceRadius, vSurfaceRadius)) discard;'
     ].join('\n'));
 
   return shader;

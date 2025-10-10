@@ -207,7 +207,7 @@ export default Kapsule({
           const { alt } = obj.__currentTargetD = td;
           conicObj.scale.x = conicObj.scale.y = conicObj.scale.z = 1 + alt;
           addStroke && (strokeObj.scale.x = strokeObj.scale.y = strokeObj.scale.z = 1 + alt + 1e-4); // stroke slightly above the conic mesh
-          setExtendedMaterialUniforms(obj.__defaultSideMaterial, uniforms => (uniforms.surfaceRadius.value = GLOBE_RADIUS / (alt + 1))); // update side material scale uniform
+          setExtendedMaterialUniforms(obj.__defaultSideMaterial, uniforms => (uniforms.uSurfaceRadius.value = GLOBE_RADIUS / (alt + 1))); // update side material scale uniform
         };
 
         const currentTargetD = obj.__currentTargetD || Object.assign({}, targetD, { alt: -1e-3 });
