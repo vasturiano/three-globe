@@ -73,7 +73,11 @@ const linkedGlobeLayerProps = Object.assign(...[
   'showGraticules',
   'showAtmosphere',
   'atmosphereColor',
-  'atmosphereAltitude'
+  'atmosphereAltitude',
+  'atmosphereIntensity',
+  'atmosphereDispersion',
+  'atmosphereDensity',
+  'atmosphereLightDirection',
 ].map(p => ({ [p]: bindGlobeLayer.linkProp(p)})));
 
 const linkedGlobeLayerMethods = Object.assign(...[
