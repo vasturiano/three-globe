@@ -59,6 +59,9 @@ export default Kapsule({
       }
       return state.globeObj.material;
     },
+    globeTileEngineClearCache: function(state) {
+      state.tileEngine.clearTiles();
+    },
     _destructor: function(state) {
       emptyObject(state.globeObj);
       emptyObject(state.tileEngine);

@@ -49,6 +49,7 @@ export declare class ThreeGlobeGeneric<ChainableInstance> extends Object3D {
   globeTileEngineUrl(urlFn: (x: number, y: number, level: number) => string): ChainableInstance;
   globeTileEngineMaxLevel(): number;
   globeTileEngineMaxLevel(level: number): ChainableInstance;
+  globeTileEngineClearCache(): ChainableInstance;
   globeMaterial(): Material;
   globeMaterial(globeMaterial: Material): ChainableInstance;
   onGlobeReady(callback: (() => void)): ChainableInstance;
