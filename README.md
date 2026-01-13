@@ -100,6 +100,10 @@ new ThreeGlobe({ configOptions })
 | <b>showAtmosphere</b>([<i>boolean</i>]) | Getter/setter for whether to show a bright halo surrounding the globe, representing the atmosphere. | `true` |
 | <b>atmosphereColor</b>([<i>str</i>]) | Getter/setter for the color of the atmosphere. | `lightskyblue` |
 | <b>atmosphereAltitude</b>([<i>str</i>]) | Getter/setter for the max altitude of the atmosphere, in terms of globe radius units. | 0.15 |
+| <b>atmosphereIntensity</b>([<i>str</i>]) | Getter/setter for the overall brightness of the atmosphere. | 1 |
+| <b>atmosphereDispersion</b>([<i>str</i>]) | Getter/setter for the falloff strength of the atmosphere. | 2 |
+| <b>atmosphereDensity</b>([<i>str</i>]) | Getter/setter for the falloff offset of the atmosphere. | 0.25 |
+| <b>atmosphereLightDirection</b>([<i>str</i>]) | Getter/setter for the direction i.e. key light that will attenuate and shape the halo effect of the atmosphere. | [0, 0, 0] |
 | <b>globeTileEngineUrl</b>([<i>fn(x, y, l)</i>]) | Getter/setter for the function that defines the URL of the [slippy map](https://en.wikipedia.org/wiki/Tiled_web_map) tile engine to cover the globe surface. The slippy map coordinates `x`, `y` and `l` (zoom level) are passed as arguments and the function is expected to return a URL string. A falsy value will disable the tiling engine. | - |
 | <b>globeTileEngineMaxZoom</b>([<i>num</i>]) | Getter/setter for the maximum zoom level of the tile engine. | `17` |
 | <b>globeTileEngineClearCache</b>() | Clear the tile engine cache. ||
