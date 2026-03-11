@@ -142,16 +142,17 @@ export default Kapsule({
               obj.add(circleObj);
             } else {
               const transitionTime = Math.abs(maxRadius / propagationSpeed) * 1000;
-              state.tweenGroup.add(new Tween({ t: 0 })
+              const tween = new Tween({ t: 0 })
                 .to({ t: 1 }, transitionTime)
                 .onUpdate(updateFn)
                 .onStart(() => obj.add(circleObj))
                 .onComplete(() => {
                   obj.remove(circleObj);
                   deallocate(circleObj);
+                  state.tweenGroup.remove(tween); // prevent completed tween accumulation
                 })
-                .start()
-              );
+                .start();
+              state.tweenGroup.add(tween);
             }
           }
         })

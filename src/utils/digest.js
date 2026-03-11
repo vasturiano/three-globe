@@ -35,11 +35,12 @@ class ThreeDigest extends DataBindMapper {
       const d = super.getData(obj);
       fn(obj, dId);
 
+      delete obj[this.#dataBindAttr]; // break obj→data ref to allow data GC
+      delete d[this.#objBindAttr]; // break data→obj ref immediately
+
       const removeFn = () => {
         this.scene.remove(obj);
         emptyObject(obj);
-
-        delete d[this.#objBindAttr];
       };
 
       this.#removeDelay ? setTimeout(removeFn, this.#removeDelay) : removeFn();
