@@ -28,7 +28,7 @@ const BufferGeometryUtils = bfg.BufferGeometryUtils || bfg;
 
 import Kapsule from 'kapsule';
 import accessorFn from 'accessor-fn';
-import {Tween, Easing, update} from '@tweenjs/tween.js';
+import { Tween, Easing } from '@tweenjs/tween.js';
 
 import { colorStr2Hex, colorAlpha, color2ShaderArr } from '../utils/color-utils';
 import { array2BufferAttr } from '../utils/three-utils';
