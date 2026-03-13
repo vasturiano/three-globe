@@ -118,6 +118,7 @@ export default Kapsule({
               .to(targetD, state.tilesTransitionDuration)
               .easing(Easing.Quadratic.InOut)
               .onUpdate(applyPosition)
+              .onComplete(function() { state.tweenGroup.remove(this) })
               .start()
             );
           }

@@ -222,6 +222,7 @@ export default Kapsule({
               .to(targetD, state.polygonsTransitionDuration)
               .easing(Easing.Quadratic.InOut)
               .onUpdate(applyUpdate)
+              .onComplete(function() { state.tweenGroup.remove(this) })
               .start()
             );
           }

@@ -167,6 +167,7 @@ export default Kapsule({
                 .to(targetD, state.heatmapsTransitionDuration)
                 .easing(Easing.Quadratic.InOut)
                 .onUpdate(applyUpdate)
+                .onComplete(function() { state.tweenGroup.remove(this) })
                 .start()
               );
             }

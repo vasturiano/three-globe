@@ -146,7 +146,8 @@ export default Kapsule({
                 .to({ t: 1 }, transitionTime)
                 .onUpdate(updateFn)
                 .onStart(() => obj.add(circleObj))
-                .onComplete(() => {
+                .onComplete(function() {
+                  state.tweenGroup.remove(this);
                   obj.remove(circleObj);
                   deallocate(circleObj);
                 })

@@ -169,12 +169,12 @@ export default Kapsule({
           applyUpdate(targetD);
         } else {
           // animate
-          state.tweenGroup.add(
-            new Tween(currentTargetD)
-              .to(targetD, state.pointsTransitionDuration)
-              .easing(Easing.Quadratic.InOut)
-              .onUpdate(applyUpdate)
-              .start()
+          state.tweenGroup.add(new Tween(currentTargetD)
+            .to(targetD, state.pointsTransitionDuration)
+            .easing(Easing.Quadratic.InOut)
+            .onUpdate(applyUpdate)
+            .onComplete(function() { state.tweenGroup.remove(this) })
+            .start()
           );
         }
       }

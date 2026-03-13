@@ -426,6 +426,7 @@ export default Kapsule({
             .to({k: 1}, 600)
             .easing(Easing.Quadratic.Out)
             .onUpdate(({k}) => state.scene.scale.set(k, k, k))
+            .onComplete(function() { state.tweenGroup.remove(this) })
             .start()
         );
 
@@ -435,6 +436,7 @@ export default Kapsule({
             .to({rot: 0}, 1200)
             .easing(Easing.Quintic.Out)
             .onUpdate(({rot}) => state.scene.setRotationFromAxisAngle(rotAxis, rot))
+            .onComplete(function() { state.tweenGroup.remove(this) })
             .start()
         );
       }

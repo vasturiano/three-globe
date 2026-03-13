@@ -217,6 +217,7 @@ export default Kapsule({
             .to(targetD, state.hexTransitionDuration)
             .easing(Easing.Quadratic.InOut)
             .onUpdate(applyUpdate)
+            .onComplete(function() { state.tweenGroup.remove(this) })
             .start()
           );
         }

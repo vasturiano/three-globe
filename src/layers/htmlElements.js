@@ -101,6 +101,7 @@ export default Kapsule({
             .to(targetD, state.htmlTransitionDuration)
             .easing(Easing.Quadratic.InOut)
             .onUpdate(applyUpdate)
+            .onComplete(function() { state.tweenGroup.remove(this) })
             .start()
           );
         }
