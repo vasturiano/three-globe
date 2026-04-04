@@ -31,7 +31,7 @@ import GlowMesh from '../utils/GlowMesh.js';
 import Kapsule from 'kapsule';
 import { geoGraticule10 } from 'd3-geo';
 
-import { emptyObject } from '../utils/gc';
+import { deallocate, emptyObject } from '../utils/gc';
 import { GLOBE_RADIUS } from '../constants';
 
 //
@@ -63,9 +63,9 @@ export default Kapsule({
       state.tileEngine.clearTiles();
     },
     _destructor: function(state) {
-      emptyObject(state.globeObj);
-      emptyObject(state.tileEngine);
-      emptyObject(state.graticulesObj);
+      deallocate(state.globeObj);
+      deallocate(state.tileEngine);
+      deallocate(state.graticulesObj);
     }
   },
 
@@ -161,7 +161,7 @@ export default Kapsule({
       if (state.atmosphereObj) {
         // recycle previous atmosphere object
         state.scene.remove(state.atmosphereObj);
-        emptyObject(state.atmosphereObj);
+        deallocate(state.atmosphereObj);
       }
 
       if (state.atmosphereColor && state.atmosphereAltitude) {
