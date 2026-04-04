@@ -133,6 +133,7 @@ export default Kapsule({
       } else {
         new THREE.TextureLoader().load(state.globeImageUrl, texture => {
           texture.colorSpace = THREE.SRGBColorSpace;
+          globeMaterial.map?.dispose(); // GC previous texture
           globeMaterial.map = texture;
           globeMaterial.color = null;
           globeMaterial.needsUpdate = true;
@@ -149,6 +150,7 @@ export default Kapsule({
         globeMaterial.needsUpdate = true;
       } else {
         state.bumpImageUrl && new THREE.TextureLoader().load(state.bumpImageUrl, texture => {
+          globeMaterial.bumpMap?.dispose(); // GC previous texture
           globeMaterial.bumpMap = texture;
           globeMaterial.needsUpdate = true;
         });
