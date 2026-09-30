@@ -8,7 +8,9 @@ export default function(kapsule, baseClass = Object, initKapsuleWithSelf = false
   }
 
   // attach kapsule props/methods to class prototype
-  Object.keys(kapsule())
+  const dummyK = kapsule();
+  dummyK._destructor?.();
+  Object.keys(dummyK)
     .forEach(m => Globe.prototype[m] = function(...args) {
       const returnVal = this.__kapsuleInstance[m](...args);
 
