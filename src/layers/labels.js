@@ -131,30 +131,40 @@ export default Kapsule({
         const dotR = includeDot ? +dotRadiusAccessor(d) * pxPerDeg : 1e-12;
         dotObj.scale.x = dotObj.scale.y = dotR;
 
-        // create text geometry
+        const text = textAccessor(d);
         const textHeight = +sizeAccessor(d) * pxPerDeg;
-        textObj.geometry && textObj.geometry.dispose();
-        textObj.geometry = new THREE.TextGeometry(textAccessor(d), {
-          font: state.font,
-          size: textHeight,
-          depth: 0,
-          bevelEnabled: true,
-          bevelThickness: 0,
-          bevelSize: 0,
-          curveSegments: state.labelResolution
-        });
 
-        // update text convex hull/bounding box
-        bbObj.geometry && bbObj.geometry.dispose();
-        textObj.geometry.computeBoundingBox();
-        bbObj.geometry = new THREE.BoxGeometry(...(new THREE.Vector3()
-          .subVectors(textObj.geometry.boundingBox.max, textObj.geometry.boundingBox.min)
-          .clampScalar(0, Infinity) // prevent infinite bounding boxes on empty texts
-          .toArray()
-        ));
+        // text geometry is costly to generate, so keep it while the text and its settings are unchanged
+        const textKey = JSON.stringify([text, textHeight, state.labelResolution, dotOrient === 'right']);
 
-        // center text (otherwise anchor is on bottom-left)
-        dotOrient !== 'right' && textObj.geometry.center();
+        if (textKey !== textObj.__textKey || state.font !== textObj.__font) {
+          textObj.__textKey = textKey;
+          textObj.__font = state.font;
+
+          // create text geometry
+          textObj.geometry && textObj.geometry.dispose();
+          textObj.geometry = new THREE.TextGeometry(text, {
+            font: state.font,
+            size: textHeight,
+            depth: 0,
+            bevelEnabled: true,
+            bevelThickness: 0,
+            bevelSize: 0,
+            curveSegments: state.labelResolution
+          });
+
+          // update text convex hull/bounding box
+          bbObj.geometry && bbObj.geometry.dispose();
+          textObj.geometry.computeBoundingBox();
+          bbObj.geometry = new THREE.BoxGeometry(...(new THREE.Vector3()
+            .subVectors(textObj.geometry.boundingBox.max, textObj.geometry.boundingBox.min)
+            .clampScalar(0, Infinity) // prevent infinite bounding boxes on empty texts
+            .toArray()
+          ));
+
+          // center text (otherwise anchor is on bottom-left)
+          dotOrient !== 'right' && textObj.geometry.center();
+        }
 
         if (includeDot) {
           // translate text

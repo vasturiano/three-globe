@@ -167,22 +167,41 @@ export default Kapsule({
         const dashAnimateTime = dashAnimateTimeAccessor(arc);
         obj.__dashAnimateStep = dashAnimateTime > 0 ? 1000 / dashAnimateTime : 0; // per second
 
-        // calculate vertex colors (to create gradient)
-        const vertexColorArray = calcColorVertexArray(
-          colorAccessor(arc), // single, array of colors or interpolator
-          state.arcCurveResolution, // numSegments
-          useTube ? state.arcCircularResolution + 1 : 1 // num vertices per segment
-        );
+        const color = colorAccessor(arc); // single, array of colors or interpolator
+        const numVerticesPerSegment = useTube ? state.arcCircularResolution + 1 : 1;
 
-        // calculate vertex relative distances (for dashed lines)
-        const vertexRelDistanceArray = calcVertexRelDistances(
-          state.arcCurveResolution, // numSegments
-          useTube ? state.arcCircularResolution + 1 : 1, // num vertices per segment
-          true // run from end to start, to animate in the correct direction
-        );
+        // vertex colors and distances depend only on the color and the resolution, so keep them while those are unchanged
+        // (an interpolator fn can't be compared, so its colors are always recalculated)
+        const vertexAttrsKey = color instanceof Function
+          ? null
+          : JSON.stringify([color, state.arcCurveResolution, numVerticesPerSegment]);
 
-        obj.geometry.setAttribute('color', vertexColorArray);
-        obj.geometry.setAttribute('relDistance', vertexRelDistanceArray);
+        if (vertexAttrsKey === null || vertexAttrsKey !== obj.__vertexAttrsKey) {
+          obj.__vertexAttrsKey = vertexAttrsKey;
+
+          // calculate vertex colors (to create gradient)
+          obj.__vertexColorArray = calcColorVertexArray(
+            color,
+            state.arcCurveResolution, // numSegments
+            numVerticesPerSegment
+          );
+
+          // calculate vertex relative distances (for dashed lines)
+          obj.__vertexRelDistanceArray = calcVertexRelDistances(
+            state.arcCurveResolution, // numSegments
+            numVerticesPerSegment,
+            true // run from end to start, to animate in the correct direction
+          );
+
+          // replacing attributes doesn't free their GPU buffers, so dispose of the geometry first (it's re-uploaded on the next render)
+          obj.geometry.getAttribute('color') && obj.geometry.dispose();
+
+          obj.geometry.setAttribute('color', obj.__vertexColorArray);
+          obj.geometry.setAttribute('relDistance', obj.__vertexRelDistanceArray);
+        }
+
+        const vertexColorArray = obj.__vertexColorArray;
+        const vertexRelDistanceArray = obj.__vertexRelDistanceArray;
 
         if (!useTube && changedProps.hasOwnProperty('arcCurveResolution')) {
           // buffer size has changed, need to discard previous position buffer
