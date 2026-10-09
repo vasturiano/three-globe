@@ -129,7 +129,11 @@ export const computeGeoKde = async (vertexGeoCoords, data = [], {
   const renderer = new WebGPURenderer();
   await renderer.computeAsync(computeNode);
 
-  return Array.from(new Float32Array(await renderer.getArrayBufferAsync(res)));
+  const kdeVals = Array.from(new Float32Array(await renderer.getArrayBufferAsync(res)));
+
+  renderer.dispose();
+
+  return kdeVals;
 }
 
 /*
@@ -148,6 +152,10 @@ const basicGpuCompute = async (n = 1000) => {
   const renderer = new WebGPURenderer();
   await renderer.computeAsync(computeNode);
 
-  return Array.from(new Float32Array(await renderer.getArrayBufferAsync(res)));
+  const result = Array.from(new Float32Array(await renderer.getArrayBufferAsync(res)));
+
+  renderer.dispose();
+
+  return result;
 }
 */
