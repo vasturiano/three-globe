@@ -135,6 +135,7 @@ export default Kapsule({
         const textHeight = +sizeAccessor(d) * pxPerDeg;
 
         // text geometry is costly to generate, so keep it while the text and its settings are unchanged
+        // (the font is compared by reference: stringifying it would copy all its glyphs into every label's key)
         const textKey = JSON.stringify([text, textHeight, state.labelResolution, dotOrient === 'right']);
 
         if (textKey !== textObj.__textKey || state.font !== textObj.__font) {
