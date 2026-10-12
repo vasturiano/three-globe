@@ -171,12 +171,13 @@ export default Kapsule({
         const numVerticesPerSegment = useTube ? state.arcCircularResolution + 1 : 1;
 
         // vertex colors and distances depend only on the color and the resolution, so keep them while those are unchanged
-        // (an interpolator fn can't be compared, so its colors are always recalculated)
-        const vertexAttrsKey = color instanceof Function
-          ? null
-          : JSON.stringify([color, state.arcCurveResolution, numVerticesPerSegment]);
+        // (an interpolator fn can't be compared, so compare its colors at each vertex instead)
+        const colorKey = color instanceof Function
+          ? [...new Array(state.arcCurveResolution + 1)].map((_, v) => color(v / state.arcCurveResolution))
+          : color;
+        const vertexAttrsKey = JSON.stringify([colorKey, state.arcCurveResolution, numVerticesPerSegment]);
 
-        if (vertexAttrsKey === null || vertexAttrsKey !== obj.__vertexAttrsKey) {
+        if (vertexAttrsKey !== obj.__vertexAttrsKey) {
           obj.__vertexAttrsKey = vertexAttrsKey;
 
           // calculate vertex colors (to create gradient)
