@@ -93,7 +93,7 @@ export default Kapsule({
       });
   },
 
-  update(state) {
+  update(state, changedProps) {
     // Data accessors
     const latAccessor = accessorFn(state.labelLat);
     const lngAccessor = accessorFn(state.labelLng);
@@ -109,6 +109,9 @@ export default Kapsule({
     const orientations = new Set(['right', 'top', 'bottom']);
 
     const pxPerDeg = 2 * Math.PI * GLOBE_RADIUS / 360;
+
+    // a new font or resolution changes every label's text geometry
+    const textSettingsChanged = ['labelTypeFace', 'labelResolution'].some(p => changedProps.hasOwnProperty(p));
 
     state.dataMapper
       .onUpdateObj((obj, d) => {
@@ -135,12 +138,10 @@ export default Kapsule({
         const textHeight = +sizeAccessor(d) * pxPerDeg;
 
         // text geometry is costly to generate, so keep it while the text and its settings are unchanged
-        // (the font is compared by reference: stringifying it would copy all its glyphs into every label's key)
-        const textKey = JSON.stringify([text, textHeight, state.labelResolution, dotOrient === 'right']);
+        const textKey = JSON.stringify([text, textHeight, dotOrient === 'right']);
 
-        if (textKey !== textObj.__textKey || state.font !== textObj.__font) {
+        if (textSettingsChanged || textKey !== textObj.__textKey) {
           textObj.__textKey = textKey;
-          textObj.__font = state.font;
 
           // create text geometry
           textObj.geometry && textObj.geometry.dispose();

@@ -136,6 +136,9 @@ export default Kapsule({
     const dashInitialGapAccessor = accessorFn(state.arcDashInitialGap);
     const dashAnimateTimeAccessor = accessorFn(state.arcDashAnimateTime);
 
+    // a resolution change resizes every arc's buffers
+    const resolutionChanged = ['arcCurveResolution', 'arcCircularResolution'].some(p => changedProps.hasOwnProperty(p));
+
     state.dataMapper
       .onUpdateObj((group, arc) => {
         const stroke = strokeAccessor(arc);
@@ -172,12 +175,12 @@ export default Kapsule({
 
         // vertex colors and distances depend only on the color and the resolution, so keep them while those are unchanged
         // (an interpolator fn can't be compared, so compare its colors at each vertex instead)
-        const colorKey = color instanceof Function
+        const vertexAttrsKey = JSON.stringify(color instanceof Function
           ? [...new Array(state.arcCurveResolution + 1)].map((_, v) => color(v / state.arcCurveResolution))
-          : color;
-        const vertexAttrsKey = JSON.stringify([colorKey, state.arcCurveResolution, numVerticesPerSegment]);
+          : color
+        );
 
-        if (vertexAttrsKey !== obj.__vertexAttrsKey) {
+        if (resolutionChanged || vertexAttrsKey !== obj.__vertexAttrsKey) {
           obj.__vertexAttrsKey = vertexAttrsKey;
 
           // calculate vertex colors (to create gradient)
@@ -239,9 +242,7 @@ export default Kapsule({
 
         const currentTargetD = group.__currentTargetD || Object.assign({}, targetD, { altAutoScale: -1e-3 });
 
-        if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD[k])
-          || ['arcCurveResolution', 'arcCircularResolution'].some(p => changedProps.hasOwnProperty(p))
-        ) {
+        if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD[k]) || resolutionChanged) {
           if (!state.arcsTransitionDuration || state.arcsTransitionDuration < 0) {
             // set final position
             applyUpdate(targetD);
