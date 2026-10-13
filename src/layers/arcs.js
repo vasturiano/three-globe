@@ -119,7 +119,7 @@ export default Kapsule({
     });
   },
 
-  update(state) {
+  update(state, changedProps) {
     // Data accessors
     const startLatAccessor = accessorFn(state.arcStartLat);
     const startLngAccessor = accessorFn(state.arcStartLng);
@@ -184,6 +184,12 @@ export default Kapsule({
         obj.geometry.setAttribute('color', vertexColorArray);
         obj.geometry.setAttribute('relDistance', vertexRelDistanceArray);
 
+        if (!useTube && changedProps.hasOwnProperty('arcCurveResolution')) {
+          // buffer size has changed, need to discard previous position buffer
+          obj.geometry.dispose();
+          obj.geometry.deleteAttribute('position');
+        }
+
         const applyUpdate = td => {
           const { stroke, ...curveD } = group.__currentTargetD = td;
 
@@ -213,7 +219,9 @@ export default Kapsule({
 
         const currentTargetD = group.__currentTargetD || Object.assign({}, targetD, { altAutoScale: -1e-3 });
 
-        if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD[k])) {
+        if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD[k])
+          || ['arcCurveResolution', 'arcCircularResolution'].some(p => changedProps.hasOwnProperty(p))
+        ) {
           if (!state.arcsTransitionDuration || state.arcsTransitionDuration < 0) {
             // set final position
             applyUpdate(targetD);
