@@ -183,29 +183,27 @@ export default Kapsule({
         if (resolutionChanged || vertexAttrsKey !== obj.__vertexAttrsKey) {
           obj.__vertexAttrsKey = vertexAttrsKey;
 
-          // calculate vertex colors (to create gradient)
-          obj.__vertexColorArray = calcColorVertexArray(
-            color,
-            state.arcCurveResolution, // numSegments
-            numVerticesPerSegment
-          );
-
-          // calculate vertex relative distances (for dashed lines)
-          obj.__vertexRelDistanceArray = calcVertexRelDistances(
-            state.arcCurveResolution, // numSegments
-            numVerticesPerSegment,
-            true // run from end to start, to animate in the correct direction
-          );
-
           // replacing attributes doesn't free their GPU buffers, so dispose of the geometry first (it's re-uploaded on the next render)
           obj.geometry.getAttribute('color') && obj.geometry.dispose();
 
-          obj.geometry.setAttribute('color', obj.__vertexColorArray);
-          obj.geometry.setAttribute('relDistance', obj.__vertexRelDistanceArray);
+          // calculate vertex colors (to create gradient)
+          obj.geometry.setAttribute('color', calcColorVertexArray(
+            color,
+            state.arcCurveResolution, // numSegments
+            numVerticesPerSegment
+          ));
+
+          // calculate vertex relative distances (for dashed lines)
+          obj.geometry.setAttribute('relDistance', calcVertexRelDistances(
+            state.arcCurveResolution, // numSegments
+            numVerticesPerSegment,
+            true // run from end to start, to animate in the correct direction
+          ));
         }
 
-        const vertexColorArray = obj.__vertexColorArray;
-        const vertexRelDistanceArray = obj.__vertexRelDistanceArray;
+        // the attributes stay on the geometry, and applyUpdate moves them to each new TubeGeometry
+        const vertexColorArray = obj.geometry.getAttribute('color');
+        const vertexRelDistanceArray = obj.geometry.getAttribute('relDistance');
 
         if (!useTube && changedProps.hasOwnProperty('arcCurveResolution')) {
           // buffer size has changed, need to discard previous position buffer
