@@ -173,8 +173,7 @@ export default Kapsule({
         const color = colorAccessor(arc); // single, array of colors or interpolator
         const numVerticesPerSegment = useTube ? state.arcCircularResolution + 1 : 1;
 
-        // vertex colors and distances depend only on the color and the resolution, so keep them while those are unchanged
-        // (an interpolator fn can't be compared, so compare its colors at each vertex instead)
+        // comparison key to prevent changing buffers unnecessarily
         const vertexAttrsKey = JSON.stringify(color instanceof Function
           ? [...new Array(state.arcCurveResolution + 1)].map((_, v) => color(v / state.arcCurveResolution))
           : color
@@ -201,7 +200,6 @@ export default Kapsule({
           ));
         }
 
-        // the attributes stay on the geometry, and applyUpdate moves them to each new TubeGeometry
         const vertexColorArray = obj.geometry.getAttribute('color');
         const vertexRelDistanceArray = obj.geometry.getAttribute('relDistance');
 

@@ -137,7 +137,7 @@ export default Kapsule({
         const text = textAccessor(d);
         const textHeight = +sizeAccessor(d) * pxPerDeg;
 
-        // text geometry is costly to generate, so keep it while the text and its settings are unchanged
+        // comparison key to prevent generating new text geometry unnecessarily
         const textKey = JSON.stringify([text, textHeight, dotOrient === 'right']);
 
         if (textSettingsChanged || textKey !== textObj.__textKey) {
