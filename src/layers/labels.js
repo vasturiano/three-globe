@@ -93,7 +93,7 @@ export default Kapsule({
       });
   },
 
-  update(state) {
+  update(state, changedProps) {
     // Data accessors
     const latAccessor = accessorFn(state.labelLat);
     const lngAccessor = accessorFn(state.labelLng);
@@ -109,6 +109,9 @@ export default Kapsule({
     const orientations = new Set(['right', 'top', 'bottom']);
 
     const pxPerDeg = 2 * Math.PI * GLOBE_RADIUS / 360;
+
+    // a new font or resolution changes every label's text geometry
+    const textSettingsChanged = ['labelTypeFace', 'labelResolution'].some(p => changedProps.hasOwnProperty(p));
 
     state.dataMapper
       .onUpdateObj((obj, d) => {
@@ -131,30 +134,39 @@ export default Kapsule({
         const dotR = includeDot ? +dotRadiusAccessor(d) * pxPerDeg : 1e-12;
         dotObj.scale.x = dotObj.scale.y = dotR;
 
-        // create text geometry
+        const text = textAccessor(d);
         const textHeight = +sizeAccessor(d) * pxPerDeg;
-        textObj.geometry && textObj.geometry.dispose();
-        textObj.geometry = new THREE.TextGeometry(textAccessor(d), {
-          font: state.font,
-          size: textHeight,
-          depth: 0,
-          bevelEnabled: true,
-          bevelThickness: 0,
-          bevelSize: 0,
-          curveSegments: state.labelResolution
-        });
 
-        // update text convex hull/bounding box
-        bbObj.geometry && bbObj.geometry.dispose();
-        textObj.geometry.computeBoundingBox();
-        bbObj.geometry = new THREE.BoxGeometry(...(new THREE.Vector3()
-          .subVectors(textObj.geometry.boundingBox.max, textObj.geometry.boundingBox.min)
-          .clampScalar(0, Infinity) // prevent infinite bounding boxes on empty texts
-          .toArray()
-        ));
+        // comparison key to prevent generating new text geometry unnecessarily
+        const textKey = JSON.stringify([text, textHeight, dotOrient === 'right']);
 
-        // center text (otherwise anchor is on bottom-left)
-        dotOrient !== 'right' && textObj.geometry.center();
+        if (textSettingsChanged || textKey !== textObj.__textKey) {
+          textObj.__textKey = textKey;
+
+          // create text geometry
+          textObj.geometry && textObj.geometry.dispose();
+          textObj.geometry = new THREE.TextGeometry(text, {
+            font: state.font,
+            size: textHeight,
+            depth: 0,
+            bevelEnabled: true,
+            bevelThickness: 0,
+            bevelSize: 0,
+            curveSegments: state.labelResolution
+          });
+
+          // update text convex hull/bounding box
+          bbObj.geometry && bbObj.geometry.dispose();
+          textObj.geometry.computeBoundingBox();
+          bbObj.geometry = new THREE.BoxGeometry(...(new THREE.Vector3()
+            .subVectors(textObj.geometry.boundingBox.max, textObj.geometry.boundingBox.min)
+            .clampScalar(0, Infinity) // prevent infinite bounding boxes on empty texts
+            .toArray()
+          ));
+
+          // center text (otherwise anchor is on bottom-left)
+          dotOrient !== 'right' && textObj.geometry.center();
+        }
 
         if (includeDot) {
           // translate text

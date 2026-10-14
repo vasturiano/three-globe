@@ -179,6 +179,7 @@ export default Kapsule({
             true // run from end to start, to animate in the correct direction
           );
 
+          obj.geometry.getAttribute('color') && obj.geometry.dispose(); // dispose existing buffer attributes
           obj.geometry.setAttribute('color', vertexColorArray);
           obj.geometry.setAttribute('relDistance', vertexRelDistanceArray);
         } else { // fat lines

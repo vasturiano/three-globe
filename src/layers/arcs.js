@@ -136,6 +136,9 @@ export default Kapsule({
     const dashInitialGapAccessor = accessorFn(state.arcDashInitialGap);
     const dashAnimateTimeAccessor = accessorFn(state.arcDashAnimateTime);
 
+    // a resolution change resizes every arc's buffers
+    const resolutionChanged = ['arcCurveResolution', 'arcCircularResolution'].some(p => changedProps.hasOwnProperty(p));
+
     state.dataMapper
       .onUpdateObj((group, arc) => {
         const stroke = strokeAccessor(arc);
@@ -167,22 +170,38 @@ export default Kapsule({
         const dashAnimateTime = dashAnimateTimeAccessor(arc);
         obj.__dashAnimateStep = dashAnimateTime > 0 ? 1000 / dashAnimateTime : 0; // per second
 
-        // calculate vertex colors (to create gradient)
-        const vertexColorArray = calcColorVertexArray(
-          colorAccessor(arc), // single, array of colors or interpolator
-          state.arcCurveResolution, // numSegments
-          useTube ? state.arcCircularResolution + 1 : 1 // num vertices per segment
+        const color = colorAccessor(arc); // single, array of colors or interpolator
+        const numVerticesPerSegment = useTube ? state.arcCircularResolution + 1 : 1;
+
+        // comparison key to prevent changing buffers unnecessarily
+        const vertexAttrsKey = JSON.stringify(color instanceof Function
+          ? [...new Array(state.arcCurveResolution + 1)].map((_, v) => color(v / state.arcCurveResolution))
+          : color
         );
 
-        // calculate vertex relative distances (for dashed lines)
-        const vertexRelDistanceArray = calcVertexRelDistances(
-          state.arcCurveResolution, // numSegments
-          useTube ? state.arcCircularResolution + 1 : 1, // num vertices per segment
-          true // run from end to start, to animate in the correct direction
-        );
+        if (resolutionChanged || vertexAttrsKey !== obj.__vertexAttrsKey) {
+          obj.__vertexAttrsKey = vertexAttrsKey;
 
-        obj.geometry.setAttribute('color', vertexColorArray);
-        obj.geometry.setAttribute('relDistance', vertexRelDistanceArray);
+          // replacing attributes doesn't free their GPU buffers, so dispose of the geometry first (it's re-uploaded on the next render)
+          obj.geometry.getAttribute('color') && obj.geometry.dispose();
+
+          // calculate vertex colors (to create gradient)
+          obj.geometry.setAttribute('color', calcColorVertexArray(
+            color,
+            state.arcCurveResolution, // numSegments
+            numVerticesPerSegment
+          ));
+
+          // calculate vertex relative distances (for dashed lines)
+          obj.geometry.setAttribute('relDistance', calcVertexRelDistances(
+            state.arcCurveResolution, // numSegments
+            numVerticesPerSegment,
+            true // run from end to start, to animate in the correct direction
+          ));
+        }
+
+        const vertexColorArray = obj.geometry.getAttribute('color');
+        const vertexRelDistanceArray = obj.geometry.getAttribute('relDistance');
 
         if (!useTube && changedProps.hasOwnProperty('arcCurveResolution')) {
           // buffer size has changed, need to discard previous position buffer
@@ -219,9 +238,7 @@ export default Kapsule({
 
         const currentTargetD = group.__currentTargetD || Object.assign({}, targetD, { altAutoScale: -1e-3 });
 
-        if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD[k])
-          || ['arcCurveResolution', 'arcCircularResolution'].some(p => changedProps.hasOwnProperty(p))
-        ) {
+        if (Object.keys(targetD).some(k => currentTargetD[k] !== targetD[k]) || resolutionChanged) {
           if (!state.arcsTransitionDuration || state.arcsTransitionDuration < 0) {
             // set final position
             applyUpdate(targetD);
