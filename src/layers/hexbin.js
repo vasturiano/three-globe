@@ -170,39 +170,53 @@ export default Kapsule({
     }
 
     function updateObj(obj, d) {
-      // compute new geojson with relative margin
-      const relNum = (st, end, rat) => st - (st - end) * rat;
       const margin = Math.max(0, Math.min(1, +marginAccessor(d)));
-      const [clat, clng] = obj.__hexCenter;
-      const geoJson = margin === 0
-        ? obj.__hexGeoJson
-        : obj.__hexGeoJson.map(([elng, elat]) => [[elng, clng], [elat, clat]].map(([st, end]) => relNum(st, end, margin)));
-
       const topCurvatureResolution = state.hexTopCurvatureResolution;
 
-      obj.geometry && obj.geometry.dispose();
-      obj.geometry = new ConicPolygonGeometry(
-        [geoJson],
-        0,
-        GLOBE_RADIUS,
-        false,
-        true,
-        true,
-        topCurvatureResolution
-      );
+      // update surfaceRadius per vertex, in place if the attribute already exists
+      const setSurfaceRadius = alt => {
+        const vertexSurfaceRadius = GLOBE_RADIUS / (alt + 1);
+        const nVertices = obj.geometry.getAttribute('position').count;
+        const attr = obj.geometry.getAttribute('surfaceRadius');
+
+        if (attr && attr.count === nVertices) {
+          attr.array.fill(vertexSurfaceRadius);
+          attr.needsUpdate = true;
+        } else {
+          obj.geometry.setAttribute('surfaceRadius', array2BufferAttr(Array(nVertices).fill(vertexSurfaceRadius), 1));
+        }
+      };
+
+      // regenerate geometry only if its shape has changed
+      if (obj.__hexMargin !== margin || obj.geometry.parameters?.curvatureResolution !== topCurvatureResolution) {
+        // compute new geojson with relative margin
+        const relNum = (st, end, rat) => st - (st - end) * rat;
+        const [clat, clng] = obj.__hexCenter;
+        const geoJson = margin === 0
+          ? obj.__hexGeoJson
+          : obj.__hexGeoJson.map(([elng, elat]) => [[elng, clng], [elat, clat]].map(([st, end]) => relNum(st, end, margin)));
+
+        obj.geometry && obj.geometry.dispose();
+        obj.geometry = new ConicPolygonGeometry(
+          [geoJson],
+          0,
+          GLOBE_RADIUS,
+          false,
+          true,
+          true,
+          topCurvatureResolution
+        );
+        obj.__hexMargin = margin;
+
+        obj.__currentTargetD && setSurfaceRadius(obj.__currentTargetD.alt); // new geometry has no surfaceRadius yet
+      }
 
       const targetD = { alt: +altitudeAccessor(d) };
 
       const applyUpdate = td => {
         const { alt } = obj.__currentTargetD = td;
         obj.scale.x = obj.scale.y = obj.scale.z = 1 + alt; // scale according to altitude
-
-        // update surfaceRadius per vertex
-        const vertexSurfaceRadius = GLOBE_RADIUS / (alt + 1);
-        obj.geometry.setAttribute('surfaceRadius', array2BufferAttr(
-          Array(obj.geometry.getAttribute('position').count).fill(vertexSurfaceRadius),
-          1
-        ));
+        setSurfaceRadius(alt);
       };
 
       const currentTargetD = obj.__currentTargetD || Object.assign({}, targetD, { alt: -1e-3 });
