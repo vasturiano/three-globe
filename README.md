@@ -104,7 +104,7 @@ new ThreeGlobe({ configOptions })
 | <b>globeTileEngineMaxZoom</b>([<i>num</i>]) | Getter/setter for the maximum zoom level of the tile engine. | `17` |
 | <b>globeTileEngineClearCache</b>() | Clear the tile engine cache. ||
 | <b>globeCurvatureResolution</b>([<i>number</i>]) | Getter/setter of the resolution in angular degrees of the sphere curvature. The finer the resolution, the more the globe is fragmented into smaller faces to approximate the spheric surface, at the cost of performance. | `4` |
-| <b>globeMaterial</b>([<i>material</i>]) | Getter/setter of the ThreeJS material used to wrap the globe. Can be used for more advanced styling of the globe, like in [this example](https://github.com/vasturiano/three-globe/blob/master/example/custom-material/index.html). | [MeshPhongMaterial](https://threejs.org/docs/#api/en/materials/MeshPhongMaterial) |
+| <b>globeMaterial</b>([<i>material</i>]) | Getter/setter of the ThreeJS material used to wrap the globe. Can be used for more advanced styling of the globe, like in [this example](https://github.com/vasturiano/three-globe/blob/master/example/custom-material/index.html). The material's `map` is only set once the `globeImageUrl` image has loaded, and is `null` until then. Use `onGlobeReady` to access it after the first image loads. | [MeshPhongMaterial](https://threejs.org/docs/#api/en/materials/MeshPhongMaterial) |
 | <b>onGlobeReady</b>(<i>fn</i>) | Callback function to invoke immediately after the globe has been initialized and visible on the scene. | - |
 
 ### Points Layer
